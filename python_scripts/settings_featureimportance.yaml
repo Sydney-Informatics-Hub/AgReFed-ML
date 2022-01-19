@@ -1,0 +1,22 @@
+# Settings for featureimportance.py
+
+#### Input specifications ####
+# Input data path
+inpath: '../../../data/Llara/' #'../../../data/Woolandoon/Extracted_datasets/' 
+# File name with soil data and corresponding covariates
+infname: 'Splined_Clay_Sand_OC_COV.csv' 
+
+#### Output specifications ####
+# Output results path
+outpath: '../../../results/Llara/featureimportance/'
+# 
+#outfname: 'Llara_processed.csv' #'ESP_Oodnadatta_covariates_xval_processed.csv' #'ESP_llara_COVARIATES_10fold_full.csv_processed.csv'
+# Name of target for prediction (column name in dataframe)
+# e.g. 'Clay'       'Sand'     'OC_WB'
+name_target: 'OC_WB'  # Soil.EC.dS.m., Soil.pH
+# Name or List of covariate features (column names in infname)
+# (covariates in soil data to be considered )
+name_features: ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg', 
+'rad_dose', 'rad_u', 'rad_th', 'rad_k', 'silica',
+'NDVI_5',  'NDVI_50', 'NDVI_95', 'rain', 'temp',
+ 'TWI', 'Aspect', 'Soiltype'] #'gamma_K', 'EM',  'yield', 
