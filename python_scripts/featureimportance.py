@@ -10,12 +10,27 @@ Toolset for calculating feature importance based on multiple methods:
 This script can also generate synthetic data and includes tests for all methods,
 which can be used to compare the results.
 
-Copyright 2022 Sebastian Haan, The University of Sydney
+Requirements:
+- python>=3.9
+- matplotlib>=3.5.1
+- numpy>=1.22.0
+- pandas>=1.3.5
+- PyYAML>=6.0
+- scikit_learn>=1.0.2
+- scipy>=1.7.3
+- xicor>=1.0.1
+
+For more package details see conda environment file: environment.yaml
+
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
+
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
+
+This open-source software is released under the AGPL-3.0 License.
 """
 
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 import os
 import itertools
 import sys
@@ -33,8 +48,7 @@ import matplotlib.pyplot as plt
 from xicor.xicor import Xi
 from types import SimpleNamespace  
 
-
-# Define settings yaml file name
+# Settings yaml file name:
 _fname_settings = 'settings_featureimportance.yaml'
 
 
@@ -421,7 +435,9 @@ def main(fname_settings):
 def test_main():
 	"""
 	Test function for main function.
-	This test automatically generates synthetic data and plots the feature importance.
+
+	This test automatically generates synthetic data and generates feature importance plots
+	in the subfolder `test_featureimportance`.
 	"""
 	# Make temporary result folder
 	outpath = 'test_featureimportance'
