@@ -1,0 +1,47 @@
+# Settings for preprocessing.py
+
+### Input Specifications ###
+inpath: '../../../data/Llara/'
+outpath: '../../../data/Llara/preprocessed/' 
+# File name with soil data and corresponding covariates
+infname: 'Splined_Clay_Sand_OC_COV.csv' 
+# File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
+# if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
+gridname: 'Llara_COVARIATES_subsoil_prediction_30m_cropped.csv'
+# Output file name
+outfname: 'Llara_processed.csv' 
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+
+# Name of target for prediction (column name in dataframe)
+# e.g. 'Clay'       'Sand'     'OC_WB'
+name_target: 'OC_WB'
+
+
+### Select minimum and maximum of depth for data selection [in m]
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 100 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+
+
+# Name of column for index of test data for Xfold cross-validation (to separate train and test data), only relevant for option 'calc_xval':
+name_ixval: 'nfold'
+
+
+# Uah
+### Name of covariates in soil training data or the cossvalidation data
+name_features: ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg', 
+'rad_dose', 'rad_u', 'rad_th', 'rad_k', 'silica',
+'NDVI_5',  'NDVI_50', 'NDVI_95', 'rain', 'temp',
+ 'TWI', 'Aspect', 'Soiltype'] #'gamma_K', 'EM',  'yield', 
+
+name_features_grid:  ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg', 
+'rad_dose', 'rad_u', 'rad_th', 'rad_k', 'silica',
+'NDVI_5',  'NDVI_50', 'NDVI_95', 'rain', 'temp',
+ 'TWI', 'Aspect', 'Soiltype'] # 'gamma_K', 'EM', 'yield', 
+
+
+colname_depthmin: 'lower_depth'
+colname_depthmax: 'upper_depth'
+
