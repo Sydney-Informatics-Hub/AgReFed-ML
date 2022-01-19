@@ -16,6 +16,8 @@ import geopandas as gpd
 import os
 import itertools
 import sys
+import yaml
+import shutil
 from sklearn.datasets import make_regression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
 from sklearn.linear_model import BayesianRidge
@@ -25,12 +27,24 @@ from scipy.stats import spearmanr
 from scipy.cluster import hierarchy
 import matplotlib.pyplot as plt
 from xicor.xicor import Xi
+from types import SimpleNamespace  
 #import json
 #from tqdm import tqdm
 
+# Load settings from yaml file
+_fname_settings = 'settings_featureimportance.yaml'
+with open(_fname_settings, 'r') as f:
+	settings = yaml.load(f, Loader=yaml.FullLoader)
+# Parse settings dictinary as namespace (settings are available as 
+# settings.variable_name rather than settings['variable_name'])
+	settings = SimpleNamespace(**settings)
 
 
-def plot_feature_correlation_spearman(X, feature_names, outpath, show = FALSE):
+
+
+
+
+def plot_feature_correlation_spearman(X, feature_names, outpath, show = False):
 	"""
 	Plot feature correlations using Spearman correlation coefficients.
 	Feature correlations are automatically clustered using hierarchical clustering.
@@ -243,9 +257,10 @@ def create_simulated_features(n_features, outpath = None, n_samples = 200, model
 	scaler = MinMaxScaler()
 	scaler.fit(Xsim)
 	Xsim = scaler.transform(Xsim)
+	"""
 	if outpath is not None:
-		plot_feature_correlation(Xsim, feature_names, outpath)
-		# PLot all correlations
+		plot_feature_correlation_spearman(Xsim, feature_names, outpath)
+		# Plot all correlations
 		sorted_idx = coefsim.argsort()
 		fig, ax = plt.subplots(figsize = (6,5))
 		ypos = np.arange(len(coefsim))
@@ -255,6 +270,7 @@ def create_simulated_features(n_features, outpath = None, n_samples = 200, model
 		plt.tight_layout()
 		plt.savefig(os.path.join(outpath, 'Feature_True_Coef.png'), dpi = 300)
 		plt.close('all')
+	"""
 	#plot_feature_correlation(Xsim, feature_names)
 	# make first-order model
 	if model_order == 'linear':
@@ -291,9 +307,9 @@ def create_simulated_features(n_features, outpath = None, n_samples = 200, model
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
-		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{noise}noise'))
+		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{noise}noise.csv'), index = False)
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
-		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{noise}noise'), index = False)
+		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{noise}noise.csv'), index = False)
 	return df, coefsim, feature_names
 
 
@@ -351,6 +367,69 @@ def test_plot_correlationbar(outpath):
 	"""
 	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'quadratic', noise = 0.05)
 	plot_correlationbar(coefsim, feature_names, outpath, 'test_plot_correlationbar.png', show = True)
+
+
+def main(fname_settings):
+	# Load settings from yaml file
+	with open(fname_settings, 'r') as f:
+		settings = yaml.load(f, Loader=yaml.FullLoader)
+	# Parse settings dictinary as namespace (settings are available as 
+	# settings.variable_name rather than settings['variable_name'])
+		settings = SimpleNamespace(**settings)
+
+	# Verify output directory and make it if it does not exist
+	os.makedirs(settings.outpath, exist_ok = True)
+
+	# Read data
+	data_fieldnames = settings.name_features + [settings.name_target]
+	df = pd.read_csv(os.path.join(settings.inpath, settings.infname), usecols=data_fieldnames)
+
+	# Verify that data is cleaned:
+	assert df.select_dtypes(include=['number']).columns.tolist().sort() == data_fieldnames.sort(), 'Data contains non-numeric entries.'
+	assert df.isnull().sum().sum() == 0, "Data is not cleaned, please run preprocess_data.py before"
+
+	
+	# 1) Generate Spearman correlation matrix
+	print("Calculate Spearman correlation matrix...")
+	plot_feature_correlation_spearman(df[data_fieldnames].values, data_fieldnames, settings.outpath, show = False)
+
+	"""
+	# 2) Generate feature importance
+	print("Calculate feature importance...")
+	plot_feature_importance(df[data_fieldnames].values, data_fieldnames, settings.outpath)
+	"""
+
+
+def test_main():
+	# Make temporary result folder
+	outpath = 'test_featureimportance'
+	os.makedirs(outpath, exist_ok = True)
+
+	# Generate simulated data
+	dfsim, _, feature_names_sim = create_simulated_features(8, outpath = outpath)
+
+	# Generate settings file for simulated data
+	# (Note: you could also just simply set settings variables here, but this is also testing the settings file readout)
+	fname_settings_sim = 'settings_featureimportance_simulation.yaml'
+	shutil.copyfile(_fname_settings, os.path.join(outpath, fname_settings_sim))
+	# Edit yaml file:
+	with open(os.path.join(outpath, fname_settings_sim), 'r') as f:
+		settings_sim = yaml.load(f, Loader=yaml.FullLoader)
+	settings_sim['name_features'] = feature_names_sim
+	settings_sim['name_target'] = 'Ytarget'
+	settings_sim['infname'] = 'SyntheticData_quadratic_8nfeatures_0.1noise.csv'
+	settings_sim['inpath'] = outpath
+	settings_sim['outpath'] = outpath
+	with open(os.path.join(outpath, fname_settings_sim), 'w') as f:
+		yaml.dump(settings_sim, f)
+
+	# Run main function
+	main(os.path.join(outpath, fname_settings_sim))
+
+
+
+if __name__ == '__main__':
+	main(_fname_settings)
 
 
 """
