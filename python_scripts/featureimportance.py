@@ -393,21 +393,6 @@ def main(fname_settings):
 	assert df.select_dtypes(include=['number']).columns.tolist().sort() == data_fieldnames.sort(), 'Data contains non-numeric entries.'
 	assert df.isnull().sum().sum() == 0, "Data is not cleaned, please run preprocess_data.py before"
 
-	# Scale data with Standardscaler
-	X = df[settings.name_features].values
-	y = df[settings.name_target].values
-
-	# Scale data with Standardscaler and min at 0
-	scaler = StandardScaler(with_mean=True, with_std=True, copy=True)
-	scaler = StandardScaler()
-
-	scaler = RobustScaler(unit_variance = True)
-	X = scaler.fit_transform(X)
-	y = scaler.fit_transform(y.reshape(-1,1)).ravel()	
-
-
-
-
 
 	# 1) Generate Spearman correlation matrix
 	print("Calculate Spearman correlation matrix...")
@@ -421,11 +406,17 @@ def main(fname_settings):
 	plot_correlationbar(corr, settings.name_features, settings.outpath, 'Model-agnostic-correlation.png', name_method = 'Model-agnostic', show = False)
 
 	# 3) Generate feature importance based on significance of Bayesian Linear Regression coeffcicients:
+	print("Calculate feature importance for Bayesian Linear Regression...")
 	corr = blr_factor_importance(X, y, logspace = False)
 	plot_correlationbar(corr, settings.name_features, settings.outpath, 'BLR-linear-correlation.png', name_method = 'BLR linear correlation significance', show = False)
 	# and in log-space
 	corr = blr_factor_importance(X, y, logspace = True)
 	plot_correlationbar(corr, settings.name_features, settings.outpath, 'BLR-log-correlation.png', name_method = 'BLR log-correlation significance', show = False)
+
+	# 4) Generate feature importance based on Random Forest permutation importance
+	print("Calculate feature importance for Random Forest permutation importance...")
+	corr = rf_factor_importance(X, y)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'RF-permutation-importance.png', name_method = 'RF permutation importance', show = False)
 
 
 
@@ -436,6 +427,7 @@ def test_main():
 	os.makedirs(outpath, exist_ok = True)
 
 	# Generate simulated data
+	print("Generate simulated data...")
 	dfsim, _, feature_names_sim = create_simulated_features(8, outpath = outpath)
 
 	# Generate settings file for simulated data
@@ -456,120 +448,15 @@ def test_main():
 	# Run main function
 	main(os.path.join(outpath, fname_settings_sim))
 
+	# Check that plots were generated
+	assert os.path.isfile(os.path.join(outpath, 'Feature_Correlations_Hierarchical_Spearman.png')), 'Plot for Spearman correlation not generated'
+	assert os.path.isfile(os.path.join(outpath, 'Model-agnostic-correlation.png')), 'Plot for model-agnostic correlation not generated'
+	assert os.path.isfile(os.path.join(outpath, 'BLR-linear-correlation.png')), 'Plot for BLR linear correlation not generated'
+	assert os.path.isfile(os.path.join(outpath, 'BLR-log-correlation.png')), 'Plot for BLR log-correlation not generated'
+	assert os.path.isfile(os.path.join(outpath, 'RF-permutation-importance.png')), 'Plot for RF permutation importance not generated'
 
+	# Remove temporary result folder
+	# shutil.rmtree(outpath)
 
 if __name__ == '__main__':
 	main(_fname_settings)
-
-
-"""
-#def main(): 
-
-# load settings:
-from config_loader import * 
-
-outpath = os.path.join(outpath, 'results_feature_importance')
-
-if use_simdata:
-	os.makedirs(outpath, exist_ok = True)
-	dftrain, coefsim, feature_names = create_simulated_features(10, outpath, n_samples = 200, model_order = sim_model, 
-		noise = sim_noise, correlated = True)
-	name_features2 = feature_names
-	name_target = 'Ytarget'
-
-else:
-	os.makedirs(outpath, exist_ok = True)
-	# Pre-process data
-	print('Reading and pre-processing data...')
-	dfsel, name_features2 = preprocess(inpath, infname, outfname, name_target, name_features, zmin = 100*zmin, zmax= 100*zmax, categorical = 'Soiltype',
-	colname_depthmin = colname_depthmin, colname_depthmax = colname_depthmax)
-	#dfsel = pd.read_csv(os.path.join(inpath,outfname))
-	#name_features2.extend(['z'])
-	# split into train and test data
-	dftrain = dfsel.copy()
-	y_train = dftrain[name_target].values
-
-print("Calculate feature correlation plot...")
-plot_feature_correlation(dftrain[name_features2+[name_target]].values, name_features2+[name_target], outpath)
-
-
-print("----Calculating Feature Importance----")
-print("")
-print("Hold down your bagel.")
-print("")
-print('Calculating factor importance from BLR..')
-X_train = dftrain[name_features2].values
-y_train = dftrain[name_target].values
-# Scale data with standardscaler:
-Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train, scaler = 'standard')
-# Train BLR and get coeefcients
-corrcoef_blr, corrcoef_std_blr = blr.blr_factor_importance(Xs_train, ys_train)
-# Plot Results
-sigma_blr = abs(corrcoef_blr) / corrcoef_std_blr
-sorted_idx = sigma_blr.argsort()
-fig, ax = plt.subplots(figsize = (6,5))
-ypos = np.arange(len(sigma_blr))
-bar = ax.barh(ypos, sigma_blr[sorted_idx], tick_label = np.asarray(name_features2)[sorted_idx], align='center')
-gradientbars(bar, sigma_blr[sorted_idx])
-plt.xlabel("Linear BLR Feature Significance [sigmas]")
-plt.tight_layout()
-plt.savefig(os.path.join(outpath, 'Feature_Significance_linearBLR.png'), dpi = 300)
-# Scale data with powerscaler
-Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train, scaler = 'power')
-# Train BLR and get coeefcients
-corrcoef_blr, corrcoef_std_blr = blr.blr_factor_importance(Xs_train, ys_train)
-# Plot Results
-sigma_blr = abs(corrcoef_blr) / corrcoef_std_blr
-sorted_idx_blr = sigma_blr.argsort()
-fig, ax = plt.subplots(figsize = (6,5))
-ypos = np.arange(len(sigma_blr))
-bar = ax.barh(ypos, sigma_blr[sorted_idx_blr], tick_label = np.asarray(name_features2)[sorted_idx_blr], align='center')
-gradientbars(bar, sigma_blr[sorted_idx_blr])
-plt.xlabel("Power-law BLR Feature Significance [sigmas]")
-plt.tight_layout()
-plt.savefig(os.path.join(outpath, 'Feature_Significance_powerBLR.png'), dpi = 300)
-
-
-
-print('Calculating factor importance from Random Forest Regressor based on permutation...')
-X_train = dftrain[name_features2].values
-y_train = dftrain[name_target].values
-corrcoef_rf,corrcoef_rf_std = rf.rf_factor_importance2(X_train, y_train)
-corrcoef_rf = np.asarray(corrcoef_rf)
-corrcoef_rf_std = np.asarray(corrcoef_rf_std)
-# Plot Results
-sorted_idx_rf = corrcoef_rf.argsort()
-fig, ax = plt.subplots(figsize = (6,5))
-ypos = np.arange(len(corrcoef_rf))
-bar = ax.barh(ypos, corrcoef_rf[sorted_idx_rf], xerr = corrcoef_rf_std[sorted_idx_rf],
-tick_label = np.asarray(name_features2)[sorted_idx_rf], align='center')
-gradientbars(bar, corrcoef_rf[sorted_idx_rf])
-plt.xlabel("Random Forest Feature Importance")
-plt.tight_layout()
-plt.savefig(os.path.join(outpath, 'Feature_Importance_RF_permutation.png'), dpi = 300)
-plt.close('all')
-
-
-
-# Visualise main results
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize = (6,9))
-bar1 = ax1.barh(np.arange(len(corrcoef_rf)), corrcoef_rf[sorted_idx_rf], xerr = corrcoef_rf_std[sorted_idx_rf],
-	tick_label = np.asarray(name_features2)[sorted_idx_rf], align='center')
-gradientbars(bar1, corrcoef_rf[sorted_idx_rf])
-ax1.set_xlabel("Random Forest Feature Importance")
-bar2 = ax2.barh(np.arange(len(sigma_blr)), sigma_blr[sorted_idx_blr], tick_label = np.asarray(name_features2)[sorted_idx_blr], align='center')
-gradientbars(bar2, sigma_blr[sorted_idx_blr])
-ax2.set_xlabel("Bayesian Regression Feature Significance [sigmas]")
-plt.tight_layout()
-plt.show()
-#plt.show(block=False)
-#plt.pause(10)
-#plt.close('all')
-
-
-
-#if __name__ == '__main__':
-#	# execute main script:
-#	main()
-
-"""
