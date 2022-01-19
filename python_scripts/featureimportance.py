@@ -25,6 +25,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
 from scipy.stats import spearmanr
 from scipy.cluster import hierarchy
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from xicor.xicor import Xi
 from types import SimpleNamespace  
@@ -82,7 +83,7 @@ def calc_new_correlation(X, y):
 	Calculation of general correlation coefficient 
 	as described in Chatterjee, S. (2019, September 22):
 	A new coefficient of correlation. arxiv.org/abs/1909.10140
-	Returns correlation coeeficient for testing independence
+	Returns correlation coefficient for testing independence
 
 	In comparison to Spearman, Pearson, and Kendalls, this new correlation coeffcient
 	can measure associations that are not monotonic or non-linear, 
@@ -122,7 +123,7 @@ def test_calc_new_correlation():
 	assert np.argmax(coefsim) == np.argmax(corr)
 
 
-def blr_factor_importance(X_train, y_train, logspace = False, signif_threshold = 2):
+def blr_factor_importance(X, y, logspace = False, signif_threshold = 2):
 	"""
 	Trains Bayesian Linear Regresssion model and returns the estimated significance of regression coeffcients.
 	The significance of the linear coefficient is defined by dividing the estimated coefficient 
@@ -138,21 +139,25 @@ def blr_factor_importance(X_train, y_train, logspace = False, signif_threshold =
 	Return:
 		coef_signif: Signigicance of coefficients (Correlation coeffcient / Stddev)
 	"""
+	# Scale data using RobustScaler:
+	if X.shape[1] == 1:
+		X = x.reshape(-1,1)
+	scaler = RobustScaler(unit_variance = True)
+	X = scaler.fit_transform(X)
+	y = scaler.fit_transform(y.reshape(-1,1)).ravel()
 	if logspace:
-		x = np.log(X_train)
-		y = np.log(y_train)
-	else:
-		x = X_train
-		y = y_train
+		X = np.log(X - X.min(axis = 0) + 1)
+		y = np.log(y - y.min() + 1)	
 	#sel = np.where(np.isfinite(x) & np.isfinite(y))
-	if x.shape[1] == 1:
-		x = x.reshape(-1,1)
-	y = y.reshape(-1,1)
+
+	y = y.reshape(-1,1).ravel()
+
+	# Apply Bayesian Linear Regression:
 	reg = BayesianRidge(tol=1e-6, fit_intercept=True, compute_score=True)
-	reg.fit(x, y)
+	reg.fit(X, y)
 
 	#print('BLR regresssion coefficients:')
-	# Set not significant coeffcients to zero
+	# Set none significant coeffcients to zero
 	coef = reg.coef_.copy()
 	coef_sigma = np.diag(reg.sigma_).copy()
 	coef_signif = coef / coef_sigma
@@ -352,10 +357,10 @@ def plot_correlationbar(corrcoefs, feature_names, outpath, fname_out, name_metho
 	bar = ax.barh(ypos, corrcoefs[sorted_idx], tick_label = np.asarray(feature_names)[sorted_idx], align='center')
 	gradientbars(bar, corrcoefs[sorted_idx])
 	if name_method is not None:	
-		plt.title(f'Feature Correlations for {name_method}')	
+		plt.title(f'{name_method}')	
 	plt.xlabel("Feature Importance")
 	plt.tight_layout()
-	plt.savefig(os.path.join(outpath, fname_out), dpi = 300)
+	plt.savefig(os.path.join(outpath, fname_out), dpi = 200)
 	if show:
 		plt.show()
 	plt.close('all')
@@ -388,16 +393,41 @@ def main(fname_settings):
 	assert df.select_dtypes(include=['number']).columns.tolist().sort() == data_fieldnames.sort(), 'Data contains non-numeric entries.'
 	assert df.isnull().sum().sum() == 0, "Data is not cleaned, please run preprocess_data.py before"
 
-	
+	# Scale data with Standardscaler
+	X = df[settings.name_features].values
+	y = df[settings.name_target].values
+
+	# Scale data with Standardscaler and min at 0
+	scaler = StandardScaler(with_mean=True, with_std=True, copy=True)
+	scaler = StandardScaler()
+
+	scaler = RobustScaler(unit_variance = True)
+	X = scaler.fit_transform(X)
+	y = scaler.fit_transform(y.reshape(-1,1)).ravel()	
+
+
+
+
+
 	# 1) Generate Spearman correlation matrix
 	print("Calculate Spearman correlation matrix...")
 	plot_feature_correlation_spearman(df[data_fieldnames].values, data_fieldnames, settings.outpath, show = False)
 
-	"""
-	# 2) Generate feature importance
-	print("Calculate feature importance...")
-	plot_feature_importance(df[data_fieldnames].values, data_fieldnames, settings.outpath)
-	"""
+	# 2) Generate feature importance based on model-agnostic correlation 
+	print("Calculate feature importance for mode-agnostic correaltions...")
+	X = df[settings.name_features].values
+	y = df[settings.name_target].values
+	corr = calc_new_correlation(X, y)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'Model-agnostic-correlation.png', name_method = 'Model-agnostic', show = False)
+
+	# 3) Generate feature importance based on significance of Bayesian Linear Regression coeffcicients:
+	corr = blr_factor_importance(X, y, logspace = False)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'BLR-linear-correlation.png', name_method = 'BLR linear correlation significance', show = False)
+	# and in log-space
+	corr = blr_factor_importance(X, y, logspace = True)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'BLR-log-correlation.png', name_method = 'BLR log-correlation significance', show = False)
+
+
 
 
 def test_main():
