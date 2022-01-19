@@ -1,13 +1,16 @@
 """
-Functions for feature importance calculations.
+Toolset for calculating feature importance based on multiple methods:
 
-- Pearson, Spearman, Kendall
-- (Power scaled) Bayesian Linear Regression
-- Permutation based: Random Forest Permutation
-- model-agnostic correaltion coefficients
+- Hierarchical clustered Spearman correlation diagram
+- linear/log-scaled Bayesian Linear Regression
+- Random Forest Permutation Importance
+- Model-agnostic correlation coefficients 
+(see "A new coefficient of correlation" Chatterjee, S. (2019, September 22)
+
+This script can also generate synthetic data and includes tests for all methods,
+which can be used to compare the results.
 
 Copyright 2022 Sebastian Haan, The University of Sydney
-
 """
 
 import numpy as np
@@ -29,20 +32,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from xicor.xicor import Xi
 from types import SimpleNamespace  
-#import json
-#from tqdm import tqdm
 
-# Load settings from yaml file
+
+# Define settings yaml file name
 _fname_settings = 'settings_featureimportance.yaml'
-with open(_fname_settings, 'r') as f:
-	settings = yaml.load(f, Loader=yaml.FullLoader)
-# Parse settings dictinary as namespace (settings are available as 
-# settings.variable_name rather than settings['variable_name'])
-	settings = SimpleNamespace(**settings)
-
-
-
-
 
 
 def plot_feature_correlation_spearman(X, feature_names, outpath, show = False):
@@ -85,10 +78,10 @@ def calc_new_correlation(X, y):
 	A new coefficient of correlation. arxiv.org/abs/1909.10140
 	Returns correlation coefficient for testing independence
 
-	In comparison to Spearman, Pearson, and Kendalls, this new correlation coeffcient
+	In comparison to Spearman, Pearson, and Kendalls, this new correlation coefficient
 	can measure associations that are not monotonic or non-linear, 
 	and is 0 if X and Y are independent, and is 1 if there is a function Y= f(X).
-	Note that this coeffcient is intentionally not summetric, because we want to understand 
+	Note that this coefficient is intentionally not summetric, because we want to understand 
 	if Y is a function X, and not just if one of the variables is a function of the other.
 	
 	This function also removes Nans and converts factor variables to integers automatically.
@@ -125,7 +118,7 @@ def test_calc_new_correlation():
 
 def blr_factor_importance(X, y, logspace = False, signif_threshold = 2):
 	"""
-	Trains Bayesian Linear Regresssion model and returns the estimated significance of regression coeffcients.
+	Trains Bayesian Linear Regresssion model and returns the estimated significance of regression coefficients.
 	The significance of the linear coefficient is defined by dividing the estimated coefficient 
 	over the standard deviation of this estimate. The correlation significance is set to zero if below threshold.
 
@@ -137,7 +130,7 @@ def blr_factor_importance(X, y, logspace = False, signif_threshold = 2):
 		
 
 	Return:
-		coef_signif: Signigicance of coefficients (Correlation coeffcient / Stddev)
+		coef_signif: Significance of coefficients (Correlation coefficient / Stddev)
 	"""
 	# Scale data using RobustScaler:
 	if X.shape[1] == 1:
@@ -163,7 +156,7 @@ def blr_factor_importance(X, y, logspace = False, signif_threshold = 2):
 	coef_signif = coef / coef_sigma
 	#for i in range(len(coef)):
 	#	print('X' + str(i), ' wcorr=' + str(np.round(coef[i], 3)) + ' +/- ' + str(np.round(coef_sigma[i], 3)))
-	# Set not significant coeffcients to zero:
+	# Set not significant coefficients to zero:
 	coef_signif[coef_signif < signif_threshold] = 0
 	return coef_signif
 
@@ -182,8 +175,8 @@ def test_blr_factor_importance():
 def rf_factor_importance(X_train, y_train, correlated = False):
 	"""
 	Factor importance using RF permutation test and optional corrections 
-	for multicollinarity (correlated) features. 
-	Including training of Random Forest regression model with trainig data 
+	for multi-collinarity (correlated) features. 
+	Including training of Random Forest regression model with training data 
 	and setting non-significant coefficients to zero.
 
 	Input:
@@ -201,7 +194,7 @@ def rf_factor_importance(X_train, y_train, correlated = False):
 	imp_mean = result.importances_mean
 	imp_std = result.importances_std
 	# Make corrections for correlated features
-	# This is neccessary since permutation importance are lower for correlated features
+	# This is necessary since permutation importance are lower for correlated features
 	if correlated:
 		corr = spearmanr(X_train).correlation
 		imp_mean_corr = np.zeros(len(imp_mean))
@@ -235,8 +228,6 @@ def test_rf_factor_importance():
 def create_simulated_features(n_features, outpath = None, n_samples = 200, model_order = 'quadratic', correlated = False, noise= 0.1):
 	"""
 	Generate synthetic datasets for testing
-
-	see also https://scikit-learn.org/stable/modules/classes.html#module-sklearn.datasets
 
 	Input:
 		n_features: number of features
@@ -375,6 +366,12 @@ def test_plot_correlationbar(outpath):
 
 
 def main(fname_settings):
+	"""
+	Main function for running the script.
+
+	Input:
+		fname_settings: path and filename to settings file
+	"""
 	# Load settings from yaml file
 	with open(fname_settings, 'r') as f:
 		settings = yaml.load(f, Loader=yaml.FullLoader)
@@ -422,6 +419,10 @@ def main(fname_settings):
 
 
 def test_main():
+	"""
+	Test function for main function.
+	This test automatically generates synthetic data and plots the feature importance.
+	"""
 	# Make temporary result folder
 	outpath = 'test_featureimportance'
 	os.makedirs(outpath, exist_ok = True)
