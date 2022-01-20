@@ -268,19 +268,15 @@ def main(fname_settings):
 	os.makedirs(settings.outpath, exist_ok = True)
 
 
-def main():
+def main(fname_settings):
     """
     Main function for running the script.
-    """
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description='Preprocess data for machine learning on soil data.')
-    parser.add_argument('-s', '--settings', type=str, required=False,
-                        help='Path and filename of settings file.',
-                        default = _fname_settings)
-    args = parser.parse_args()
 
+    Input:
+        fname_settings: path and filename to settings file
+    """
     # Load settings from yaml file
-    with open(args.settings, 'r') as f:
+    with open(fname_settings), 'r') as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)
     # Parse settings dictinary as namespace (settings are available as 
     # settings.variable_name rather than settings['variable_name'])
@@ -292,3 +288,15 @@ def main():
     # Preprocess data
     df, name_features = preprocess(settings.inpath, settings.infname, settings.outfname, settings.name_target, settings.name_features, zmin = 100*settings.zmin, zmax= 100*settings.zmax, categorical = 'Soiltype',
 	colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax)
+
+
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Preprocess data for machine learning on soil data.')
+    parser.add_argument('-s', '--settings', type=str, required=False,
+                        help='Path and filename of settings file.',
+                        default = _fname_settings)
+    args = parser.parse_args()
+
+    # Run main function
+    main(args.settings)
