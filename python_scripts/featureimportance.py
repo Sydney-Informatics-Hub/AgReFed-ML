@@ -10,6 +10,12 @@ Toolset for calculating feature importance based on multiple methods:
 This script can also generate synthetic data and includes tests for all methods,
 which can be used to compare the results.
 
+User settings, such as input/output paths and all other options, are set in the settings file 
+(Default filename: settings_featureimportance.yaml) 
+Alternatively, the settings file can be specified as a command line argument with: 
+'-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
+(e.g. python featureimportance.py -s settings_featureimportance.yaml).
+
 Requirements:
 - python>=3.9
 - matplotlib>=3.5.1
@@ -29,13 +35,15 @@ Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of S
 This open-source software is released under the AGPL-3.0 License.
 """
 
-import numpy as np
-import pandas as pd
 import os
 import itertools
 import sys
 import yaml
 import shutil
+import argparse
+from types import SimpleNamespace  
+import numpy as np
+import pandas as pd
 from sklearn.datasets import make_regression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
 from sklearn.linear_model import BayesianRidge
@@ -46,9 +54,9 @@ from scipy.cluster import hierarchy
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from xicor.xicor import Xi
-from types import SimpleNamespace  
 
-# Settings yaml file name:
+
+# Settings yaml file
 _fname_settings = 'settings_featureimportance.yaml'
 
 
@@ -391,7 +399,7 @@ def main(fname_settings):
 		settings = yaml.load(f, Loader=yaml.FullLoader)
 	# Parse settings dictinary as namespace (settings are available as 
 	# settings.variable_name rather than settings['variable_name'])
-		settings = SimpleNamespace(**settings)
+	settings = SimpleNamespace(**settings)
 
 	# Verify output directory and make it if it does not exist
 	os.makedirs(settings.outpath, exist_ok = True)
@@ -451,7 +459,7 @@ def test_main():
 	# (Note: you could also just simply set settings variables here, but this is also testing the settings file readout)
 	fname_settings_sim = 'settings_featureimportance_simulation.yaml'
 	shutil.copyfile(_fname_settings, os.path.join(outpath, fname_settings_sim))
-	# Edit yaml file:
+	# Change yaml file to simulation specifications:
 	with open(os.path.join(outpath, fname_settings_sim), 'r') as f:
 		settings_sim = yaml.load(f, Loader=yaml.FullLoader)
 	settings_sim['name_features'] = feature_names_sim
@@ -476,4 +484,12 @@ def test_main():
 	# shutil.rmtree(outpath)
 
 if __name__ == '__main__':
-	main(_fname_settings)
+	# Parse command line arguments
+    parser = argparse.ArgumentParser(description='Calculating feature importance.')
+    parser.add_argument('-s', '--settings', type=str, required=False,
+                        help='Path and filename of settings file.',
+                        default = _fname_settings)
+    args = parser.parse_args()
+
+	# Run main function
+	main(args.settings)
