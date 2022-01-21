@@ -33,11 +33,24 @@ _fname_settings = 'settings_preprocessing.yaml'
 
 
 def preprocess(inpath, infname, outpath, outfname, name_target, name_features, 
-name_ixval = None, zmin = None, zmax = None, gen_gpkg = False, categorical = None,
-colname_depthmin = 'lower_depth', colname_depthmax = 'upper_depth'):
+             zmin = None, zmax = None, gen_gpkg = False, categorical = None,
+            colname_depthmin = 'lower_depth', colname_depthmax = 'upper_depth',
+            colname_xcoord = 'x', colname_ycoord = 'y', colname_lat = None, colname_lng= None, 
+            project_crs = None): 
     """
-    Converts input dataframe into more useable data and saves as new dataframe on disk
-    Automatically converts categorical features to binary feature representations.
+    Converts input dataframe into more useable data and saves as new dataframe (csv file) on disk.
+
+    Preprocessing steps:
+    
+    - Cleaning data
+    - Tries to finds Latitude and Longitude entries
+    - Calculation of depth intervals and their mid-points.
+    - Trims data to zmin and zmax
+    - Automatically converts categorical features to binary feature representations.
+    - Generates cross-validation indices for cross-validation.
+    
+    - Generates geospatial dataframe with coordinates (not yet implemented)
+
 
     Input:
         inpath: input path
@@ -46,91 +59,147 @@ colname_depthmin = 'lower_depth', colname_depthmax = 'upper_depth'):
         outfname: output file name
         name_target: String, Name of target for prediction (column names in infname)
         name_features: String or list of strings of covariate features (column names in infname)
-        name_ixval: string, column name for index for X-fold crossvalidation
         zmin: in centimeters, if not None, data only larger than zmin will be selected
         zmax: in centimeters, if not None, data only smaller than zmax will be selected
         gen_gpkg: if True, data will be also saved as georeferenced geopackage
         categorical: name of categorical feature, converts categorical feature into additional features with binary coding
+        colname_depthmin: name of column for lower depth
+        colname_depthmax: name of column for upper depth
+        colname_xcoord: name of column for Easting coordinate (if projected crs this is in meters)
+        colname_ycoord: name of column for Northing coordinate (if projected crs this is in meters)
+        project_crs: string, EPSG code for projected coordinate reference system 
+        of colname_xcoord and colname_ycoord (e.g. 'EPSG:28355')
 
-    Return:
-        processed dataframe
-        names of features with updated categorical (if none, then return original input name_features)
+    TODO: automatically detect if coordinates are projected or not
     """
-    name_features2 = name_features.copy()
-    df = pd.read_csv(os.path.join(path, infname))
-    # Convert categorical features to binary features
-    names_categorical = df.select_dtypes(include=['object']).columns.tolist()
-    #names_categorical = df.select_dtypes(include=['categorical']).columns.tolist()
+    ## Keep track of all covariates
+    #name_features2 = name_features.copy()
+    # Keep track of all relevant column names
+    fieldnames = name_features + [name_target]
+    #df = pd.read_csv(os.path.join(inpath, infname), usecols = fieldnames)
+    df = pd.read_csv(os.path.join(inpath, infname))
+    # Find if Latitude or Longitude values exist:
+    if ('Latitude' in list(df)) &  ('Longitude' in list(df)):
+        fieldnames += ['Latitude', 'Longitude']
+    else:
+        if ('Lat' in list(df)):
+            df.rename(columns={"Lat": "Latitude"}, inplace=True)
+            fieldnames += ['Latitude']
+        if ('Lng' in list(df)):
+            df.rename(columns={"Lng": "Longitude"}, inplace=True)
+            fieldnames += ['Longitude']
+        elif ('Lon' in list(df)):
+            df.rename(columns={"Lon": "Longitude"}, inplace=True)
+            fieldnames += ['Longitude']
+    # Check if x and y are in meters (projected coordinates) or in degrees:
+    # Here we assume that bounding box is not larger than 5 degree in any directions
+    if (abs(df.x.max() - df.x.min()) < 5) | (abs(df.y.max() - df.y.min()) < 5):
+        print(f'WARNING: Coordinates {colname_xcoord} and {colname_ycoord} seem to be not in meters!')
+        print(f'         Please check if coordinates are projected or not!')
 
-    if categorical is not None:
-        # Add categories as features with binary coding
-        cat_levels = df[categorical].unique()
-        print('Adding following categories as binary features: ', cat_levels)
-        name_features2.extend(cat_levels)
-        for level in cat_levels:
-            df[level] = 0
-            df.loc[df[categorical].values == level, level] = 1
-        name_features2.remove(categorical)
     # Calculate mid point and convert to cm
     df['z'] = 0.5 * (df[colname_depthmin] + df[colname_depthmax]) / 100.
     df['z_diff'] = (df[colname_depthmin] - df[colname_depthmax]) / 100.
-    if ('Easting' in list(df)) &  ('Northing' in list(df)) & ('x' not in list(df)) & ('y' not in list(df)):
-        df.rename(columns={"Easting": "x", "Northing": "y"}, inplace=True)
-    if isinstance(name_features2, list):
-        selcols = ['x', 'y', 'z', 'z_diff']
-        selcols.extend(name_features2)
-    else:
-        selcols = ['Sample.ID','x', 'y', 'z', 'z_diff', name_features2]
-    selcols.extend([name_target])
-    dfout = df[selcols].copy()
-    if zmin:
-        dfout = dfout[dfout.z >= zmin]
-    #Check for only finite values
-    dfout.dropna(inplace = True)
+    fieldnames += ['z', 'z_diff']
+    #if ('Easting' in list(df)) &  ('Northing' in list(df)) & ('x' not in list(df)) & ('y' not in list(df)):
+    #    df.rename(columns={"Easting": "x", "Northing": "y"}, inplace=True)
+    if ('x' not in list(df)) & ('y' not in list(df)):
+        df.rename(columns={colname_xcoord: "x", colname_ycoord: "y"}, inplace=True)  
+        fieldnames += ['x', 'y']  
+    #if isinstance(name_features2, list):
+    #    selcols = ['x', 'y', 'z', 'z_diff']
+    #    selcols.extend(name_features2)
+    #else:
+    #    selcols = ['x', 'y', 'z', 'z_diff', name_features2]
+    #selcols.extend([name_target])
+
+    # Trim data to zmin and zmax
+    if zmin is not None:
+        df = df[df.z >= zmin]
+    if zmax is not None:
+        df = df[df.z <= zmax]
+
+    # Continue only with relevant fields
+    df = df[fieldnames]
+
+    # Find categorical features in dataframe (here we assume all strings are categorical)
+    categorical = df.select_dtypes(include=['object']).columns.tolist()
+    #names_categorical  df.select_dtypes(exclude=['number','datetime']).columns.tolist()
+    # Convert categorical features to binary features
+    if len(categorical) > 0:
+        # Add categories as features with binary coding
+        for name_categorical in categorical:
+            cat_levels = df[name_categorical].unique()
+            print('Adding following categories as binary features: ', cat_levels)
+            fieldnames.extend(cat_levels)
+            for level in cat_levels:
+                df[level] = 0
+                df.loc[df[name_categorical].values == level, level] = 1
+            fieldnames.remove(name_categorical)
+
+
+    #Keep only finite values (remove nan, inf, -inf)
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df.dropna(inplace = True)
+    
+
+    """
+    # Generate cross-validation indices ()
     if name_ixval:
         ### Splitting in N-fold cross-validation
-        if name_ixval not in list(dfout):
+        if name_ixval not in list(df):
             print('Creating 10-fold cross-validation samples...')
             nsplit = 10
-            dfout['site_id'] = dfout['x'].round(0).astype(int).map(str) + '_' + dfout['y'].round(0).astype(int).map(str)
-            nunique = dfout['site_id'].unique()
-            dfout['new_id'] = 0
+            df['site_id'] = df['x'].round(0).astype(int).map(str) + '_' + df['y'].round(0).astype(int).map(str)
+            nunique = df['site_id'].unique()
+            df['new_id'] = 0
             ix = 1
             for unique in nunique:
-                dfout.loc[dfout['site_id'] == unique, 'new_id'] = ix
+                df.loc[df['site_id'] == unique, 'new_id'] = ix
                 ix += 1
             size = int(len(nunique)/nsplit)
 
             np.random.shuffle(nunique)
-            dfout[name_ixval] = 0
+            df[name_ixval] = 0
             start = 0
             for i in range(nsplit - 1):
                 stop = start + size
                 sub = nunique[start:stop]
-                dfout.loc[dfout['site_id'].isin(sub),name_ixval] = i + 1
+                df.loc[df['site_id'].isin(sub),name_ixval] = i + 1
                 start = stop
-            dfout.loc[dfout[name_ixval] == 0, name_ixval] = nsplit
+            df.loc[df[name_ixval] == 0, name_ixval] = nsplit
         selcols.extend([name_ixval])
         #dfout = dfout[selcols].copy()
     dfout.to_csv(os.path.join(outpath, outfname), index = False)
+    """
+
+    # Finally save dataframe as csv
+    df.to_csv(os.path.join(outpath, outfname), index=False)
+
+
 
     # save also as geopackage for visualisation  etc:
-    # find zone from center point
     if gen_gpkg:
-        if ('Latitude' in df) & ('Longitude' in df):
+        if project_crs is not None:
+            gdf = gpd.GeoDataFrame(df.copy(), 
+                geometry=gpd.points_from_xy(df['x'], df['y']), 
+                crs = project_crs).to_file(os.path.join(outpath, outfname + '.gpkg'), driver='GPKG')
+        elif ('Latitude' in df) & ('Longitude' in df):
             lat_cen = df.Latitude.mean()
             lng_cen = df.Longitude.mean()
-            zone, crs = find_zone(lat_cen, lng_cen)
+            # find zone from center point
+            #zone, crs = find_zone(lat_cen, lng_cen) # could add this function in future
             crs_epsg = 'EPSG:' + str(crs)
-            gdf = gpd.GeoDataFrame(dfout.copy(), geometry=gpd.points_from_xy(dfout['x'], dfout['y']))
-            gdf.crs = crs_epsg
+            # Use general Australian projection for now: EPSG:8059 (GDA2020 / SA Lambert for entire Australia)
+            # Save as non-projected withe Latitude and Longitude
+            gdf = gpd.GeoDataFrame(df.copy(), 
+                geometry=gpd.points_from_xy(df['Longitude'], dfout['Latitude']), 
+                crs='EPSG:4326').to_file(os.path.join(outpath, outfname + '.gpkg'), driver='GPKG')
         else:
-            gdf = gpd.GeoDataFrame(dfout.copy(), geometry=gpd.points_from_xy(dfout['x'], dfout['y']))
-            gdf.crs = project_crs
-        #gdf.crs = {'init' :'epsg:4326'} # Depreciated with geopandas >= 0.7
-        gdf.to_file(os.path.join(outpath, outfname + '.gpkg'), driver='GPKG')
+            print('WARNING: Cannot generate geopackage file!')
+            print('         Please check to provide either project crs or include Latitude/Longitude in data!')
 
-    return dfout, name_features2
+
 
 
 def preprocess_grid(inpath, infname, outpath, outfname, name_features, categorical = None):
@@ -251,24 +320,6 @@ def preprocess_grid_poly(path, infname_grid, infname_poly, name_features,
 
 
 def main(fname_settings):
-	"""
-	Main function for running the script.
-
-	Input:
-		fname_settings: path and filename to settings file
-	"""
-	# Load settings from yaml file
-	with open(fname_settings, 'r') as f:
-		settings = yaml.load(f, Loader=yaml.FullLoader)
-	# Parse settings dictinary as namespace (settings are available as 
-	# settings.variable_name rather than settings['variable_name'])
-		settings = SimpleNamespace(**settings)
-
-	# Verify output directory and make it if it does not exist
-	os.makedirs(settings.outpath, exist_ok = True)
-
-
-def main(fname_settings):
     """
     Main function for running the script.
 
@@ -276,7 +327,7 @@ def main(fname_settings):
         fname_settings: path and filename to settings file
     """
     # Load settings from yaml file
-    with open(fname_settings), 'r') as f:
+    with open(fname_settings, 'r') as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)
     # Parse settings dictinary as namespace (settings are available as 
     # settings.variable_name rather than settings['variable_name'])
@@ -286,8 +337,12 @@ def main(fname_settings):
     os.makedirs(settings.outpath, exist_ok = True)
 
     # Preprocess data
-    df, name_features = preprocess(settings.inpath, settings.infname, settings.outfname, settings.name_target, settings.name_features, zmin = 100*settings.zmin, zmax= 100*settings.zmax, categorical = 'Soiltype',
-	colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax)
+    preprocess(settings.inpath, settings.infname, 
+            settings.outpath, settings.outfname, 
+            settings.name_target, settings.name_features, 
+            zmin = 100*settings.zmin, zmax= 100*settings.zmax, 
+            categorical = 'Soiltype',
+            colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax)
 
 
 if __name__ == '__main__':
