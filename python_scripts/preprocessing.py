@@ -91,6 +91,11 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
         elif ('Lon' in list(df)):
             df.rename(columns={"Lon": "Longitude"}, inplace=True)
             fieldnames += ['Longitude']
+    #if ('Easting' in list(df)) &  ('Northing' in list(df)) & ('x' not in list(df)) & ('y' not in list(df)):
+    #    df.rename(columns={"Easting": "x", "Northing": "y"}, inplace=True)
+    if ('x' not in list(df)) & ('y' not in list(df)):
+        df.rename(columns={colname_xcoord: "x", colname_ycoord: "y"}, inplace=True)  
+        fieldnames += ['x', 'y']  
     # Check if x and y are in meters (projected coordinates) or in degrees:
     # Here we assume that bounding box is not larger than 5 degree in any directions
     if (abs(df.x.max() - df.x.min()) < 5) | (abs(df.y.max() - df.y.min()) < 5):
@@ -101,11 +106,6 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     df['z'] = 0.5 * (df[colname_depthmin] + df[colname_depthmax]) / 100.
     df['z_diff'] = (df[colname_depthmin] - df[colname_depthmax]) / 100.
     fieldnames += ['z', 'z_diff']
-    #if ('Easting' in list(df)) &  ('Northing' in list(df)) & ('x' not in list(df)) & ('y' not in list(df)):
-    #    df.rename(columns={"Easting": "x", "Northing": "y"}, inplace=True)
-    if ('x' not in list(df)) & ('y' not in list(df)):
-        df.rename(columns={colname_xcoord: "x", colname_ycoord: "y"}, inplace=True)  
-        fieldnames += ['x', 'y']  
     #if isinstance(name_features2, list):
     #    selcols = ['x', 'y', 'z', 'z_diff']
     #    selcols.extend(name_features2)
@@ -122,20 +122,33 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     # Continue only with relevant fields
     df = df[fieldnames]
 
+    # Categories to binary coding
+    if categorical is not None:
+        # Convert string to list
+        if isinstance(categorical, str):
+            categorical = [categorical]
+    else:
+        categorical = []
     # Find categorical features in dataframe (here we assume all strings are categorical)
-    categorical = df.select_dtypes(include=['object']).columns.tolist()
+    categorical += df.select_dtypes(include=['object']).columns.tolist()
     #names_categorical  df.select_dtypes(exclude=['number','datetime']).columns.tolist()
     # Convert categorical features to binary features
     if len(categorical) > 0:
         # Add categories as features with binary coding
         for name_categorical in categorical:
             cat_levels = df[name_categorical].unique()
-            print('Adding following categories as binary features: ', cat_levels)
-            fieldnames.extend(cat_levels)
+            #cat_names = [name_categorical + '_' + str(x) for x in cat_levels]
+            cat_names = []
             for level in cat_levels:
-                df[level] = 0
-                df.loc[df[name_categorical].values == level, level] = 1
+                cat_name = name_categorical + '_' + str(level)
+                df[cat_name] = 0
+                df.loc[df[name_categorical].values == level, cat_name] = 1
+                fieldnames.append(cat_name)
+                cat_names.append(cat_name)
             fieldnames.remove(name_categorical)
+            print('Added following categories as binary features: ', cat_names)
+        print('fieldnames:' , fieldnames)
+        df = df[fieldnames]
 
 
     #Keep only finite values (remove nan, inf, -inf)
@@ -177,8 +190,7 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     df.to_csv(os.path.join(outpath, outfname), index=False)
 
 
-
-    # save also as geopackage for visualisation  etc:
+    # save also as geopackage:
     if gen_gpkg:
         if project_crs is not None:
             gdf = gpd.GeoDataFrame(df.copy(), 
@@ -340,9 +352,12 @@ def main(fname_settings):
     preprocess(settings.inpath, settings.infname, 
             settings.outpath, settings.outfname, 
             settings.name_target, settings.name_features, 
+            colname_xcoord = settings.colname_xcoord, colname_ycoord = settings.colname_ycoord,
             zmin = 100*settings.zmin, zmax= 100*settings.zmax, 
             categorical = 'Soiltype',
-            colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax)
+            colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax,
+            gen_gpkg = False,
+            project_crs = settings.project_crs)
 
 
 if __name__ == '__main__':
