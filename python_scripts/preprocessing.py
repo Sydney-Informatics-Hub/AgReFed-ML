@@ -12,7 +12,7 @@ Requirements:
 
 For more package details see conda environment file: environment.yaml
 
-This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
+This package is part of tqhe machine learning project developed for the Agricultural Research Federation (AgReFed).
 
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
@@ -27,6 +27,7 @@ import sys
 import argparse
 import yaml
 from types import SimpleNamespace  
+sklearn.model_selection import StratifiedKFold
 
 # Default settings yaml file name:
 _fname_settings = 'settings_preprocessing.yaml'
@@ -154,37 +155,6 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     #Keep only finite values (remove nan, inf, -inf)
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.dropna(inplace = True)
-    
-
-    """
-    # Generate cross-validation indices ()
-    if name_ixval:
-        ### Splitting in N-fold cross-validation
-        if name_ixval not in list(df):
-            print('Creating 10-fold cross-validation samples...')
-            nsplit = 10
-            df['site_id'] = df['x'].round(0).astype(int).map(str) + '_' + df['y'].round(0).astype(int).map(str)
-            nunique = df['site_id'].unique()
-            df['new_id'] = 0
-            ix = 1
-            for unique in nunique:
-                df.loc[df['site_id'] == unique, 'new_id'] = ix
-                ix += 1
-            size = int(len(nunique)/nsplit)
-
-            np.random.shuffle(nunique)
-            df[name_ixval] = 0
-            start = 0
-            for i in range(nsplit - 1):
-                stop = start + size
-                sub = nunique[start:stop]
-                df.loc[df['site_id'].isin(sub),name_ixval] = i + 1
-                start = stop
-            df.loc[df[name_ixval] == 0, name_ixval] = nsplit
-        selcols.extend([name_ixval])
-        #dfout = dfout[selcols].copy()
-    dfout.to_csv(os.path.join(outpath, outfname), index = False)
-    """
 
     # Finally save dataframe as csv
     df.to_csv(os.path.join(outpath, outfname), index=False)
@@ -194,8 +164,9 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     if gen_gpkg:
         if project_crs is not None:
             gdf = gpd.GeoDataFrame(df.copy(), 
-                geometry=gpd.points_from_xy(df['x'], df['y']), 
+                geometry=gpd.points_from_xy(df['x'].values, df['y'].values), 
                 crs = project_crs).to_file(os.path.join(outpath, outfname + '.gpkg'), driver='GPKG')
+            # Ignore depreciation warning until bug is fixed in Shapely for points_from_xy
         elif ('Latitude' in df) & ('Longitude' in df):
             lat_cen = df.Latitude.mean()
             lng_cen = df.Longitude.mean()
@@ -210,6 +181,102 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
         else:
             print('WARNING: Cannot generate geopackage file!')
             print('         Please check to provide either project crs or include Latitude/Longitude in data!')
+
+
+def round_nearest_base(x, base=0.5):
+    """
+    Round to nearest multiple of base.
+
+    Input:
+        x: number or array to round
+        base: base to round to (default: 0.5), can be float or integer
+    Returns:
+        rounded number (array)
+    """
+    x = np.asarray(x)
+    if (base < 1) & (base >0):
+        return base * np.round(x/base)
+    elif base >=1:
+        return (base * np.round(x/base)).astype(int)
+    else:
+        print("ERROR: base must be numeric and larger than 0")
+        return None
+
+
+
+def gen_kfold(df, nfold, label_nfold = 'Label_nfold', id_unique = None, precision_unique = None):
+    """
+    Generate k-fold non-overlapping cross-validation indices for dataframe.
+    This function supports generating a unique identifier and precision based on coordinates or other features.
+
+    Input:
+        df: pandas dataframe
+        nfold: number of folds
+        label_nfold: name of column to add to dataframe with fold number
+        id_unique: name of column(s) to use for k-fold cross validation, 
+                e.g. ['ID'] or alternatively construct unique ID from list, e.g. 
+                ['x', 'y', 'z'] will use x, y and z to generate unique ID for each point.
+                If None, then assume index is unique ID.
+        precision_unique: float or integer; precision of unique ID, e.g. '0.1' for metric positions
+
+    Returns:
+        df: pandas dataframe with added column with the fold number
+    """
+    if id_unique is None:
+        # Use index as unique ID
+        id_unique = df.index.values
+    elif isinstance(id_unique, list):
+        # Use joint list of features as unique ID
+        id_array = np.empty(shape = (len(id_unique), len(df)), dtype='<U21')
+        for i in range(len(id_unique)):
+            col = id_unique[i]
+            # check if pandas column is numeric
+            if pd.api.types.is_numeric_dtype(df[col]):
+                if precision_unique is not None:
+                    # Round to precision
+                    id_array[i] = round_nearest_base(df[col].values, base=precision_unique).astype(str)
+                else:
+                    # Use as is
+                    id_array[i] = df[col].values.astype(str)
+            else:
+                id_array[i] = df[col].values 
+        # Create unique ID by concatenating strings
+        df["ID_unique"] = id_array[0]
+        for i in range(1, len(id_unique)):
+            df["ID_unique"] = df["ID_unique"] + '_' + id_array[i]
+    else:
+        # Use column name as unique ID
+        if pd.api.types.is_numeric_dtype(df[id_unique]):
+            if precision_unique is not None:
+                # Round to precision
+                df["ID_unique"] = round_nearest_base(df[id_unique].values, base=precision_unique).astype(str)
+            else:
+                # Use as is
+                df["ID_unique"] = df[id_unique].astype(str)
+        else:
+            df["ID_unique"] = df[id_unique]
+
+    # Create nfold levels:
+    nunique = df['ID_unique'].unique()
+    df['new_id'] = 0
+    ix = 1
+    for unique in nunique:
+        df.loc[df['ID_unique'] == unique, 'new_id'] = ix
+        ix += 1
+    size = int(len(nunique)/nfold)
+    np.random.shuffle(nunique)
+    df[label_nfold] = 0
+    start = 0
+    for i in range(nfold - 1):
+        stop = start + size
+        sub = nunique[start:stop]
+        df.loc[df['ID_unique'].isin(sub),label_nfold] = i + 1
+        start = stop
+    df.loc[df[label_nfold] == 0, label_nfold] = nfold
+    # remove temporary columns
+    df.drop(columns = ['ID_unique', 'new_id'], inplace = True)
+    return df
+        
 
 
 
