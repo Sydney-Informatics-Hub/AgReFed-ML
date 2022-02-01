@@ -274,7 +274,11 @@ def gen_kfold(df, nfold, label_nfold = 'Label_nfold', id_unique = None, precisio
         start = stop
     df.loc[df[label_nfold] == 0, label_nfold] = nfold
     # remove temporary columns
-    df.drop(columns = ['ID_unique', 'new_id'], inplace = True)
+    if isinstance(id_unique, list) | (precision_unique is not None):
+        # keep ID_unique column
+        df.drop(columns = ['new_id'], inplace = True)
+    else:
+        df.drop(columns = ['ID_unique', 'new_id'], inplace = True)
     return df
         
 
