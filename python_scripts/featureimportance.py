@@ -485,11 +485,11 @@ def test_main():
 
 if __name__ == '__main__':
 	# Parse command line arguments
-    parser = argparse.ArgumentParser(description='Calculating feature importance.')
-    parser.add_argument('-s', '--settings', type=str, required=False,
-                        help='Path and filename of settings file.',
-                        default = _fname_settings)
-    args = parser.parse_args()
+	parser = argparse.ArgumentParser(description='Calculating feature importance.')
+	parser.add_argument('-s', '--settings', type=str, required=False,
+						help='Path and filename of settings file.',
+						default = _fname_settings)
+	args = parser.parse_args()
 
 	# Run main function
 	main(args.settings)
