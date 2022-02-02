@@ -1,0 +1,13 @@
+infname: SyntheticData_quadratic_8nfeatures_0.1noise.csv
+inpath: test_featureimportance
+name_features:
+- Feature_1
+- Feature_2
+- Feature_3
+- Feature_4
+- Feature_5
+- Feature_6
+- Feature_7
+- Feature_8
+name_target: Ytarget
+outpath: test_featureimportance
