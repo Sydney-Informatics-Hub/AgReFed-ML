@@ -341,6 +341,7 @@ def gradientbars(bars, data):
 	"""
 	ax = bars[0].axes
 	lim = ax.get_xlim()+ax.get_ylim()
+	ax.axis(lim)
 	for bar in bars:
 		bar.set_zorder(1)
 		bar.set_facecolor("none")
