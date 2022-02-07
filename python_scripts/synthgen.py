@@ -33,6 +33,7 @@ import argparse
 from types import SimpleNamespace  
 import numpy as np
 import pandas as pd
+import datetime
 from sklearn.datasets import make_regression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
 from sklearn.linear_model import BayesianRidge
@@ -154,7 +155,9 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
-		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures.csv'), index = False)
+        # Add datetime now to filename
+        date = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
         # Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
         # Add columns with spatial correlation function
@@ -163,5 +166,5 @@ def gen_synthetic(n_features, n_informative_features = 10,
             df_coef['corr_length'] = corr_length
         # Add column with noise level
         df_coef['noise'] = noise
-		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures.csv'), index = False)
+		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
 	return df, coefsim, feature_names
