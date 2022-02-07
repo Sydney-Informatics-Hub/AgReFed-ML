@@ -1,5 +1,5 @@
 """
-Toolset for generating geospatial synthetic data-sets with a range of noise and spatial correlations 
+Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations. 
 
 Requirements:
 - python>=3.9
@@ -9,6 +9,12 @@ Requirements:
 - PyYAML>=6.0
 - scikit_learn>=1.0.2
 - scipy>=1.7.3
+
+
+Possible future add-ons:
+    - add spatial correllation with different lengthscales for each dimension 
+    (currently implementation had one lengthscale for spatial distance in x,y plane)
+    - mix of regression and categorical features (current implementation has only regression features)
 
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
@@ -39,21 +45,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def create_kernel_uniform(r):
-    """
-    Create a circular kernel buffer
-
-    Input: 
-        r: radius of the kernel in units
-
-    Return:
-        kernel: kernel buffer
-    """
-    #Make an list of indexes 
-    Y,X = np.ogrid[0:2*r-1, 0:2*r-1]
-    dist_from_center = np.sqrt((X-r+1)**2 + (Y-r+1)**2)+1
-    mask = dist_from_center <= r
-    return(mask*1.0)
 
 def create_kernel_expsquared(D, gamma):
     """
@@ -90,7 +81,6 @@ def gen_synthetic(n_features, n_informative_features = 10,
         spatialsize: size in x and y direction [in meters]
         center: [x,y] coordinates of the center of the data in meter (Easting, Northings)
         crs: coordinate reference system [Default: 'EPSG:8059']
-
 
 	Return:
 		dfsim: dataframe with simulated features
@@ -164,7 +154,14 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
-		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{noise}noise.csv'), index = False)
+		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures.csv'), index = False)
+        # Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
-		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{noise}noise.csv'), index = False)
+        # Add columns with spatial correlation function
+        if (corr_amp > 0) & (corr_length > 0):
+            df_coef['corr_amp'] = corr_amp
+            df_coef['corr_length'] = corr_length
+        # Add column with noise level
+        df_coef['noise'] = noise
+		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures.csv'), index = False)
 	return df, coefsim, feature_names
