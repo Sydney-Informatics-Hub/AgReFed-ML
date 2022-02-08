@@ -1,6 +1,16 @@
 """
 Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations. 
 
+The genaretd models are regression models and can be either linear, quadratic or cubic.
+Options for spatial correlations are defined by spatial correlation lengthscale and amplitude
+and implemented by using a squared exponetial kernel (currently only option).
+
+User settings, such as output paths and synthetic data options, are set in the settings file 
+(Default filename: settings_synthgen.yaml) 
+Alternatively, the settings file can be specified as a command line argument with: 
+'-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
+(e.g. python featureimportance.py -s settings_featureimportance.yaml).
+
 Requirements:
 - python>=3.9
 - matplotlib>=3.5.1
@@ -21,6 +31,7 @@ Possible future add-ons:
     - mix of regression and categorical features (current implementation has only regression features)
     - add options for third dimension (currently only 2D)
     - add temporal features
+    - add multiple kernel functions for spatial correlations (currently only squared exponential implemented)
 
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
@@ -51,7 +62,7 @@ from sklearn.metrics import pairwise_distances
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-
+# Settings yaml file
 _fname_settings = 'settings_synthgen.yaml'
 
 
@@ -103,14 +114,19 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		n_rank = int(n_features/2)
 	else:
 		n_rank = None
+    # Generate regression features:
 	Xsim, ysim, coefsim = make_regression(n_samples=_n_samples, n_features = n_features, n_informative=n_informative, n_targets=1, 
 		bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)	
-	feature_names = ["Feature_" + str(i+1) for i in range(n_features)]
+	# Name features:
+    feature_names = ["Feature_" + str(i+1) for i in range(n_features)]
+    
+    # Scale features to the range [0,1]
 	coefsim /= 100
 	scaler = MinMaxScaler()
 	scaler.fit(Xsim)
 	Xsim = scaler.transform(Xsim)
-	# Make model
+	
+    # Make model
 	if model_order == 'linear':
         # make first-order model
 		ysim_new = np.dot(Xsim, coefsim)
@@ -188,7 +204,7 @@ def main(fname_settings):
     # Load settings from yaml file
 	with open(fname_settings, 'r') as f:
 		settings = yaml.load(f, Loader=yaml.FullLoader)
-	# Parse settings dictinary as namespace (settings are available as 
+	# Parse settings dictionary as namespace (settings are available as 
 	# settings.variable_name rather than settings['variable_name'])
 	settings = SimpleNamespace(**settings)
 
