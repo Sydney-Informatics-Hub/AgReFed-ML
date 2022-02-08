@@ -15,6 +15,8 @@ Possible future add-ons:
     - add spatial correllation with different lengthscales for each dimension 
     (currently implementation had one lengthscale for spatial distance in x,y plane)
     - mix of regression and categorical features (current implementation has only regression features)
+    - add options for third dimension (currently only 2D)
+    - add temporal features
 
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
@@ -168,3 +170,41 @@ def gen_synthetic(n_features, n_informative_features = 10,
         df_coef['noise'] = noise
 		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
 	return df, coefsim, feature_names
+
+
+def main(fname_settings):
+	"""
+	Main function for generating synthetic data.
+
+	Input:
+		fname_settings: path and filename to settings file
+	"""
+    # Load settings from yaml file
+	with open(fname_settings, 'r') as f:
+		settings = yaml.load(f, Loader=yaml.FullLoader)
+	# Parse settings dictinary as namespace (settings are available as 
+	# settings.variable_name rather than settings['variable_name'])
+	settings = SimpleNamespace(**settings)
+
+	# Verify output directory and make it if it does not exist
+	os.makedirs(settings.outpath, exist_ok = True)
+
+    # Generate synthetic data
+    df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
+                                            n_informative_features = settings.n_informative_features, 
+                                            n_sample = settings.n_sample , outpath = settings.outpath, 
+                                            model_order = settings.model_order, correlated = settings.correlated, 
+                                            noise=settings, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+                                            spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
+
+
+if __name__ == '__main__':
+	# Parse command line arguments
+	parser = argparse.ArgumentParser(description='Calculating feature importance.')
+	parser.add_argument('-s', '--settings', type=str, required=False,
+						help='Path and filename of settings file.',
+						default = _fname_settings)
+	args = parser.parse_args()
+
+	# Run main function
+	main(args.settings)
