@@ -11,6 +11,10 @@ Requirements:
 - scipy>=1.7.3
 
 
+ToDo:
+    - enable/disable return of dataframe with simulated features in function gen_synthetic()
+    - generate geopackage including coordinates and features
+
 Possible future add-ons:
     - add spatial correllation with different lengthscales for each dimension 
     (currently implementation had one lengthscale for spatial distance in x,y plane)
@@ -48,6 +52,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
+_fname_settings = 'settings_synthgen.yaml'
+
 
 def create_kernel_expsquared(D, gamma):
     """
@@ -73,7 +79,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
 
 	Input:
 		n_features: number of features
-        n_infromative_features: number of important features
+        n_informative_features: number of important features
 		n_samples: number of samples
         outpath: path to save simulated data	
 		model_order: order of the model, either 'linear', 'quadratic', or 'cubic'

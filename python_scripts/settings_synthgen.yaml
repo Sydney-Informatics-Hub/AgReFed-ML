@@ -1,0 +1,41 @@
+# Settings for featureimportance.py
+
+# output path to save simulated data
+outpath: ../synthetic_data/
+
+
+###### Model feature specs ######
+#number of features:
+n_features: 10
+
+#number of important features
+n_informative_features: 8
+
+# number of samples
+n_samples: 200
+		
+# order of the model, either 'linear', 'quadratic', or 'cubic'
+model_order: quadratic
+
+# if True, the features are correlated
+correlated: False
+
+# random noise level [range: 0-1] that is added to the synthetic data
+noise: 0.1
+
+##### Spatial Correlation Specs ######
+# spatial correlation length [Gaussian FWHM in meters]
+corr_length: 10
+
+# spatial correlation amplitude
+corr_amp: 0.5
+
+##### Geospatial Specs ######
+# size in x and y direction [in meters]
+spatialsize: 100
+
+# [x,y] coordinates of the center of the data in meter (Easting, Northings)    
+center: [0,0]
+
+# coordinate reference system [Default: 'EPSG:8059']
+crs: 'EPSG:8059'
