@@ -26,6 +26,11 @@ Requirements:
 - scipy>=1.7.3
 - xicor>=1.0.1
 
+Computational Constraints: 
+    - 1000 samples with 20 features: less than 1min
+    - for more than 10,000 samples or large number of features, it is recommended 
+	to disable first function 'calc_new_correlation()' and second 'rf_factor_importance()'.
+
 For more package details see conda environment file: environment.yaml
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
