@@ -184,7 +184,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
 		# Add datetime now to filename
-		date = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+		date = datetime.datetime.now().strftime("%Y_%m_%d-%X")
 		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
 		# Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
@@ -216,12 +216,12 @@ def main(fname_settings):
 	os.makedirs(settings.outpath, exist_ok = True)
 
     # Generate synthetic data
-    df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
-				n_informative_features = settings.n_informative_features, 
-				n_samples = settings.n_samples , outpath = settings.outpath, 
-				model_order = settings.model_order, correlated = settings.correlated, 
-				noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
-				spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
+	df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
+	n_informative_features = settings.n_informative_features, 
+	n_samples = settings.n_samples , outpath = settings.outpath, 
+	model_order = settings.model_order, correlated = settings.correlated, 
+	noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+	spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
 
 
 if __name__ == '__main__':
