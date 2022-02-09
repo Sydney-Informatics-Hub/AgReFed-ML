@@ -115,7 +115,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	else:
 		n_rank = None
     # Generate regression features:
-	Xsim, ysim, coefsim = make_regression(n_samples=_n_samples, n_features = n_features, n_informative=n_informative, n_targets=1, 
+	Xsim, ysim, coefsim = make_regression(n_samples=n_samples, n_features = n_features, n_informative=n_informative_features, n_targets=1, 
 		bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)	
 	# Name features:
 	feature_names = ["Feature_" + str(i+1) for i in range(n_features)]
@@ -158,7 +158,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		ysim_new = np.dot(Xcomb, coefcomb)
     
 	# add randomly distributed cartesian points:
-	x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_sample))
+	x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_samples))
 
 	# Add spatial correlation function:
 	if (corr_amp > 0) & (corr_length > 0):
@@ -213,11 +213,11 @@ def main(fname_settings):
 
     # Generate synthetic data
     df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
-                                            n_informative_features = settings.n_informative_features, 
-                                            n_sample = settings.n_sample , outpath = settings.outpath, 
-                                            model_order = settings.model_order, correlated = settings.correlated, 
-                                            noise=settings, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
-                                            spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
+											n_informative_features = settings.n_informative_features, 
+											n_samples = settings.n_samples , outpath = settings.outpath, 
+											model_order = settings.model_order, correlated = settings.correlated, 
+											noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+											spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
 
 
 if __name__ == '__main__':
