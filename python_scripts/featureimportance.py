@@ -41,6 +41,7 @@ import sys
 import yaml
 import shutil
 import argparse
+import datetime
 from types import SimpleNamespace  
 import numpy as np
 import pandas as pd
@@ -492,5 +493,9 @@ if __name__ == '__main__':
 						default = _fname_settings)
 	args = parser.parse_args()
 
+	# Log computational time
+	datetime_now = datetime.datetime.now()
 	# Run main function
 	main(args.settings)
+	# print out compute time of main function in seconds
+	print('Computational time of main function: {:.2f} seconds'.format((datetime.datetime.now() - datetime_now).total_seconds()))

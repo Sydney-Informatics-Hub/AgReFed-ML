@@ -41,6 +41,7 @@ import sys
 import yaml
 import shutil
 import argparse
+import datetime
 from types import SimpleNamespace  
 import numpy as np
 import pandas as pd
@@ -72,6 +73,9 @@ _fname_settings = 'settings_featureimportance_simulation.yaml'
 """
 Main function for running the script.
 """
+# Log computational time
+datetime_now = datetime.datetime.now()
+
 # Load settings from yaml file
 with open(_fname_settings, 'r') as f:
 	settings = yaml.load(f, Loader=yaml.FullLoader)
@@ -114,5 +118,8 @@ plot_correlationbar(corr, settings.name_features, settings.outpath, 'BLR-log-cor
 print("Calculate feature importance for Random Forest permutation importance...")
 corr = rf_factor_importance(X, y)
 plot_correlationbar(corr, settings.name_features, settings.outpath, 'RF-permutation-importance.png', name_method = 'RF permutation importance', show = False)
+
+# print out compute time of main function in seconds
+print('Computational time of main function: {:.2f} seconds'.format((datetime.datetime.now() - datetime_now).total_seconds()))
 
 
