@@ -3,7 +3,7 @@ Toolset for generating geospatial synthetic data-sets with multiple features, no
 
 The genaretd models are regression models and can be either linear, quadratic or cubic.
 Options for spatial correlations are defined by spatial correlation lengthscale and amplitude
-and implemented by using a squared exponetial kernel (currently only option).
+and implemented by using a squared exponential kernel (currently only option).
 
 User settings, such as output paths and synthetic data options, are set in the settings file 
 (Default filename: settings_synthgen.yaml) 
@@ -107,9 +107,9 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		coefsim: simulated coefficients
 		feature_names: list of feature names
 	"""
-    # Initiate Random generator
-    random_state = 42
-    np.random.seed(random_state)
+	# Initiate Random generator
+	random_state = 42
+	np.random.seed(random_state)
 	if correlated:
 		n_rank = int(n_features/2)
 	else:
@@ -118,8 +118,8 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	Xsim, ysim, coefsim = make_regression(n_samples=_n_samples, n_features = n_features, n_informative=n_informative, n_targets=1, 
 		bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)	
 	# Name features:
-    feature_names = ["Feature_" + str(i+1) for i in range(n_features)]
-    
+	feature_names = ["Feature_" + str(i+1) for i in range(n_features)]
+
     # Scale features to the range [0,1]
 	coefsim /= 100
 	scaler = MinMaxScaler()
@@ -157,39 +157,39 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		coefcomb = np.hstack((coefsim, coefcomb))
 		ysim_new = np.dot(Xcomb, coefcomb)
     
-    # add randomly distributed cartesian points:
-    x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_sample))
-    
-    # Add spatial correlation function:
-    if (corr_amp > 0) & (corr_length > 0):
-        dist = pairwise_distances(np.asarray([x,y]).T, metric='euclidean')
-        # Add spatial correlation with 2-dimensional distance kernel function
-        kernel = create_kernel_expsquared(dist, corr_length)
-        ycorr = np.dot(kernel, ysim_new)
-        # Normalize to unit variance
-        fscale = ycorr.mean()/ysim_new.mean()
-        ycorr = corr_amp * ycorr /fscale
-        ysim_new += ycorr - ycorr.mean()
+	# add randomly distributed cartesian points:
+	x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_sample))
 
-    # Add random noise as normal distribution
-    ysim_new += np.random.normal(scale=noise, size = n_samples)
+	# Add spatial correlation function:
+	if (corr_amp > 0) & (corr_length > 0):
+		dist = pairwise_distances(np.asarray([x,y]).T, metric='euclidean')
+		# Add spatial correlation with 2-dimensional distance kernel function
+		kernel = create_kernel_expsquared(dist, corr_length)
+		ycorr = np.dot(kernel, ysim_new)
+		# Normalize to unit variance
+		fscale = ycorr.mean()/ysim_new.mean()
+		ycorr = corr_amp * ycorr /fscale
+		ysim_new += ycorr - ycorr.mean()
+
+	# Add random noise as normal distribution
+	ysim_new += np.random.normal(scale=noise, size = n_samples)
 	#Save data as dataframe and coefficients on file
 	header = np.hstack((feature_names, 'Ytarget'))
 	data = np.hstack((Xsim, ysim_new.reshape(-1,1)))
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
-        # Add datetime now to filename
-        date = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+		# Add datetime now to filename
+		date = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
 		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
-        # Now save coefficients and other parameters in extra file:
+		# Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
-        # Add columns with spatial correlation function
-        if (corr_amp > 0) & (corr_length > 0):
-            df_coef['corr_amp'] = corr_amp
-            df_coef['corr_length'] = corr_length
-        # Add column with noise level
-        df_coef['noise'] = noise
+		# Add columns with spatial correlation function
+		if (corr_amp > 0) & (corr_length > 0):
+			df_coef['corr_amp'] = corr_amp
+			df_coef['corr_length'] = corr_length
+		# Add column with noise level
+		df_coef['noise'] = noise
 		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
 	return df, coefsim, feature_names
 
