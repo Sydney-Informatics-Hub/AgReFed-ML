@@ -1,21 +1,21 @@
 # Settings for featureimportance.py
 
 # output path to save simulated data
-outpath: ../synthetic_data/
+outpath: '../synthetic_data/'
 
 
 ###### Model feature specs ######
-#number of features:
+# number of features:
 n_features: 10
 
-#number of important features
+# number of important features
 n_informative_features: 8
 
 # number of samples
 n_samples: 200
-		
+
 # order of the model, either 'linear', 'quadratic', or 'cubic'
-model_order: quadratic
+model_order: 'quadratic'
 
 # if True, the features are correlated
 correlated: False
