@@ -171,11 +171,15 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		ycorr = corr_amp * ycorr /fscale
 		ysim_new += ycorr - ycorr.mean()
 
+	# Add coordinate center to x,y
+	x += center[0]
+	y += center[1]
+
 	# Add random noise as normal distribution
 	ysim_new += np.random.normal(scale=noise, size = n_samples)
 	#Save data as dataframe and coefficients on file
-	header = np.hstack((feature_names, 'Ytarget'))
-	data = np.hstack((Xsim, ysim_new.reshape(-1,1)))
+	header = np.hstack((feature_names, 'Ytarget', 'Easting', 'Northing'))
+	data = np.hstack((Xsim, ysim_new.reshape(-1,1), x.reshape(-1,1), y.reshape(-1,1)))
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
@@ -213,11 +217,11 @@ def main(fname_settings):
 
     # Generate synthetic data
     df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
-											n_informative_features = settings.n_informative_features, 
-											n_samples = settings.n_samples , outpath = settings.outpath, 
-											model_order = settings.model_order, correlated = settings.correlated, 
-											noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
-											spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
+				n_informative_features = settings.n_informative_features, 
+				n_samples = settings.n_samples , outpath = settings.outpath, 
+				model_order = settings.model_order, correlated = settings.correlated, 
+				noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+				spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
 
 
 if __name__ == '__main__':
