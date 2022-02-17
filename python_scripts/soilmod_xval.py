@@ -11,11 +11,6 @@ Version: 0.1
 
 @author: Sebastian Haan
 
-To Do: 
-- split function in two, one for the xval and one for the prediction
-- add to GP input noise not just predicted noise, but sum of predicted variance plus train rariance
-- test gradient descent hyperparamter optimization insated of SHGO
-
 """
 
 import numpy as np
@@ -47,34 +42,10 @@ import GPmodel as gp # GP model plus kernel functions and distance matrix calcul
 # Settings yaml file
 _fname_settings = 'settings_soilmod_xval.yaml'
 
-# Load settings from yaml file
-with open(_fname_settings, 'r') as f:
-    settings = yaml.load(f, Loader=yaml.FullLoader)
-# Parse settings dictinary as namespace (settings are available as 
-# settings.variable_name rather than settings['variable_name'])
-settings = SimpleNamespace(**settings)
-
 show = False
-
-if type(settings.mean_functions) != list:
-    settings.mean_functions = [settings.mean_functions]
-
-for mean_function in settings.mean_functions:
-    if mean_function == 'blr':
-        import model_blr as blr
-    if mean_function == 'rf':
-        import model_rf as rf
 
 
 ######################### Main Script ############################
-
-# Intialise output info file:
-os.makedirs(settings.outpath, exist_ok = True)
-print2('init')
-print2(f'--- Parameter Settings ---')
-print2(f'Mean Functions: {settings.mean_functions}')
-print2(f'Target Name: {settings.name_target}')
-print2(f'--------------------------')
 
 
 if __name__ == '__main__':
@@ -82,6 +53,29 @@ if __name__ == '__main__':
     Main script for running 3D cubing with Gaussian Process.
     See Documentation and comments below for more details.
     """
+    # Load settings from yaml file
+    with open(_fname_settings, 'r') as f:
+        settings = yaml.load(f, Loader=yaml.FullLoader)
+    # Parse settings dictinary as namespace (settings are available as 
+    # settings.variable_name rather than settings['variable_name'])
+    settings = SimpleNamespace(**settings)
+
+    if type(settings.mean_functions) != list:
+        settings.mean_functions = [settings.mean_functions]
+
+    for mean_function in settings.mean_functions:
+        if mean_function == 'blr':
+            import model_blr as blr
+        if mean_function == 'rf':
+            import model_rf as rf
+
+    # Intialise output info file:
+    os.makedirs(settings.outpath, exist_ok = True)
+    print2('init')
+    print2(f'--- Parameter Settings ---')
+    print2(f'Mean Functions: {settings.mean_functions}')
+    print2(f'Target Name: {settings.name_target}')
+    print2(f'--------------------------')
 
     # Start with reading in data
     # check if outpath exists, if not create direcory
@@ -91,10 +85,13 @@ if __name__ == '__main__':
     print('Reading and pre-processing data...')
     # Read in data
     dfsel = pd.read_csv(os.path.join(settings.inpath, settings.infname))
-    dfsel = gen_kfold(dfsel, nfold = 10, label_nfold = 'nfold', id_unique = ['x','y'], precision_unique = 0.01)
+ 
 
     # Select data between zmin and zmax
     dfsel = dfsel[(dfsel['z'] >= settings.zmin) & (dfsel['z'] <= settings.zmax)]
+
+    # Generate kfold indices
+    dfsel = gen_kfold(dfsel, nfold = 10, label_nfold = 'nfold', id_unique = ['x','y'], precision_unique = 0.01)
 
 
     ## Get coordinates for training data and set coord origin to (0,0)
@@ -130,6 +127,7 @@ if __name__ == '__main__':
         nrmedse_fmean_nfold = []
         histresidual = []
         histsspe = []
+
 
         for ix in range_nfold:
             # Loop over all train/test sets (test sets are designated by ix; training set is defined by the remaining set)
@@ -184,31 +182,20 @@ if __name__ == '__main__':
                 X_test = dftest[settings.name_features].values
                 y_test = dftest[settings.name_target].values
                 # Scale data
-                #Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
-                #scaler_x, scaler_y = scale_params
-                #Xs_test = scaler_x.transform(X_test)
+                Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+                scaler_x, scaler_y = scale_params
+                Xs_test = scaler_x.transform(X_test)
                 # Train BLR
-                blr_model = blr.blr_train(X_train, y_train)
+                blr_model = blr.blr_train(Xs_train, y_train)
                 # Predict for X_test
-                ypred_blr, ypred_std_blr, nrmse_blr_test = blr.blr_predict(X_test, blr_model, y_test = y_test)
-                ypred_blr_train,  ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(X_train, blr_model, y_test = y_train)
-                # Rescale data to original scale
-                #ypred_blr[ypred_blr < y_train.min()] = ys_train.min()
-                #ypred_blr[ypred_blr > y_train.max()] = ys_train.max()
-                #ypred_blr =  scaler_y.inverse_transform(ypred_blr.reshape(-1, 1))
+                ypred_blr, ypred_std_blr, nrmse_blr_test = blr.blr_predict(Xs_test, blr_model, y_test = y_test)
+                ypred_blr_train,  ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
                 ypred_blr = ypred_blr.flatten()
-                # First need check for rescalein that not lower than original
-                #ypred_blr_train[ypred_blr_train < ys_train.min()] = ys_train.min()
-                #ypred_blr_train[ypred_blr_train > ys_train.max()] = ys_train.max()
-                #ypred_blr_train =  scaler_y.inverse_transform(ypred_blr_train.reshape(-1, 1))
                 ypred_blr_train = ypred_blr_train.flatten()
                 y_train_fmean = ypred_blr_train
-                # to invrese scale noise we need to multiply with the factor stddev(data_original) /stddev(data_transformed)
-                #fac_noise = np.nanstd(y_train) / np.nanstd(ys_train)
-                #fac_noise_train = abs((y_train - y_train.mean())) / abs((ys_train - ys_train.mean()))
-                #fac_noise_pred = abs((y_test - y_test.mean())) / abs((ys_test - ys_test.mean()))
                 ynoise_train = ypred_std_blr_train #* fac_noise_train 
                 ynoise_pred = ypred_std_blr #* fac_noise_pred
+
                 plt.figure()  # inches
                 plt.title('BLR Model')
                 plt.scatter(y_train, ypred_blr_train, c = 'r', label='Train Data')
@@ -220,7 +207,6 @@ if __name__ == '__main__':
                 if show:
                     plt.show()
                 plt.close('all')
-
 
             # Subtract mean function of depth from training data 
             y_train -= y_train_fmean
@@ -363,7 +349,6 @@ if __name__ == '__main__':
                 plt.show() 
             plt.close('all')
 
-
             rmse_nfold.append(rmse)
             nrmse_nfold.append(rmse_norm)
             rmedse_nfold.append(rmedse)
@@ -425,6 +410,3 @@ if __name__ == '__main__':
     print('')
     for ix in ix_meanfunction_sorted:
         print(f'{settings.mean_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
-
-
-
