@@ -81,6 +81,7 @@ def rf_predict(X_test, rf_model, y_test = None, outpath = None):
 	ypred = rf_model.predict(X_test)
 	ypred_std, _ , _ = pred_ints(rf_model, X_test, percentile=95)
 	if y_test is not None:
+		# calculate RMSE
 		rmse_test = np.sqrt(np.mean((ypred - y_test)**2)) / y_test.std()
 		if print_info: print("Random Forest normalized RMSE Test: ", np.round(rmse_test, 4))
 		if outpath is not None:
@@ -113,7 +114,7 @@ def rf_train_predict(X_train, y_train, X_test, y_test = None, outpath = None):
 	residuals: residuals of prediction
 	"""
 
-	# Train BNN
+	# Train RF
 	rf_model = rf_train(X_train, y_train)
 
 	# Predict for X_test
@@ -154,7 +155,7 @@ def test_rf(logspace = False, nsamples = 600, nfeatures = 14, ninformative = 12,
 
 	X_train, X_test, y_train, y_test = train_test_split(Xorig, yorig, test_size=0.5, random_state=42)
 
-	# Run BNN
+	# Run RF
 	y_pred, residual = rf_train_predict(X_train, y_train, X_test, y_test = y_test, outpath = outpath)
 
 	# Calculate normalized RMSE:
