@@ -1,16 +1,19 @@
 """
 Machine Learning models and 3D Cube Soil Generator using Gaussian Process Priors. 
-Please see for model details and theoretical background the documentation in docs/description_paper/
-
 
 See Documentation
 
-Copyright 2022 The University of Sydney
+User settings, such as input/output paths and all other options, are set in the settings file 
+(Default filename: settings_soilmodel_xval.yaml) 
+Alternatively, the settings file can be specified as a command line argument with: 
+'-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
+(e.g. python featureimportance.py -s settings_featureimportance.yaml).
 
-Version: 0.1
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
 
-@author: Sebastian Haan
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
+This open-source software is released under the AGPL-3.0 License.
 """
 
 import numpy as np
@@ -42,6 +45,7 @@ import GPmodel as gp # GP model plus kernel functions and distance matrix calcul
 # Settings yaml file
 _fname_settings = 'settings_soilmod_xval.yaml'
 
+# flag to show plot figures interactively or not (True/False)
 show = False
 
 

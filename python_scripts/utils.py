@@ -1,14 +1,11 @@
 """
 Some useful functions
 
-This file is part of the package MLsoil.
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
 
-Copyright 2021 Sebastian Haan, The University of Sydney
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
-MLsoil is free software made available under the LGPL License. 
-For details see the LICENSE file.
-
-@author: Sebastian Haan
+This open-source software is released under the AGPL-3.0 License.
 """
 
 import os
