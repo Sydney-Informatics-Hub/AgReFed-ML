@@ -7,8 +7,6 @@ Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of S
 
 This open-source software is released under the AGPL-3.0 License.
 
-@author: Sebastian Haan
-
 """
 import warnings
 warnings.filterwarnings('ignore') 
