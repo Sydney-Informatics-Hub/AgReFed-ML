@@ -28,76 +28,88 @@ from utils import print2
 
 
 def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None):
-	"""
-	Optimize GP hyperparmenters  of amplitude, noise, and lengthscales
-	Using Global optimisation shgo with sobol sampling.
+    """
+    Optimize GP hyperparmenters  of amplitude, noise, and lengthscales
+    Using Global optimisation shgo with sobol sampling.
 
-	INPUT
-	    points3d_train: Array with training point coordinates for (z,y,x)
-	    Y_train: Training Data Vector
-	    Ynoise_train: Noise of Training data
-	    xymin: minimum GP lengthscale in x and y direction
-	    zmin: minimum GP lengthscale in vertical (z) direction
-	    Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train
+    INPUT
+        points3d_train: Array with training point coordinates for (z,y,x)
+        Y_train: Training Data Vector
+        Ynoise_train: Noise of Training data
+        xymin: minimum GP lengthscale in x and y direction
+        zmin: minimum GP lengthscale in vertical (z) direction
+        Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train
 
-	RETURN:
-	    Optimised Hyperparamters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
-	    Marginbal Log Likelihood of best solution
-	"""
+    RETURN:
+        Optimised Hyperparamters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
+        Marginbal Log Likelihood of best solution
+    """
 
-	def calc_nlogl3D(gp_params, *args):
-		# Calculate marginal loglikelihood
-		gp_amp = gp_params[0]
-		gp_noise = gp_params[1]
-		gp_length = np.asarray([gp_params[2], gp_params[3], gp_params[3]])	
-		D2, Y, Ynoise, Delta = args
-		if Delta is not None:
-			#kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
-			kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise * np.diag(Ynoise**2)
-		else:
-			#kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
-			kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise * np.diag(Ynoise**2)
-		try:
-			k_chol = cholesky(kcov, lower=True)
-			Ky = solve_triangular(k_chol, Y, lower=True).flatten()
-			log_det_k= 2 * np.log(np.diag(k_chol)).sum()
-			n_log_2pi = Ntrain * np.log(2 * np.pi)
-			logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
-		except:
-			logl = -np.nan
-		return -logl
+    def calc_nlogl3D(gp_params, *args):
+        # Calculate marginal loglikelihood
+        gp_amp = gp_params[0]
+        gp_noise = gp_params[1]
+        gp_length = np.asarray([gp_params[2], gp_params[3], gp_params[3]])	
+        D2, Y, Ynoise, Delta = args
+        if Delta is not None:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise * np.diag(Ynoise**2)
+        else:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise * np.diag(Ynoise**2)
+        try:
+            k_chol = cholesky(kcov, lower=True)
+            Ky = solve_triangular(k_chol, Y, lower=True).flatten()
+            log_det_k= 2 * np.log(np.diag(k_chol)).sum()
+            n_log_2pi = Ntrain * np.log(2 * np.pi)
+            logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+        except:
+            logl = -np.nan
+        return -logl
 
-	Dtrain = calcDistanceMatrix_multidim(points3d_train)
-	if Xdelta is not None:
-		Delta_00 = calcDeltaMatrix_multidim(Xdelta)
-	else:
-		Delta_00 = None
-	ystd = Y_train.std()
-	ymean = Y_train.mean()
-	Y = (Y_train - ymean) / ystd
-	Ynoise = Ynoise_train / ystd
-	print('Mean Input Noise: ', np.mean(Ynoise))
-	Ntrain = len(points3d_train)
+    Dtrain = calcDistanceMatrix_multidim(points3d_train)
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+    else:
+        Delta_00 = None
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    print('Mean Input Noise: ', np.mean(Ynoise))
+    Ntrain = len(points3d_train)
 
+    # Optimize hyperparameters
+    # Global optimisation
     # SHGO is disabled for now (too slow and latest scipy update made it unstable)
+    # TBD: test dual_annealing with scipy.optimize.dual_annealing?
     # res = shgo(calc_nlogl3D, n=20, iters =20,
     #             #bounds=[(0.001, 1000), (ynoise_min, 1), (zmin, zmin*1000), (xymin, xymin*1000)],
     #             bounds=[(0.01, 10), (0.01, 2.0), (zmin, zmin*2000), (xymin, xymin*4000)],
     #             sampling_method='sobol',
     #             args = (Dtrain, Y, Ynoise, Delta_00))
 
-    # Optimize hyperparameters
-	res = minimize(calc_nlogl3D, x0 = [1, 0.1, 10*zmin, 10*xymin],
-               bounds=[(0.01, 10), (0.0001, 2.0), (zmin, zmin*1000), (xymin, xymin*1000)],
-                method='SLSQP', #'COBYLA', #SLSQP
+    # Local optimisation
+    """
+    Some common local optimiser choices
+    'BFGS': Broyden-Fletcher-Goldfarb-Shanno algorithm
+    'SLSQP': Sequential Least Squares Programming
+    'COBYLA': Constrained Optimization BY Linear Approximation
+    'L-BFGS-B': Limited memory BFGS
+    'Powell': Powell's conjugate direction method
+    """
+    optimiser = 'Powell'
+    res = minimize(calc_nlogl3D, x0 = [1, 0.1, 10*zmin, 10*xymin],
+                bounds=[(0.01, 10), (0.001, 2.0), (zmin, zmin*1000), (xymin, xymin*1000)],
+                method=optimiser,
                 args = (Dtrain, Y, Ynoise, Delta_00))         
-	if not res.success:
-		# Don't update parameters
-		print('WARNING: ' + res.message) 
-	else:
-		print2(f'Optimized Hyperparameters (amplitude, y_noise_fac, lengthscale_z, lengths_xy): {res.x}')
-		print('Marginal Log Likelihood: ', -res.fun)
-	return res.x, -res.fun
+    if not res.success:
+        # Don't update parameters
+        print('WARNING: ' + res.message) 
+    else:
+        print2(f'Optimized Hyperparameters (amplitude, y_noise_fac, lengthscale_z, lengths_xy): {res.x}')
+        print('Marginal Log Likelihood: ', -res.fun)
+    return res.x, -res.fun
 
 
 	
@@ -246,10 +258,10 @@ def predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = 
 	mu = np.dot(v.T, Ky)
 	# predicted covariance
 	covar = kcov11 - np.dot(v.T, v)
-	if (Ynoise_pred is not None) & (gp_amp < 1):
-		#Caclulate diaginal elements as amplitude weighted average of  noise and GP noise
-		varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
-		np.fill_diagonal(covar, varcomb)
+	# if (Ynoise_pred is not None) & (gp_amp < 1):
+	# 	#Caclulate diaginal elements as amplitude weighted average of noise and GP noise
+	# 	varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+	# 	np.fill_diagonal(covar, varcomb)
 	# Transform predicted data back to original range:
 	ypred =  mu * ystd + ymean  
 	#yvar = np.diag(covar) * ystd**2
