@@ -37,7 +37,7 @@ from types import SimpleNamespace
 from tqdm import tqdm
 
 # Custom local libraries:
-from utils import find_zone, array2geotiff, align_nearest_neighbor, print2, truncate_data
+from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
 from preprocessing import gen_kfold
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
@@ -112,6 +112,7 @@ if __name__ == '__main__':
     theta_meanfunction = []
     theta_meanfunction_std = []
 
+    # Loop over mean functions and evaluate
     for mean_function in settings.mean_functions:
         # Loop over all mean function models
         print(f'Computing {len(range_nfold)}-fold xrossvalidation for mean function model: {mean_function}')
@@ -132,7 +133,7 @@ if __name__ == '__main__':
         histresidual = []
         histsspe = []
 
-
+        # Loop over all folds
         for ix in range_nfold:
             # Loop over all train/test sets (test sets are designated by ix; training set is defined by the remaining set)
             print('Processing for nfold ', ix)
@@ -212,7 +213,7 @@ if __name__ == '__main__':
                     plt.show()
                 plt.close('all')
 
-            # Subtract mean function of depth from training data 
+            # Subtract mean function of depth from training data for GP with zero mean
             y_train -= y_train_fmean
 
             # plot training and testing distribution
