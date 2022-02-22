@@ -1,7 +1,20 @@
 """
-Machine Learning models and 3D Cube Soil Generator using Gaussian Process Priors. 
+Probabilistic machine learning models and evaluation using Gaussian Process Priors with mean functions.
 
-See Documentation
+Current models implemented:
+- Gaussian Process with bayesian linear regression (BLR) as mean function and sparse spatial covariance function
+- Gaussian Process with random forest (RF) regression as mean function and sparse spatial covariance function
+
+
+Core functions:
+- train baseline models (mean functions): BLR and RF
+- hyperparameter optimisation of GP model
+- n-fold cross-validation of models
+- model evaluations: RMSE, NRMSE, R2, uncertainty of predictions
+- residual plots and analysis
+- ranking of best models
+
+See documentation for more details.
 
 User settings, such as input/output paths and all other options, are set in the settings file 
 (Default filename: settings_soilmodel_xval.yaml) 
@@ -18,27 +31,17 @@ This open-source software is released under the AGPL-3.0 License.
 
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 import os
 import sys
-#from scipy.linalg import pinv, solve, cholesky, solve_triangular
-#from scipy.optimize import minimize, shgo
 from scipy.special import erf
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
-#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
-import subprocess
 from sklearn.model_selection import train_test_split 
-# Save and load trained models and scalers:
-import pickle
-import json
 import yaml
 from types import SimpleNamespace  
-from tqdm import tqdm
 
 # Custom local libraries:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
-from sigmastats import averagestats
 from preprocessing import gen_kfold
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
 
@@ -50,7 +53,6 @@ show = False
 
 
 ######################### Main Script ############################
-
 
 if __name__ == '__main__':
     """
