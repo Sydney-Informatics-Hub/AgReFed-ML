@@ -33,15 +33,13 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-from scipy.special import erf
-from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split 
 import yaml
 from types import SimpleNamespace  
 
 # Custom local libraries:
-from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
+from utils import print2, truncate_data
 from preprocessing import gen_kfold
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
 
