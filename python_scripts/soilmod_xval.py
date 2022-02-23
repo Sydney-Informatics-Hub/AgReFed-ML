@@ -47,7 +47,7 @@ import GPmodel as gp # GP model plus kernel functions and distance matrix calcul
 _fname_settings = 'settings_soilmod_xval.yaml'
 
 # flag to show plot figures interactively or not (True/False)
-show = False
+_show = False
 
 
 ######################### Main Script ############################
@@ -73,20 +73,19 @@ if __name__ == '__main__':
         if mean_function == 'rf':
             import model_rf as rf
 
-    # Intialise output info file:
+    
+    # check if outpath exists, if not create direcory
     os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
     print2('init')
     print2(f'--- Parameter Settings ---')
     print2(f'Mean Functions: {settings.mean_functions}')
     print2(f'Target Name: {settings.name_target}')
     print2(f'--------------------------')
 
-    # Start with reading in data
-    # check if outpath exists, if not create direcory
-    #os.makedirs(outpath, exist_ok = True)
     outpath_root = settings.outpath
-    # Pre-process data
-    print('Reading and pre-processing data...')
+    print('Reading data into dataframe...')
     # Read in data
     dfsel = pd.read_csv(os.path.join(settings.inpath, settings.infname))
  
@@ -96,7 +95,6 @@ if __name__ == '__main__':
 
     # Generate kfold indices
     dfsel = gen_kfold(dfsel, nfold = 10, label_nfold = 'nfold', id_unique = ['x','y'], precision_unique = 0.01)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)
     bound_xmin = dfsel.x.min()
@@ -178,7 +176,7 @@ if __name__ == '__main__':
                 plt.xlabel('y True')
                 plt.ylabel('y Predict')
                 plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_RF_pred_vs_true.png'), dpi = 300)
-                if show:
+                if _show:
                     plt.show()
                 plt.close('all')
             elif mean_function == 'blr':
@@ -209,7 +207,7 @@ if __name__ == '__main__':
                 plt.xlabel('y True')
                 plt.ylabel('y Predict')
                 plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_BLR_pred_vs_true.png'), dpi = 300)
-                if show:
+                if _show:
                     plt.show()
                 plt.close('all')
 
@@ -231,7 +229,7 @@ if __name__ == '__main__':
             plt.legend()
             plt.tight_layout()                                                                                                                                                        
             plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_train.png'), dpi = 300)
-            if show:
+            if _show:
                 plt.show()
 
 
@@ -241,7 +239,7 @@ if __name__ == '__main__':
             plt.xlabel('Mean subtracted y_train')
             plt.ylabel('N')
             plt.savefig(os.path.join(outpath_nfold,'Hist_' + settings.name_target + '_train.png'), dpi = 300)
-            if show:
+            if _show:
                 plt.show() 
             plt.close('all')  
 
@@ -324,7 +322,7 @@ if __name__ == '__main__':
             plt.legend()
             plt.tight_layout()                                                                                                                                                        
             plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_residualmap.png'), dpi = 300) 
-            if show:
+            if _show:
                 plt.show() 
 
             # Residual Plot
@@ -337,7 +335,7 @@ if __name__ == '__main__':
             sns.distplot(sspe, norm_hist = True)
             plt.ylabel(r'$\Theta$')
             plt.savefig(os.path.join(outpath_nfold, 'Residual_hist_' + settings.name_target + '_nfold' + str(ix) + '.png'), dpi=300)
-            if show:
+            if _show:
                 plt.show() 
             plt.close('all')
 
@@ -350,7 +348,7 @@ if __name__ == '__main__':
             plt.ylabel(settings.name_target + ' Predict')
             plt.legend()
             plt.savefig(os.path.join(outpath_nfold,'pred_vs_true' + settings.name_target + '_nfold' + str(ix) + '.png'), dpi = 300)
-            if show:
+            if _show:
                 plt.show() 
             plt.close('all')
 
@@ -397,7 +395,7 @@ if __name__ == '__main__':
         plt.ylabel(r'$\Theta$')
         #plt.title(valuename + ' SSPE Test')
         plt.savefig(os.path.join(outpath, 'Xvalidation_Residual_hist_' + settings.name_target + '.png'), dpi=300)
-        if show:
+        if _show:
             plt.show()
         plt.close('all')
 
