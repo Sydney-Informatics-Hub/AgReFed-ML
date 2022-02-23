@@ -1,0 +1,78 @@
+# Settings for soilmodel_predict.py
+
+### Input Specifications ###
+inpath: '../../../data/Llara/preprocessed/'
+outpath: '../../../results/Llara_test/' 
+# File name with soil data and corresponding covariates
+infname: 'Llara_processed.csv' 
+# File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
+# if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
+gridname: 'Llara_COVARIATES_subsoil_prediction_30m_cropped.csv'
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+# Name of target for prediction (column name in dataframe)
+name_target: 'OC_WB'
+
+
+# Choose mean function for GP (can be one or a list of mean function), currently implemented:
+#'blr': bayesian linear regression with power transformation
+#'rf': Random Forest 
+mean_function: 'rf'
+
+
+### Select minimum and maximum of depth for data selection [in m]
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 0.1 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+
+
+### Select spacing for prediction predictions (ideally should be same as covariate grid),
+# Settings for Cube geometry that is generated (in meters)
+xyvoxsize:  30 # same as grid measurements
+zvoxsize: 0.05 # set depth resolution higher for testing, e.g. to 0.3. otherwise takes long time to run
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 0.15 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+# or use only certain depths for prediction (leave blank list [] if all depth intervals at zvoxsize should be predicted),
+# otherwise provide list of depths, e.g. [0.1, 0.3, 0.6]
+list_z_pred:  [0.025] #[0.05] #,  0.25,  0.35,  0.45, 0.55,  0.65,  0.75,  0.85,  0.95] # [0.1, 0.3, 0.6]
+
+### Spatial options for predictions, only relevant for prediction (option 'predict_new') 
+# Default is point prediction if integrate_block = False and integrate_polygon = False
+# number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
+# integrate over certain volume or block size, if True specify block size in meters
+integrate_block: False
+xyblocksize: 100 # in meters
+zblocksize: 0.1
+
+
+### Polygon not tested yet
+# Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
+#integrate_polygon: False
+# File name of polygons to be used to average prediction (can be in any common geospatial format, e.g. shp, gpkg, geojson)
+#polyname: 'testpolytri.gpkg' # must be in directory inpath
+
+
+
+### Name of covariates in soil training data or the cossvalidation data
+name_features: ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg', 
+'rad_dose', 'rad_u', 'rad_th', 'rad_k', 'silica',
+'NDVI_5',  'NDVI_50', 'NDVI_95', 'rain', 'temp',
+ 'TWI', 'Aspect', 'Soiltype_1', 'Soiltype_2', 'Soiltype_3', 'z'] #'gamma_K', 'EM',  'yield', 
+
+name_features_grid:  ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg', 
+'rad_dose', 'rad_u', 'rad_th', 'rad_k', 'silica',
+'NDVI_5',  'NDVI_50', 'NDVI_95', 'rain', 'temp',
+ 'TWI', 'Aspect', 'Soiltype_1', 'Soiltype_2', 'Soiltype_3'] # 'gamma_K', 'EM', 'yield', 
+
+
+colname_depthmin: 'lower_depth'
+colname_depthmax: 'upper_depth'
+
+colname_xcoord: 'Easting'
+colname_ycoord: 'Northing'
+
+#### Other optional parameters
+
+# If set True, makes grid prediction based on only the mean function without GP:
+calc_mean_only: False
