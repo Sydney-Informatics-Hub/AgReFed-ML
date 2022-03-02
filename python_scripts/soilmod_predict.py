@@ -78,14 +78,10 @@ if settings.integrate_block:
 settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
 
 
-if type(settings.mean_functions) != list:
-    settings.mean_functions = [settings.mean_functions]
-
-for mean_function in settings.mean_functions:
-    if mean_function == 'blr':
-        import model_blr as blr
-    if mean_function == 'rf':
-        import model_rf as rf
+if settings.mean_function == 'blr':
+    import model_blr as blr
+if settings.mean_function == 'rf':
+    import model_rf as rf
 
 
 ######################### Main Script ############################
@@ -97,7 +93,7 @@ if __name__ == '__main__':
     # Intialise output info file:
     print2('init')
     print2(f'--- Parameter Settings ---')
-    print2(f'Mean Functions: {settings.mean_functions}')
+    print2(f'Mean Function: {settings.mean_function}')
     print2(f'Target Name: {settings.name_target}')
     if settings.integrate_polygon:
         print2(f'Prediction geometry: Polygon')
@@ -145,7 +141,7 @@ if __name__ == '__main__':
     #dfgrid, name_features_grid2 = preprocess_grid(inpath, gridname, name_features = name_features_grid, name_target = name_target, categorical = 'Soiltype')
 
     
-    if integrate_polygon:
+    if settings.integrate_polygon:
         import geopandas as gpd 
         dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
             name_features = settings.name_features_grid, name_target = settings.name_target, grid_crs = settings.project_crs, categorical = 'Soiltype')
@@ -170,7 +166,7 @@ if __name__ == '__main__':
     points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
 
     # Define y target
-    y_train = dftrain[name_target].values
+    y_train = dftrain[settings.name_target].values
 
     # spatial uncertainty of coordinates:
     Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
@@ -178,24 +174,12 @@ if __name__ == '__main__':
     # Calculate predicted mean values of training data
     X_train = dftrain[settings.name_features].values
     y_train = dftrain[settings.name_target].values
-    if mean_function == 'rf':
+    if settings.mean_function == 'rf':
         # Estimate GP mean function with Random Forest
         rf_model = rf.rf_train(X_train, y_train)
         ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
         y_train_fmean = ypred_rf_train
-        # Plot mean function
-        plt.figure()  # inches
-        plt.title('Random Forest Model')
-        plt.errorbar(y_train, ypred_rf_train, ynoise_train, linestyle='None', marker = 'o', c = 'r', label = 'Train Data')
-        plt.errorbar(y_test, ypred_rf, ynoise_pred, linestyle='None', marker = 'o', c = 'b', label = 'Test Data')
-        plt.legend(loc = 'upper left')
-        plt.xlabel('y True')
-        plt.ylabel('y Predict')
-        plt.savefig(os.path.join(settings.outpath, settings.name_target + '_RF_pred_vs_true.png'), dpi = 300)
-        if _show:
-            plt.show()
-        plt.close('all')
-    elif mean_function == 'blr':
+    elif settings.mean_function == 'blr':
         # Scale data
         Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
         scaler_x, scaler_y = scale_params
@@ -206,37 +190,24 @@ if __name__ == '__main__':
         ypred_blr_train = ypred_blr_train.flatten()
         y_train_fmean = ypred_blr_train
         ynoise_train = ypred_std_blr_train
-        # Plot mean function
-        plt.figure()  # inches
-        plt.title('BLR Model')
-        plt.scatter(y_train, ypred_blr_train, c = 'r', label='Train Data')
-        plt.scatter(y_test, ypred_blr, c = 'b', label = 'Test Data')
-        plt.legend(loc = 'upper left')
-        plt.xlabel('y True')
-        plt.ylabel('y Predict')
-        plt.savefig(os.path.join(settings.outpath, settings.name_target + '_BLR_pred_vs_true.png'), dpi = 300)
-        if _show:
-            plt.show()
-        plt.close('all')
 
     # Subtract mean function of depth from training data 
     y_train -= y_train_fmean
 
 	# optimise GP hyperparameters 
 	# Use mean of X uncertainity for optimizing since otherwise too many local minima
-    if optimize_GP:
-        print('Optimizing GP hyperparameters...')
-        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
-        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
-            xymin = settings.xyvoxsize, 
-            zmin = settings.zvoxsize,  
-            Xdelta = Xdelta_mean)
-        params_gp = opt_params
-    else:
-        params_gp = GP_params
+    print('Optimizing GP hyperparameters...')
+    Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+    opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+        xymin = settings.xyvoxsize, 
+        zmin = settings.zvoxsize,  
+        Xdelta = Xdelta_mean)
+    params_gp = opt_params
 
-
+    # Set extent of prediction grid
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth slice
     outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
     os.makedirs(outpath_fig, exist_ok = True)	
 
@@ -285,11 +256,11 @@ if __name__ == '__main__':
                     points3D_pred = np.asarray([zsel, ysel, xsel]).T		
                     # Calculate mean function for prediction
 
-                    if mean_function == 'rf':
+                    if settings.mean_function == 'rf':
                         X_test = dftest[settings.name_features].values
                         ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
                         y_pred_zmean = ypred_rf
-                    elif mean_function == 'blr':
+                    elif settings.mean_function == 'blr':
                         X_test = dftest[settings.name_features].values
                         Xs_test = scaler_x.transform(X_test)
                         ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
@@ -355,7 +326,7 @@ if __name__ == '__main__':
             plt.figure(figsize = (8,8))
             plt.subplot(2, 1, 1)
             plt.imshow(mu_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
-            plt.title(name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+            plt.title(settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
             plt.ylabel('Northing [meters]')
             plt.colorbar()
             plt.subplot(2, 1, 2)
@@ -363,7 +334,7 @@ if __name__ == '__main__':
             std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
             std_3d_trim[std_3d_trim > std_3d_trim_max] = std_3d_trim_max
             plt.imshow(std_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-            plt.title('Std Dev ' + name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+            plt.title('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
             plt.colorbar()
             plt.xlabel('Easting [meters]')
             plt.ylabel('Northing [meters]')
@@ -390,8 +361,8 @@ if __name__ == '__main__':
             std_xyz[:,:,i] = std_3d[:,:,i].flatten().reshape(len(xblock), len(yblock))
 
         # Expand z dimension by factor 1000 for visualisation
-        create_vtkcube(esp_xyz, origin=(0,0,0), voxelsize=(xblocksize,yblocksize,-zblocksize*1e3), fname= os.path.join(outpath_fig, name_target + '_depthx1000.vtk'))
-        create_vtkcube(std_3d, origin=(0,0,0), voxelsize=(xblocksize,yblocksize,-zblocksize*1e3), fname= os.path.join(outpath_fig, 'Stddev_' + name_target + '_depthx1000.vtk'))
+        create_vtkcube(esp_xyz, origin=(0,0,0), voxelsize=(xblocksize,yblocksize,-zblocksize*1e3), fname= os.path.join(outpath_fig, settings.name_target + '_depthx1000.vtk'))
+        create_vtkcube(std_3d, origin=(0,0,0), voxelsize=(xblocksize,yblocksize,-zblocksize*1e3), fname= os.path.join(outpath_fig, 'Stddev_' + settings.name_target + '_depthx1000.vtk'))
 
         # make constrain and probability maps
         for iconstrain in constrain_values_max:
@@ -403,122 +374,122 @@ if __name__ == '__main__':
 
 	
     else:
-		if settings.integrate_polygon:
-			dfout_poly =  dfgrid[['ibatch']].copy()
-		else:
-			# Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
-			batchsize = 500
-			#def chunker(df, batchsize):
-			#	return (df[pos:pos + batchsize] for pos in np.arange(0, len(df), batchsize))
-			dfgrid = dfgrid.reset_index()
-			dfgrid['ibatch'] = dfgrid.index // batchsize
-			
-		#nbatch = dfgrid['ibatch'].max()
-		ixrange_batch = dfgrid['ibatch'].unique()
-		nbatch = len(ixrange_batch)
-		print("Number of mini-batches per depth slice: ", nbatch)
-		mu_res = np.zeros(len(dfgrid))
-		std_res = np.zeros(len(dfgrid))
-		coord_x = np.zeros(len(dfgrid))
-		coord_y = np.zeros(len(dfgrid))
-		ix = np.arange(len(dfgrid))
+        if settings.integrate_polygon:
+            dfout_poly =  dfgrid[['ibatch']].copy()
+        else:
+            # Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
+            batchsize = 500
+            #def chunker(df, batchsize):
+            #	return (df[pos:pos + batchsize] for pos in np.arange(0, len(df), batchsize))
+            dfgrid = dfgrid.reset_index()
+            dfgrid['ibatch'] = dfgrid.index // batchsize
+            
+        #nbatch = dfgrid['ibatch'].max()
+        ixrange_batch = dfgrid['ibatch'].unique()
+        nbatch = len(ixrange_batch)
+        print("Number of mini-batches per depth slice: ", nbatch)
+        mu_res = np.zeros(len(dfgrid))
+        std_res = np.zeros(len(dfgrid))
+        coord_x = np.zeros(len(dfgrid))
+        coord_y = np.zeros(len(dfgrid))
+        ix = np.arange(len(dfgrid))
 
-		xspace = np.arange(dfgrid['x'].min(), dfgrid['x'].max(), settings.xvoxsize)
-		yspace = np.arange(dfgrid['y'].min(), dfgrid['y'].max(), settings.yvoxsize)
-		if (len(list_z_pred) > 0) & (list_z_pred is not None) &  (list_z_pred != 'None'):
-			zspace = np.asarray(list_z_pred)
-		else:
-			zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
-			print('Calculating for depths at: ', zspace)
-		grid_x, grid_y = np.meshgrid(xspace, yspace)
-		mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
-		std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
-		gp_train_flag = 0 # need to be computed only first time
-		# Slice in blocks for prediction calculating per 30 km x 1cm
-		for i in range(len(zspace)):
-			# predict for each depth z slice
-			print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
-			ix_start = 0
-			if settings.integrate_polygon:
-				dfout_poly['Mean'] = np.nan
-				dfout_poly['Std'] = np.nan
-			for j in tqdm(ixrange_batch):
-				dftest = dfgrid[dfgrid.ibatch == j].copy()
-				#Set maximum number of evaluation points to 500 
-				while len(dftest) > 500:
-					# if larger than 500, select only subset of sample points that are regular spaced
-					# select only every second value, this reduces size to 1/2
-					dftest = dftest.sort_values(['y', 'x'], ascending = [True, True])
-					dftest = dftest.iloc[::2, :]
-				dftest['z'] = zspace[i]
-				ysel = dftest.y.values
-				xsel = dftest.x.values
-				zsel = dftest.z.values
-				points3D_pred = np.asarray([zsel, ysel, xsel]).T
-				
-				# Calculate mean function for prediction
-				if mean_function == 'rf':
-					X_test = dftest[settings.name_features].values
-					ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
-					y_pred_zmean = ypred_rf
-				elif mean_function == 'blr':
-					X_test = dftest[settings.name_features].values
-					Xs_test = scaler_x.transform(X_test)
-					ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
-					y_pred_zmean = ypred_blr
-					ynoise_pred = ypred_std_blr
+        xspace = np.arange(dfgrid['x'].min(), dfgrid['x'].max(), settings.xvoxsize)
+        yspace = np.arange(dfgrid['y'].min(), dfgrid['y'].max(), settings.yvoxsize)
+        if (len(settings.list_z_pred) > 0) & (settings.list_z_pred is not None) &  (settings.list_z_pred != 'None'):
+            zspace = np.asarray(settings.list_z_pred)
+        else:
+            zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
+            print('Calculating for depths at: ', zspace)
+        grid_x, grid_y = np.meshgrid(xspace, yspace)
+        mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+        std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+        gp_train_flag = 0 # need to be computed only first time
+        # Slice in blocks for prediction calculating per 30 km x 1cm
+        for i in range(len(zspace)):
+            # predict for each depth z slice
+            print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
+            ix_start = 0
+            if settings.integrate_polygon:
+                dfout_poly['Mean'] = np.nan
+                dfout_poly['Std'] = np.nan
+            for j in tqdm(ixrange_batch):
+                dftest = dfgrid[dfgrid.ibatch == j].copy()
+                #Set maximum number of evaluation points to 500 
+                while len(dftest) > 500:
+                    # if larger than 500, select only subset of sample points that are regular spaced
+                    # select only every second value, this reduces size to 1/2
+                    dftest = dftest.sort_values(['y', 'x'], ascending = [True, True])
+                    dftest = dftest.iloc[::2, :]
+                dftest['z'] = zspace[i]
+                ysel = dftest.y.values
+                xsel = dftest.x.values
+                zsel = dftest.z.values
+                points3D_pred = np.asarray([zsel, ysel, xsel]).T
+                
+                # Calculate mean function for prediction
+                if settings.mean_function == 'rf':
+                    X_test = dftest[settings.name_features].values
+                    ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                    y_pred_zmean = ypred_rf
+                elif settings.mean_function == 'blr':
+                    X_test = dftest[settings.name_features].values
+                    Xs_test = scaler_x.transform(X_test)
+                    ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                    y_pred_zmean = ypred_blr
+                    ynoise_pred = ypred_std_blr
 
-				# GP Prediction:
-				if not settings.calc_mean_only:
-					if gp_train_flag == 0:
-						# Need to calculate matrix gp_train only once, then used subsequently for all other predictions
-						if settings.integrate_polygon:
-							ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
-								Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True)
-						else:
-							ypred, ystd, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
-								Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
-						gp_train_flag = 1
-					else:
-						if settings.integrate_polygon:
-							ypred, ystd, covar = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
-								Xdelta = Xdelta_train, out_covar = True)
-						else:
-							ypred, ystd = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
-				else:
-					ypred = y_pred_zmean
-					ystd = ynoise_pred
+                # GP Prediction:
+                if not settings.calc_mean_only:
+                    if gp_train_flag == 0:
+                        # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                        if settings.integrate_polygon:
+                            ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                                Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True)
+                        else:
+                            ypred, ystd, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                                Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                        gp_train_flag = 1
+                    else:
+                        if settings.integrate_polygon:
+                            ypred, ystd, covar = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
+                                Xdelta = Xdelta_train, out_covar = True)
+                        else:
+                            ypred, ystd = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                else:
+                    ypred = y_pred_zmean
+                    ystd = ynoise_pred
 
-				# Combine noise of GP and mean functiojn for prediction (already in coavraice function):
-				#ystd = np.sqrt(ystd**2 + ynoise_pred**2)	
+                # Combine noise of GP and mean functiojn for prediction (already in coavraice function):
+                #ystd = np.sqrt(ystd**2 + ynoise_pred**2)	
 
-				if settings.integrate_polygon:
-					# Now calculate mean and standard deviation for polygon area
-					# Need to calculate weighted average from covar and ypred
-					if not settings.calc_mean_only:
-						ypred_poly, ystd_poly = averagestats(ypred + y_pred_zmean, covar)
-					else:
-						ypred_poly, ystd_poly = averagestats(ypred, covar)
-					dfout_poly.loc[dfout_poly['ibatch'] == j, 'Mean'] = ypred_poly
-					dfout_poly.loc[dfout_poly['ibatch'] == j, 'Std'] = ystd_poly
-				else:
-					# Save results in 3D array
-					ix_end = ix_start + len(ypred)
-					if not settings.calc_mean_only:
-						mu_res[ix_start : ix_end] = ypred + y_pred_zmean #.reshape(len(xspace), len(yspace))
-						std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
-					else: 
-						mu_res[ix_start : ix_end] = ypred #.reshape(len(xspace), len(yspace))
-						std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
-					if i ==0:
-						coord_x[ix_start : ix_end] = np.round(dftest.x.values,2)
-						coord_y[ix_start : ix_end] = np.round(dftest.y.values,2)
-					ix_start = ix_end
+                if settings.integrate_polygon:
+                    # Now calculate mean and standard deviation for polygon area
+                    # Need to calculate weighted average from covar and ypred
+                    if not settings.calc_mean_only:
+                        ypred_poly, ystd_poly = averagestats(ypred + y_pred_zmean, covar)
+                    else:
+                        ypred_poly, ystd_poly = averagestats(ypred, covar)
+                    dfout_poly.loc[dfout_poly['ibatch'] == j, 'Mean'] = ypred_poly
+                    dfout_poly.loc[dfout_poly['ibatch'] == j, 'Std'] = ystd_poly
+                else:
+                    # Save results in 3D array
+                    ix_end = ix_start + len(ypred)
+                    if not settings.calc_mean_only:
+                        mu_res[ix_start : ix_end] = ypred + y_pred_zmean #.reshape(len(xspace), len(yspace))
+                        std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+                    else: 
+                        mu_res[ix_start : ix_end] = ypred #.reshape(len(xspace), len(yspace))
+                        std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+                    if i ==0:
+                        coord_x[ix_start : ix_end] = np.round(dftest.x.values,2)
+                        coord_y[ix_start : ix_end] = np.round(dftest.y.values,2)
+                    ix_start = ix_end
 
 
 			# Save all data for the depth layer
 			
-			if settings.integrate_polygon:
+            if settings.integrate_polygon:
                 dfpoly_z = dfpoly.merge(dfout_poly, how = 'left', on = 'ibatch')
                 # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
                 dfpoly_z.to_file(os.path.join(outpath_fig, 'Prediction_poly_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.gpkg'), driver='GPKG')
@@ -539,7 +510,7 @@ if __name__ == '__main__':
                 if _show:
                     plt.show()  
                 plt.close('all')
-			else:
+            else:
                 print("saving data and generating plots...")
                 # map coordinate array to image
                 #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = 'nearest')
@@ -614,93 +585,93 @@ if __name__ == '__main__':
                 tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * xvoxsize, bound_ymin + 0.5 * yvoxsize], [xvoxsize,yvoxsize], outfname_tif_std, project_crs)
 
 
-		print("Exporting cube...")
-		# export cube data as vtk file, first change dimensions:
-		if not settings.integrate_polygon:
-			esp_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
-			std_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
-			for i in range(len(zspace)):
-				esp_xyz[:,:,i] = mu_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
-				std_xyz[:,:,i] = std_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
+        print("Exporting cube...")
+        # export cube data as vtk file, first change dimensions:
+        if not settings.integrate_polygon:
+            esp_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
+            std_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
+            for i in range(len(zspace)):
+                esp_xyz[:,:,i] = mu_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
+                std_xyz[:,:,i] = std_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
 
-			# Expand z dimension by factor 1000 for visualisation
-			create_vtkcube(esp_xyz, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, settings.name_target + '_depthx1000.vtk'))
-			create_vtkcube(std_3d, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, 'Stddev_' + settings.name_target + '_depthx1000.vtk'))
+            # Expand z dimension by factor 1000 for visualisation
+            create_vtkcube(esp_xyz, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, settings.name_target + '_depthx1000.vtk'))
+            create_vtkcube(std_3d, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, 'Stddev_' + settings.name_target + '_depthx1000.vtk'))
 
-		if not settings.integrate_polygon:
-			# make constrain and probability maps
-			try:
-				print('Creating probability maps ...')
-				for iconstrain in constrain_values_max:
-					prob3d = create_probabilitymap(mu_3d, std_3d, zspace, zspace, iconstrain, outpath_fig)
-			except:
-				print('Probablity Map creation failed')
-			if len(zspace) > 1:
-				print('Creating soil depth constrain maps ...')
-				constrain_array, constrain_std_array = create_constrainmap_sigma(mu_3d, std_3d, zspace * 100, outpath_fig, values_min = constrain_values_min, values_max = constrain_values_max, interp = True)
+        if not settings.integrate_polygon:
+            # make constrain and probability maps
+            try:
+                print('Creating probability maps ...')
+                for iconstrain in constrain_values_max:
+                    prob3d = create_probabilitymap(mu_3d, std_3d, zspace, zspace, iconstrain, outpath_fig)
+            except:
+                print('Probablity Map creation failed')
+            if len(zspace) > 1:
+                print('Creating soil depth constrain maps ...')
+                constrain_array, constrain_std_array = create_constrainmap_sigma(mu_3d, std_3d, zspace * 100, outpath_fig, values_min = constrain_values_min, values_max = constrain_values_max, interp = True)
 
-			
+            
 
-    if not settings.integrate_polygon:
-        # Clip stddev for images
-        mu_3d_mean = mu_3d.mean(axis = 2).T
-        mu_3d_mean_max = np.percentile(mu_3d_mean,99.5)
-        mu_3d_mean_trim = mu_3d_mean.copy()
-        mu_3d_mean_trim[mu_3d_mean > mu_3d_mean_max] = mu_3d_mean_max
-        mu_3d_mean_trim[mu_3d_mean < 0] = 0
-        std_3d_trim = std_3d.copy()
-        std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)],99.5)
-        std_3d_trim[std_3d_trim > std_3d_trim_max] = std_3d_trim_max
-        std_3d_trim[std_3d_trim < 0] = 0
+        if not settings.integrate_polygon:
+            # Clip stddev for images
+            mu_3d_mean = mu_3d.mean(axis = 2).T
+            mu_3d_mean_max = np.percentile(mu_3d_mean,99.5)
+            mu_3d_mean_trim = mu_3d_mean.copy()
+            mu_3d_mean_trim[mu_3d_mean > mu_3d_mean_max] = mu_3d_mean_max
+            mu_3d_mean_trim[mu_3d_mean < 0] = 0
+            std_3d_trim = std_3d.copy()
+            std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)],99.5)
+            std_3d_trim[std_3d_trim > std_3d_trim_max] = std_3d_trim_max
+            std_3d_trim[std_3d_trim < 0] = 0
 
-        # Create Result Plot of mean with locations
-        plt.figure(figsize = (8,8))
-        plt.subplot(2, 1, 1)
-        plt.imshow(mu_3d_mean_trim,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
-        plt.colorbar()
-        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
-        plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-        plt.title('ESP ' +settings. name_target + ' Mean')
-        plt.ylabel('Northing [meters]')
-        
-        plt.subplot(2, 1, 2)
-        plt.imshow(std_3d_trim.mean(axis = 2).T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-        plt.colorbar()
-        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
-        plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-        plt.title('Std Dev ' + settings.name_target + ' Mean')
-        plt.xlabel('Easting [meters]')
-        plt.ylabel('Northing [meters]')
-        plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_' + name_target + '_mean.png'), dpi=300)
-        if _show:
-            plt.show()
-        plt.close('all')
+            # Create Result Plot of mean with locations
+            plt.figure(figsize = (8,8))
+            plt.subplot(2, 1, 1)
+            plt.imshow(mu_3d_mean_trim,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
+            plt.colorbar()
+            #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
+            plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
+            plt.title('ESP ' +settings.name_target + ' Mean')
+            plt.ylabel('Northing [meters]')
 
-        # Create Result Plot with data colors
-        plt.figure(figsize = (8,8))
-        plt.subplot(2, 1, 1)
-        plt.imshow(mu_3d_mean_trim,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
-        plt.colorbar()
-        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
-        plt.scatter(points3D_train[:,2],points3D_train[:,1], c = dftrain[name_target].values, alpha =0.3, edgecolors = 'k')
-        
-        plt.title(settings.name_target + ' Depth Mean')
-        plt.ylabel('Northing [meters]')
-        plt.subplot(2, 1, 2)
-        plt.imshow(std_3d_trim.mean(axis = 2).T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-        #plt.imshow(np.sqrt((std_3d.mean(axis = 2).T)**2 + params_gp[1]**2 *  ytrain.std()**2),origin='lower', aspect = 'equal', extent = extent)
-        plt.colorbar()
-        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
-        plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-        plt.title('Std Dev ' + settings.name_target + ' Mean')
-        plt.xlabel('Easting [meters]')
-        plt.ylabel('Northing [meters]')
-        plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_' + name_target + '_mean2.png'), dpi=300)
-        if _show:
-            plt.show()
-        plt.close('all')
+            plt.subplot(2, 1, 2)
+            plt.imshow(std_3d_trim.mean(axis = 2).T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
+            plt.colorbar()
+            #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
+            plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
+            plt.title('Std Dev ' + settings.name_target + ' Mean')
+            plt.xlabel('Easting [meters]')
+            plt.ylabel('Northing [meters]')
+            plt.tight_layout()
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_mean.png'), dpi=300)
+            if _show:
+                plt.show()
+            plt.close('all')
+
+            # Create Result Plot with data colors
+            plt.figure(figsize = (8,8))
+            plt.subplot(2, 1, 1)
+            plt.imshow(mu_3d_mean_trim,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
+            plt.colorbar()
+            #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
+            plt.scatter(points3D_train[:,2],points3D_train[:,1], c = dftrain[settings.name_target].values, alpha =0.3, edgecolors = 'k')
+
+            plt.title(settings.name_target + ' Depth Mean')
+            plt.ylabel('Northing [meters]')
+            plt.subplot(2, 1, 2)
+            plt.imshow(std_3d_trim.mean(axis = 2).T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
+            #plt.imshow(np.sqrt((std_3d.mean(axis = 2).T)**2 + params_gp[1]**2 *  ytrain.std()**2),origin='lower', aspect = 'equal', extent = extent)
+            plt.colorbar()
+            #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
+            plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
+            plt.title('Std Dev ' + settings.name_target + ' Mean')
+            plt.xlabel('Easting [meters]')
+            plt.ylabel('Northing [meters]')
+            plt.tight_layout()
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_mean2.png'), dpi=300)
+            if _show:
+                plt.show()
+            plt.close('all')
 
 
     print("Prediction Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(mu_3d), np.median(mu_3d[~np.isnan(mu_3d)]), 
