@@ -212,12 +212,13 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
 		return ypred, np.sqrt(yvar), logl, gp_train
 
 
-def predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = None, out_covar = False):
+def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = None, out_covar = False):
 	"""
 	Predict mean and covariance based on trained GP. 
 	This caluclation saves time as cholesky decompsoition  is already pre-computed. 
 
 	INPUT
+        points3d_train: Array with trainig point coodinates for (z,y,x)
 	    points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
 	    gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
 	    params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)

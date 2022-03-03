@@ -277,7 +277,7 @@ if __name__ == '__main__':
                                 Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True) 
                             gp_train_flag = False
                         else:
-                            ypred, ystd, covar = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, 
+                            ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, 
                                 out_covar = True)
                     else:
                         ypred = y_pred_zmean
@@ -452,10 +452,10 @@ if __name__ == '__main__':
                         gp_train_flag = 1
                     else:
                         if settings.integrate_polygon:
-                            ypred, ystd, covar = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
+                            ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
                                 Xdelta = Xdelta_train, out_covar = True)
                         else:
-                            ypred, ystd = gp.predict_3D(points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                            ypred, ystd = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
                 else:
                     ypred = y_pred_zmean
                     ystd = ynoise_pred
