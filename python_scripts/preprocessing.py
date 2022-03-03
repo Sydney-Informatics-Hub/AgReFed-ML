@@ -27,7 +27,7 @@ import sys
 import argparse
 import yaml
 from types import SimpleNamespace  
-sklearn.model_selection import StratifiedKFold
+#sklearn.model_selection import StratifiedKFold
 
 # Default settings yaml file name:
 _fname_settings = 'settings_preprocessing.yaml'
@@ -35,7 +35,7 @@ _fname_settings = 'settings_preprocessing.yaml'
 
 def preprocess(inpath, infname, outpath, outfname, name_target, name_features, 
              zmin = None, zmax = None, gen_gpkg = False, categorical = None,
-            colname_depthmin = 'lower_depth', colname_depthmax = 'upper_depth',
+            colname_depthmin = None, colname_depthmax = None,
             colname_xcoord = 'x', colname_ycoord = 'y', colname_lat = None, colname_lng= None, 
             project_crs = None): 
     """
@@ -76,7 +76,10 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     ## Keep track of all covariates
     #name_features2 = name_features.copy()
     # Keep track of all relevant column names
-    fieldnames = name_features + [name_target]
+    if name_target is not None:
+        fieldnames = name_features + [name_target]
+    else:
+        fieldnames = name_features
     #df = pd.read_csv(os.path.join(inpath, infname), usecols = fieldnames)
     df = pd.read_csv(os.path.join(inpath, infname))
     # Find if Latitude or Longitude values exist:
@@ -97,16 +100,27 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     if ('x' not in list(df)) & ('y' not in list(df)):
         df.rename(columns={colname_xcoord: "x", colname_ycoord: "y"}, inplace=True)  
         fieldnames += ['x', 'y']  
-    # Check if x and y are in meters (projected coordinates) or in degrees:
+
+    # Check that all x and y are numeric
+    if (df['x'].dtype != 'float64') | (df['y'].dtype != 'float64'):
+        # Convert to numeric
+        df['x'] = pd.to_numeric(df['x'], errors='coerce')
+        df['y'] = pd.to_numeric(df['y'], errors='coerce')
+
+    # Check if x and y are in meters (projected coordinates) or in degrees
     # Here we assume that bounding box is not larger than 5 degree in any directions
     if (abs(df.x.max() - df.x.min()) < 5) | (abs(df.y.max() - df.y.min()) < 5):
+        print(f'check if x and y are in meters (projected coordinates) or in degrees')
+        print(f'distance in x is {abs(df.x.max() - df.x.min())}')
         print(f'WARNING: Coordinates {colname_xcoord} and {colname_ycoord} seem to be not in meters!')
-        print(f'         Please check if coordinates are projected or not!')
+        print(f'Please check if coordinates are projected or not!')
+        
 
     # Calculate mid point and convert to cm
-    df['z'] = 0.5 * (df[colname_depthmin] + df[colname_depthmax]) / 100.
-    df['z_diff'] = (df[colname_depthmin] - df[colname_depthmax]) / 100.
-    fieldnames += ['z', 'z_diff']
+    if (colname_depthmin is not None) & (colname_depthmax is not None):
+        df['z'] = 0.5 * (df[colname_depthmin] + df[colname_depthmax]) / 100.
+        df['z_diff'] = (df[colname_depthmin] - df[colname_depthmax]) / 100.
+        fieldnames += ['z', 'z_diff']
     #if isinstance(name_features2, list):
     #    selcols = ['x', 'y', 'z', 'z_diff']
     #    selcols.extend(name_features2)
@@ -321,9 +335,8 @@ def preprocess_grid(inpath, infname, outpath, outfname, name_features, categoric
         selcols.extend(name_features2)
     else:
         selcols = ['x', 'y', name_features2]
-    dfout = df[selcols].copy()
-    dfout.to_csv(os.path.join(outpath, outfname), index = False)   
-    return dfout, name_features2
+    dfout[selcols].to_csv(os.path.join(outpath, outfname), index = False)   
+    return dfout[selcols], name_features2
 
 
 def preprocess_grid_poly(path, infname_grid, infname_poly, name_features, 
@@ -424,7 +437,7 @@ def main(fname_settings):
             settings.outpath, settings.outfname, 
             settings.name_target, settings.name_features, 
             colname_xcoord = settings.colname_xcoord, colname_ycoord = settings.colname_ycoord,
-            zmin = 100*settings.zmin, zmax= 100*settings.zmax, 
+            zmin = settings.zmin, zmax= settings.zmax, 
             categorical = 'Soiltype',
             colname_depthmin = settings.colname_depthmin, colname_depthmax = settings.colname_depthmax,
             gen_gpkg = False,
