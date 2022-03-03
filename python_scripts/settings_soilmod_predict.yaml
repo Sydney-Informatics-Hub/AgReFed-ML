@@ -2,12 +2,12 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_pointpredict_test/' 
+outpath: '../../../results/Llara_pointpredict_RF_test/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
 # if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
-gridname: 'Llara_COVARIATES_subsoil_prediction_30m_cropped.csv'
+gridname: 'Llara_grid_processed.csv'
 
 # set project coordinate reference system
 project_crs: "EPSG:28355" 

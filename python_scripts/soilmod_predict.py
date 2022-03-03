@@ -55,6 +55,17 @@ _fname_settings = 'settings_soilmod_predict.yaml'
 # flag to show plot figures interactively or not (True/False)
 _show = False
 
+### Some colormap settings (Default settings)
+# Choose colormap, default Matplotlib colormaps:
+# add ending '_r' at end for inverse of standard color 
+# For prediction maps (default 'viridis'):
+colormap_pred = 'viridis' 
+# For uncertainity prediction maps (default 'viridis')
+colormap_pred_std =  'viridis'
+# For probability exceeding treshold maps (default 'coolwarm')
+colormap_prob = 'coolwarm'
+# Or use seaborn colormaps 
+
 # Load settings from yaml file
 with open(_fname_settings, 'r') as f:
     settings = yaml.load(f, Loader=yaml.FullLoader)
@@ -581,36 +592,9 @@ if __name__ == '__main__':
                 outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.tif')
 
                 print('Saving results as geo tif...')
-                tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * xvoxsize, bound_ymin + 0.5 * yvoxsize], [xvoxsize,yvoxsize], outfname_tif, project_crs)
-                tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * xvoxsize, bound_ymin + 0.5 * yvoxsize], [xvoxsize,yvoxsize], outfname_tif_std, project_crs)
+                tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
+                tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
 
-
-        print("Exporting cube...")
-        # export cube data as vtk file, first change dimensions:
-        if not settings.integrate_polygon:
-            esp_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
-            std_xyz = np.zeros((len(xspace), len(yspace), len(zspace)))
-            for i in range(len(zspace)):
-                esp_xyz[:,:,i] = mu_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
-                std_xyz[:,:,i] = std_3d[:,:,i].flatten().reshape(len(xspace), len(yspace))
-
-            # Expand z dimension by factor 1000 for visualisation
-            create_vtkcube(esp_xyz, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, settings.name_target + '_depthx1000.vtk'))
-            create_vtkcube(std_3d, origin=(0,0,0), voxelsize=(settings.xvoxsize,settings.yvoxsize,-settings.zvoxsize*1e3), fname= os.path.join(outpath_fig, 'Stddev_' + settings.name_target + '_depthx1000.vtk'))
-
-        if not settings.integrate_polygon:
-            # make constrain and probability maps
-            try:
-                print('Creating probability maps ...')
-                for iconstrain in constrain_values_max:
-                    prob3d = create_probabilitymap(mu_3d, std_3d, zspace, zspace, iconstrain, outpath_fig)
-            except:
-                print('Probablity Map creation failed')
-            if len(zspace) > 1:
-                print('Creating soil depth constrain maps ...')
-                constrain_array, constrain_std_array = create_constrainmap_sigma(mu_3d, std_3d, zspace * 100, outpath_fig, values_min = constrain_values_min, values_max = constrain_values_max, interp = True)
-
-            
 
         if not settings.integrate_polygon:
             # Clip stddev for images
