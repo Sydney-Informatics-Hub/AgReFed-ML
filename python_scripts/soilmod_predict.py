@@ -22,7 +22,7 @@ This package is part of the machine learning project developed for the Agricultu
 
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
-This open-source software is released under the AGPL-3.0 License.
+This open-source software is released under the LGPL-3.0 License.
 """
 
 import numpy as np
@@ -48,6 +48,8 @@ from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
 from preprocessing import gen_kfold
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
+import model_blr as blr
+import model_rf as rf
 
 # Settings yaml file
 _fname_settings = 'settings_soilmod_predict.yaml'
@@ -66,37 +68,38 @@ colormap_pred_std =  'viridis'
 colormap_prob = 'coolwarm'
 # Or use seaborn colormaps 
 
-# Load settings from yaml file
-with open(_fname_settings, 'r') as f:
-    settings = yaml.load(f, Loader=yaml.FullLoader)
-# Parse settings dictinary as namespace (settings are available as 
-# settings.variable_name rather than settings['variable_name'])
-settings = SimpleNamespace(**settings)
-
-#########################
-if settings.calc_mean_only:
-	settings.optimize_GP = False
-	settings.calc_xval = False
-	predict_grid_all = True
-
-
-if settings.integrate_block:
-    Nvoxel_per_block = settings.xblocksize * settings.yblocksize * settings.zblocksize / (settings.xvoxsize * settings.yvoxsize * settings.zvoxsize) # this is 125 in this case
-    print("Number of evaluation points per block: ", Nvoxel_per_block)
-    settings.xblocksize = settings.yblocksize = settings.xyblocksize
-
-# currently assuming resolution is the same in x and y direction
-settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
-
-
-if settings.mean_function == 'blr':
-    import model_blr as blr
-if settings.mean_function == 'rf':
-    import model_rf as rf
 
 
 ######################### Main Script ############################
-if __name__ == '__main__':	
+def main(fname_settings):	
+    """
+    Main function for running the script.
+
+    Input:
+        fname_settings: path and filename to settings file
+    """
+
+    # Load settings from yaml file
+    with open(fname_settings, 'r') as f:
+        settings = yaml.load(f, Loader=yaml.FullLoader)
+    # Parse settings dictinary as namespace (settings are available as 
+    # settings.variable_name rather than settings['variable_name'])
+    settings = SimpleNamespace(**settings)
+
+    # set conditional settings
+    if settings.calc_mean_only:
+        settings.optimize_GP = False
+        settings.calc_xval = False
+        predict_grid_all = True
+
+    # if integrate over block, set blocksizes
+    if settings.integrate_block:
+        Nvoxel_per_block = settings.xblocksize * settings.yblocksize * settings.zblocksize / (settings.xvoxsize * settings.yvoxsize * settings.zvoxsize)
+        print("Number of evaluation points per block: ", Nvoxel_per_block)
+        settings.xblocksize = settings.yblocksize = settings.xyblocksize
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
 
     # check if outpath exists, if not create direcory
     os.makedirs(settings.outpath, exist_ok = True)
@@ -665,4 +668,13 @@ if __name__ == '__main__':
         np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
 
 
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Prediction model for machine learning on soil data.')
+    parser.add_argument('-s', '--settings', type=str, required=False,
+                        help='Path and filename of settings file.',
+                        default = _fname_settings)
+    args = parser.parse_args()
 
+    # Run main function
+    main(args.settings)
