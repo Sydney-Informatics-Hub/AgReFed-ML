@@ -36,12 +36,15 @@ import sys
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split 
 import yaml
+import argparse
 from types import SimpleNamespace  
 
 # Custom local libraries:
 from utils import print2, truncate_data
 from preprocessing import gen_kfold
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
+import model_blr as blr
+import model_rf as rf
 
 # Settings yaml file
 _fname_settings = 'settings_soilmod_xval.yaml'
@@ -52,13 +55,13 @@ _show = False
 
 ######################### Main Script ############################
 
-if __name__ == '__main__':
+def main(fname_settings):
     """
     Main script for running 3D cubing with Gaussian Process.
     See Documentation and comments below for more details.
     """
     # Load settings from yaml file
-    with open(_fname_settings, 'r') as f:
+    with open(fname_settings, 'r') as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)
     # Parse settings dictinary as namespace (settings are available as 
     # settings.variable_name rather than settings['variable_name'])
@@ -66,12 +69,6 @@ if __name__ == '__main__':
 
     if type(settings.mean_functions) != list:
         settings.mean_functions = [settings.mean_functions]
-
-    for mean_function in settings.mean_functions:
-        if mean_function == 'blr':
-            import model_blr as blr
-        if mean_function == 'rf':
-            import model_rf as rf
 
     
     # check if outpath exists, if not create direcory
@@ -250,6 +247,7 @@ if __name__ == '__main__':
             print('Mean of Mean function noise: ' +str(np.round(np.mean(ynoise_train),4)) + ' +/- ' + str(np.round(np.std(ynoise_train),4))) 
             print('Optimizing GP hyperparameters...')
             Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+            # TBD: find automatic way to set hyperparameter boundaries based on data
             opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_mean)
             #opt_params, opt_logl = optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_train)
             params_gp = opt_params
@@ -413,3 +411,15 @@ if __name__ == '__main__':
     print('')
     for ix in ix_meanfunction_sorted:
         print(f'{settings.mean_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
+
+
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Prediction model for machine learning on soil data.')
+    parser.add_argument('-s', '--settings', type=str, required=False,
+                        help='Path and filename of settings file.',
+                        default = _fname_settings)
+    args = parser.parse_args()
+
+    # Run main function
+    main(args.settings)
