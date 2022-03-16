@@ -93,8 +93,19 @@ def main(fname_settings):
     # settings.variable_name rather than settings['variable_name'])
     settings = SimpleNamespace(**settings)
 
+    if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == 'blr-gp') | (settings.model_function == 'blr'):
+        mean_function = 'blr'
+    if (settings.model_function == 'rf-gp') | (settings.model_function == 'rf'):
+        mean_function = 'rf'
+
+
     # set conditional settings
-    if settings.calc_mean_only:
+    if calc_mean_only:
         settings.optimize_GP = False
         settings.calc_xval = False
         predict_grid_all = True
@@ -114,7 +125,7 @@ def main(fname_settings):
     # Intialise output info file:
     print2('init')
     print2(f'--- Parameter Settings ---')
-    print2(f'Mean Function: {settings.mean_function}')
+    print2(f'Model Function: {settings.model_function}')
     print2(f'Target Name: {settings.name_target}')
     if settings.integrate_polygon:
         print2(f'Prediction geometry: Polygon')
@@ -195,12 +206,12 @@ def main(fname_settings):
     # Calculate predicted mean values of training data
     X_train = dftrain[settings.name_features].values
     y_train = dftrain[settings.name_target].values
-    if settings.mean_function == 'rf':
+    if mean_function == 'rf':
         # Estimate GP mean function with Random Forest
         rf_model = rf.rf_train(X_train, y_train)
         ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
         y_train_fmean = ypred_rf_train
-    elif settings.mean_function == 'blr':
+    elif mean_function == 'blr':
         # Scale data
         Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
         scaler_x, scaler_y = scale_params
@@ -215,15 +226,16 @@ def main(fname_settings):
     # Subtract mean function of depth from training data 
     y_train -= y_train_fmean
 
-	# optimise GP hyperparameters 
-	# Use mean of X uncertainity for optimizing since otherwise too many local minima
-    print('Optimizing GP hyperparameters...')
-    Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
-    opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
-        xymin = settings.xyvoxsize, 
-        zmin = settings.zvoxsize,  
-        Xdelta = Xdelta_mean)
-    params_gp = opt_params
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print('Optimizing GP hyperparameters...')
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
 
     # Set extent of prediction grid
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
@@ -277,11 +289,11 @@ def main(fname_settings):
                     points3D_pred = np.asarray([zsel, ysel, xsel]).T		
                     # Calculate mean function for prediction
 
-                    if settings.mean_function == 'rf':
+                    if mean_function == 'rf':
                         X_test = dftest[settings.name_features].values
                         ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
                         y_pred_zmean = ypred_rf
-                    elif settings.mean_function == 'blr':
+                    elif mean_function == 'blr':
                         X_test = dftest[settings.name_features].values
                         Xs_test = scaler_x.transform(X_test)
                         ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
@@ -291,7 +303,7 @@ def main(fname_settings):
 
 
                     # GP Prediction:
-                    if not settings.calc_mean_only:
+                    if not calc_mean_only:
                         if gp_train_flag:
                             # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
                             ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
@@ -305,7 +317,7 @@ def main(fname_settings):
                         ystd = ynoise_pred
 
                     #### Need to calculate weighted average from covar and ypred
-                    if not settings.calc_mean_only:
+                    if not calc_mean_only:
                         ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
                     else:
                         ypred_block, ystd_block = averagestats(ypred, covar)
@@ -449,11 +461,11 @@ def main(fname_settings):
                 points3D_pred = np.asarray([zsel, ysel, xsel]).T
                 
                 # Calculate mean function for prediction
-                if settings.mean_function == 'rf':
+                if mean_function == 'rf':
                     X_test = dftest[settings.name_features].values
                     ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
                     y_pred_zmean = ypred_rf
-                elif settings.mean_function == 'blr':
+                elif mean_function == 'blr':
                     X_test = dftest[settings.name_features].values
                     Xs_test = scaler_x.transform(X_test)
                     ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
@@ -461,7 +473,7 @@ def main(fname_settings):
                     ynoise_pred = ypred_std_blr
 
                 # GP Prediction:
-                if not settings.calc_mean_only:
+                if not calc_mean_only:
                     if gp_train_flag == 0:
                         # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
                         if settings.integrate_polygon:
@@ -487,7 +499,7 @@ def main(fname_settings):
                 if settings.integrate_polygon:
                     # Now calculate mean and standard deviation for polygon area
                     # Need to calculate weighted average from covar and ypred
-                    if not settings.calc_mean_only:
+                    if not calc_mean_only:
                         ypred_poly, ystd_poly = averagestats(ypred + y_pred_zmean, covar)
                     else:
                         ypred_poly, ystd_poly = averagestats(ypred, covar)
@@ -496,7 +508,7 @@ def main(fname_settings):
                 else:
                     # Save results in 3D array
                     ix_end = ix_start + len(ypred)
-                    if not settings.calc_mean_only:
+                    if not calc_mean_only:
                         mu_res[ix_start : ix_end] = ypred + y_pred_zmean #.reshape(len(xspace), len(yspace))
                         std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
                     else: 

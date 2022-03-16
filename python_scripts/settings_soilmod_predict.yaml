@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_pointpredict_RF_test/' 
+outpath: '../../../results/Llara_pointpredict_BLRonly_test/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
@@ -15,10 +15,12 @@ project_crs: "EPSG:28355"
 # Name of target for prediction (column name in dataframe)
 name_target: 'OC_WB'
 
-# Choose mean function for GP (can be one or a list of mean function), currently implemented:
+# Choose model function, currently implemented:
 #'blr': bayesian linear regression with power transformation
-#'rf': Random Forest 
-mean_function: 'rf'
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_function: 'blr'
 
 
 ### Select minimum and maximum of depth for data selection [in m]
@@ -73,4 +75,4 @@ colname_ycoord: 'Northing'
 #### Other optional parameters
 
 # If set True, makes grid prediction based on only the mean function without GP:
-calc_mean_only: False
+# calc_mean_only: False # Redundant option, now given by mean function arguments
