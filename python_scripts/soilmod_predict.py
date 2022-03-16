@@ -5,10 +5,10 @@ Current models implemented:
 - Gaussian Process with bayesian linear regression (BLR) as mean function and sparse spatial covariance function
 - Gaussian Process with random forest (RF) regression as mean function and sparse spatial covariance function
 
-
 Core functions:
 - Training of mean function model and GP incl hyperparameter optimization
 - generating soil property predictions and uncertainties
+- average predictions and uncertainties over area of interest
 
 See documentation for more details.
 
@@ -23,6 +23,12 @@ This package is part of the machine learning project developed for the Agricultu
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
 This open-source software is released under the LGPL-3.0 License.
+
+Author: Sebastian Haan
+
+TBD for prediction and xval script:
+- Change model types into mean functions and mean functions + GP
+- Include dictionary and description of all functions
 """
 
 import numpy as np
@@ -40,6 +46,7 @@ from sklearn.model_selection import train_test_split
 import pickle
 import json
 import yaml
+import argparse
 from types import SimpleNamespace  
 from tqdm import tqdm
 
