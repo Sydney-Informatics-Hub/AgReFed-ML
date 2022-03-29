@@ -143,11 +143,23 @@ def main(fname_settings):
     # Read in data for model training:
     dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
 
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != 'x':
+        dftrain.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
+    if settings.colname_ycoord != 'y':
+        dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
+    if settings.colname_zcoord != 'z':
+        dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
 
     name_features = settings.name_features
 
+    
+    # check if z_diff is in dftrain
+    if 'z_diff' not in dftrain.columns:
+        dftrain['z_diff'] = 0.0
 
 
     #Read in grid covariates:
@@ -180,6 +192,14 @@ def main(fname_settings):
     else:
         # read in covariate grid:
         dfgrid = pd.read_csv(os.path.join(settings.inpath, settings.gridname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != 'x':
+        dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
+    if settings.colname_ycoord != 'y':
+        dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
+    if settings.colname_zcoord != 'z':
+        dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
 
 
     ## Get coordinates for training data and set coord origin to (0,0)  
