@@ -48,6 +48,7 @@ import yaml
 import shutil
 import argparse
 from types import SimpleNamespace  
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import datetime
@@ -84,14 +85,14 @@ def gen_synthetic(n_features, n_informative_features = 10,
                 n_samples = 200,  outpath = None, 
                 model_order = 'quadratic', correlated = False, 
                 noise= 0.1, corr_length = 10, corr_amp = 0.2, 
-                spatialsize = 100, center = [0,0],  crs = 'EPSG:8059'):
+                spatialsize = 100, center = [140,-35],  crs = 'EPSG:4326', grid = False):
 	"""
 	Generate synthetic datasets
 
 	Input:
 		n_features: number of features
         n_informative_features: number of important features
-		n_samples: number of samples
+		n_samples: number of samples (if grid = True then n_samples corresponds to the number of points along each axis)
         outpath: path to save simulated data	
 		model_order: order of the model, either 'linear', 'quadratic', or 'cubic'
 		correlated: if True, the features are correlated
@@ -101,6 +102,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
         spatialsize: size in x and y direction [in meters]
         center: [x,y] coordinates of the center of the data in meter (Easting, Northings)
         crs: coordinate reference system [Default: 'EPSG:8059']
+		grid: if True, the synthetic data is generated on a regular grid, if not, it is generated on a random distribution
 
 	Return:
 		dfsim: dataframe with simulated features
@@ -114,6 +116,11 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		n_rank = int(n_features/2)
 	else:
 		n_rank = None
+	if grid:
+		n_samples = n_samples**2
+	if crs == 'EPSG:4326':
+		# convert form arcsec to degrees
+		spatialsize = spatialsize/3600
     # Generate regression features:
 	Xsim, ysim, coefsim = make_regression(n_samples=n_samples, n_features = n_features, n_informative=n_informative_features, n_targets=1, 
 		bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)	
@@ -158,7 +165,12 @@ def gen_synthetic(n_features, n_informative_features = 10,
 		ysim_new = np.dot(Xcomb, coefcomb)
     
 	# add randomly distributed cartesian points:
-	x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_samples))
+	if grid:
+		x, y = np.meshgrid(np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))), np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))))
+		x = x.flatten()
+		y = y.flatten()
+	else:
+		x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_samples))
 
 	# Add spatial correlation function:
 	if (corr_amp > 0) & (corr_length > 0):
@@ -178,14 +190,22 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	# Add random noise as normal distribution
 	ysim_new += np.random.normal(scale=noise, size = n_samples)
 	#Save data as dataframe and coefficients on file
-	header = np.hstack((feature_names, 'Ytarget', 'Easting', 'Northing'))
+	if crs == 'EPSG:4326':
+		header = np.hstack((feature_names, 'Ytarget', 'Longitude', 'Latitude'))
+	else:
+		header = np.hstack((feature_names, 'Ytarget', 'Easting', 'Northing'))
 	data = np.hstack((Xsim, ysim_new.reshape(-1,1), x.reshape(-1,1), y.reshape(-1,1)))
 	df = pd.DataFrame(data, columns = header)
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
+		if grid:
+			gridname = '_grid'
+		else:
+			gridname = ''
 		# Add datetime now to filename
 		date = datetime.datetime.now().strftime("%Y-%m-%d")
-		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
+		outfname = os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}{gridname}.csv')
+		df.to_csv(outfname, index = False)
 		# Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
 		# Add columns with spatial correlation function
@@ -194,8 +214,31 @@ def gen_synthetic(n_features, n_informative_features = 10,
 			df_coef['corr_length'] = corr_length
 		# Add column with noise level
 		df_coef['noise'] = noise
-		df_coef.to_csv(os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
-	return df, coefsim, feature_names
+		outfname_coef = os.path.join(outpath, f'SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}{gridname}.csv')
+		df_coef.to_csv(outfname_coef, index = False)
+	return df, coefsim, feature_names, outfname
+
+
+def sample_fromgrid(fname_grid, nsample):
+	"""
+	Sample random points from grid of synthetic data
+
+	Parameters
+	----------
+	fname_grid : str
+		Name of grid file
+	nsample : int
+		Number of samples to be drawn from grid
+
+	Returns
+	-------
+	filename of output file
+	"""
+	df_grid = pd.read_csv(fname_grid)
+	df_grid = df_grid.sample(n = nsample, random_state = 42)
+	outfname = os.path.join(Path(fname_grid).parent,f'{Path(fname_grid).stem}_{nsample}sample.csv')
+	df_grid.to_csv(outfname, index = False)
+	return outfname
 
 
 def main(fname_settings):
@@ -216,12 +259,17 @@ def main(fname_settings):
 	os.makedirs(settings.outpath, exist_ok = True)
 
     # Generate synthetic data
-	df, coefsim, feature_names = gen_synthetic(n_features = settings.n_features, 
+	df, coefsim, feature_names, outfname = gen_synthetic(n_features = settings.n_features, 
 	n_informative_features = settings.n_informative_features, 
 	n_samples = settings.n_samples , outpath = settings.outpath, 
 	model_order = settings.model_order, correlated = settings.correlated, 
 	noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
-	spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs)
+	spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs, grid = settings.grid)
+
+	# Draw random samples from grid of synthetic data (if grid is used)
+	if settings.grid & (settings.nsample_from_grid > 0):
+		outfname_samples = sample_fromgrid(outfname, settings.nsample_from_grid)
+		print(f'Samples from grid saved to {outfname_samples}')
 
 
 if __name__ == '__main__':
