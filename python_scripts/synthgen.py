@@ -184,7 +184,7 @@ def gen_synthetic(n_features, n_informative_features = 10,
 	if outpath is not None:
 		os.makedirs(outpath, exist_ok=True)
 		# Add datetime now to filename
-		date = datetime.datetime.now().strftime("%Y_%m_%d-%X")
+		date = datetime.datetime.now().strftime("%Y-%m-%d")
 		df.to_csv(os.path.join(outpath, f'SyntheticData_{model_order}_{n_features}nfeatures_{date}.csv'), index = False)
 		# Now save coefficients and other parameters in extra file:
 		df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
