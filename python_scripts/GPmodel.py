@@ -114,163 +114,169 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
 
 	
 def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, params_gp, Ynoise_pred = None, Xdelta = None,  calclogl = True, save_gptrain = True, out_covar = False):
-	"""
-	Train adn predict mean and covariance of GP model.
+    """
+    Train adn predict mean and covariance of GP model.
 
-	INPUT
-	    points3d_train: Array with trainig point coodinates for (z,y,x)
-	    points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
-	    Y_train: vector of training data with same length as points3d_train
-	    Ynoise_train: noise data with same length as points3d_train
-	    params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
-	    Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
-	    Xdelta: Uncertainity in X coordinates, same shape as points3d_train
-	    calclogl: If True (default), calculates and returns the marginal log-likelihood of GP
-	    save_gptrain: if True (default), returns list of arrays (gp_train) such as cholesky factors that 
-				can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).
+    INPUT
+        points3d_train: Array with training point coordinates for (z,y,x)
+        points3d_pred: Array with point coordinates to be predicted in form (z,y,x)
+        Y_train: vector of training data with same length as points3d_train
+        Ynoise_train: noise data with same length as points3d_train
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean function for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+        calclogl: If True (default), calculates and returns the marginal log-likelihood of GP
+        save_gptrain: if True (default), returns list of arrays (gp_train) such as cholesky factors that 
+                can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).
 
-	RETURN:
-	    predicted mean
-	    predicted uncertainty stddev
-	    marginal log likelihood
-	    gp_train
-	"""
-	Ntrain = len(points3D_train)
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+        marginal log likelihood
+        gp_train
+    """
+    Ntrain = len(points3D_train)
 
-	# Standardize data:
-	ystd = Y_train.std()
-	ymean = Y_train.mean()
-	Y = (Y_train - ymean) / ystd
-	Ynoise = Ynoise_train / ystd
-	#Y = Y.reshape(-1,1)
+    # Standardize data:
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    #Y = Y.reshape(-1,1)
 
-	# Calculate Distance Matrixes: 
-	D2_00 = calcDistanceMatrix_multidim(points3D_train)
-	D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
-	D2_11 = calcDistanceMatrix_multidim(points3D_pred)
-
-
-	# Set GP hyperparameter
-	params_gp = np.asarray(params_gp)
-	gp_amp = params_gp[0]
-	gp_noise = params_gp[1]
-	gp_length = (params_gp[2], params_gp[3], params_gp[3])
-
-	# noise of mean function for prediction points
-	if Ynoise_pred is not None:
-		Ynoise2 = Ynoise_pred / ystd
-	else:
-		Ynoise2 = np.ones(len(points3D_pred))
+    # Calculate Distance Matrixes: 
+    D2_00 = calcDistanceMatrix_multidim(points3D_train)
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
 
 
-	# if with noise in position
-	if Xdelta is not None:
-		Delta_00 = calcDeltaMatrix_multidim(Xdelta)
-		Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
-		kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise * np.diag(Ynoise**2)
-		kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
-	else:
-		kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise * np.diag(Ynoise**2)
-		kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
-	kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
 
-	try:
-		k_chol = cholesky(kcov00, lower=True)
-	except:
-		print("Cholesky decompostion failed, kov matrix is likely not positive semitive.")
-		print("Change GP parameter settings")
-		sys.exit(1)
-	Ky = solve_triangular(k_chol, Y, lower=True).flatten() #shape(2*Nsensor)
-	v = solve_triangular(k_chol, kcov01, lower=True)
-	# predicted mean
-	mu = np.dot(v.T, Ky)
-	# predicted covariance
-	covar = kcov11 - np.dot(v.T, v)
-	if (Ynoise_pred is not None) & (gp_amp < 1):
-		#Caclulate diaginal elements as amplitude weighted average of  noise and GP noise
-		varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
-		np.fill_diagonal(covar, varcomb)
-	# Calculate marginal log likelihood
-	if calclogl:
-		log_det_k=  2 * np.sum(np.log(np.diag(k_chol)))
-		n_log_2pi = Ntrain * np.log(2 * np.pi)
-		logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
-	else:
-		logl = 0.
-	# Transform predicted data back to original range:
-	ypred =  mu * ystd + ymean  
-	yvar = np.diag(covar) * ystd**2
-	print('Logl: ', logl)
-	# Save matrix decomposition of training data for subsequent prediction (so cholesky etc don't need to be computed again)
-	if save_gptrain:
-		gp_train = (k_chol, Ky, ymean, ystd)
-	else:
-		gp_train = 0
-	if out_covar:
-		return ypred, np.sqrt(yvar), logl, gp_train, covar * ystd**2
-	else:
-		return ypred, np.sqrt(yvar), logl, gp_train
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
+
+
+    # if with noise in position
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise * np.diag(Ynoise**2)
+        #kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + np.diag(Ynoise**2)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
+    else:
+        kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise * np.diag(Ynoise**2)
+        #kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + np.diag(Ynoise**2)
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
+    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+
+
+    try:
+        k_chol = cholesky(kcov00, lower=True)
+    except:
+        print("Cholesky decompostion failed, kov matrix is likely not positive semitive.")
+        print("Change GP parameter settings")
+        sys.exit(1)
+    Ky = solve_triangular(k_chol, Y, lower=True).flatten() #shape(2*Nsensor)
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    # if (Ynoise_pred is not None) & (gp_amp < 1):
+    #     #Caclulate diaginal elements as amplitude weighted average of  noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Calculate marginal log likelihood
+    if calclogl:
+        log_det_k=  2 * np.sum(np.log(np.diag(k_chol)))
+        n_log_2pi = Ntrain * np.log(2 * np.pi)
+        logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+    else:
+        logl = 0.
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    yvar = np.diag(covar) * ystd**2
+    print('Logl: ', logl)
+    # Save matrix decomposition of training data for subsequent prediction (so cholesky etc don't need to be computed again)
+    if save_gptrain:
+        gp_train = (k_chol, Ky, ymean, ystd)
+    else:
+        gp_train = 0
+    if out_covar:
+        return ypred, np.sqrt(yvar), logl, gp_train, covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar), logl, gp_train
 
 
 def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = None, out_covar = False):
-	"""
-	Predict mean and covariance based on trained GP. 
-	This caluclation saves time as cholesky decompsoition  is already pre-computed. 
+    """
+    Predict mean and covariance based on trained GP. 
+    This caluclation saves time as cholesky decompsoition  is already pre-computed. 
 
-	INPUT
+    INPUT
         points3d_train: Array with trainig point coodinates for (z,y,x)
-	    points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
-	    gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
-	    params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
-	    Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
-	    Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+        points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
+        gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
 
-	RETURN:
-	    predicted mean
-	    predicted uncertainty stddev
-	"""
-	k_chol, Ky, ymean, ystd = gp_train
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+    """
+    k_chol, Ky, ymean, ystd = gp_train
 
-	# noise of mean function for prediction points
-	if Ynoise_pred is not None:
-		Ynoise2 = Ynoise_pred / ystd
-	else:
-		Ynoise2 = np.ones(len(points3D_pred))
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
 
-	# Calculate Distance Matrixes: 
-	D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
-	D2_11 = calcDistanceMatrix_multidim(points3D_pred)
+    # Calculate Distance Matrixes: 
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
 
-	# Set GP hyperparameter
-	params_gp = np.asarray(params_gp)
-	gp_amp = params_gp[0]
-	gp_noise = params_gp[1]
-	gp_length = (params_gp[2], params_gp[3], params_gp[3])
-	# Calculate Caovariance Functions
-	# if with noise
-	if Xdelta is not None:
-		Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
-		kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
-	else:
-		kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
-	kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
-	v = solve_triangular(k_chol, kcov01, lower=True)
-	# predicted mean
-	mu = np.dot(v.T, Ky)
-	# predicted covariance
-	covar = kcov11 - np.dot(v.T, v)
-	# if (Ynoise_pred is not None) & (gp_amp < 1):
-	# 	#Caclulate diaginal elements as amplitude weighted average of noise and GP noise
-	# 	varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
-	# 	np.fill_diagonal(covar, varcomb)
-	# Transform predicted data back to original range:
-	ypred =  mu * ystd + ymean  
-	#yvar = np.diag(covar) * ystd**2
-	yvar = np.diag(covar) * ystd**2
-	if out_covar:
-		return ypred, np.sqrt(yvar), covar * ystd**2
-	else:
-		return ypred, np.sqrt(yvar)
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
+    # Calculate Covariance Functions
+    # if with noise
+    if Xdelta is not None:
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
+    else:
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
+    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) * (1 + np.diag(Ynoise2**2))
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    # if (Ynoise_pred is not None) & (gp_amp < 1):
+    #     #Caluluate diaginal elements as amplitude weighted average of noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    #yvar = np.diag(covar) * ystd**2
+    yvar = np.diag(covar) * ystd**2
+    if out_covar:
+        return ypred, np.sqrt(yvar), covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar)
 
 
 
