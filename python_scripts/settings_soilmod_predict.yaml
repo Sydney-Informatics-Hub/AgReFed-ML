@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_pointpredict_BLRonly_test/' 
+outpath: '../../../results/Llara_pointpredict_BLRonly_test2/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
@@ -20,7 +20,7 @@ name_target: 'OC_WB'
 #'rf': Random Forest Regression
 #'blr-gp' Gaussian Process with bayesian linear regression as mean function
 #'rf-gp' Gaussian Process with random forest regression as mean function
-model_function: 'blr'
+model_function: 'blr-gp'
 
 
 ### Select minimum and maximum of depth for data selection [in m]

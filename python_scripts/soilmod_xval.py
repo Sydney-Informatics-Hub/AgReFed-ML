@@ -26,7 +26,11 @@ This package is part of the machine learning project developed for the Agricultu
 
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
-This open-source software is released under the AGPL-3.0 License.
+This open-source software is released under the LGPL-3.0 License.
+
+TBD:
+- plot residual and scatter for combined cross-validation
+
 """
 
 import numpy as np
@@ -67,17 +71,16 @@ def main(fname_settings):
     # settings.variable_name rather than settings['variable_name'])
     settings = SimpleNamespace(**settings)
 
-    if type(settings.mean_functions) != list:
-        settings.mean_functions = [settings.mean_functions]
+    if type(settings.model_functions) != list:
+        settings.model_functions = [settings.model_functions]
 
-    
     # check if outpath exists, if not create direcory
     os.makedirs(settings.outpath, exist_ok = True)
 
     # Intialise output info file:
     print2('init')
     print2(f'--- Parameter Settings ---')
-    print2(f'Mean Functions: {settings.mean_functions}')
+    print2(f'Selected Model Functions: {settings.model_functions}')
     print2(f'Target Name: {settings.name_target}')
     print2(f'--------------------------')
 
@@ -86,7 +89,6 @@ def main(fname_settings):
     # Read in data
     dfsel = pd.read_csv(os.path.join(settings.inpath, settings.infname))
  
-
     # Select data between zmin and zmax
     dfsel = dfsel[(dfsel['z'] >= settings.zmin) & (dfsel['z'] <= settings.zmax)]
 
@@ -107,11 +109,23 @@ def main(fname_settings):
     theta_meanfunction = []
     theta_meanfunction_std = []
 
-    # Loop over mean functions and evaluate
-    for mean_function in settings.mean_functions:
-        # Loop over all mean function models
-        print(f'Computing {len(range_nfold)}-fold xrossvalidation for mean function model: {mean_function}')
-        subdir = 'Xval_' + str(len(range_nfold)) + '-fold_' + mean_function + '_' + settings.name_target
+    # Loop over model functions and evaluate
+    for model_function in settings.model_functions:
+        # set conditional mean function
+        if (model_function == 'blr') | (model_function == 'rf'):
+            # only mean function model
+            calc_mean_only = True
+        else:
+            calc_mean_only = False
+        if (model_function == 'blr-gp') | (model_function == 'blr'):
+            mean_function = 'blr'
+           # print('mean function:', mean_function)
+        if (model_function == 'rf-gp') | (model_function == 'rf'):
+            mean_function = 'rf'
+           # print('mean function:', mean_function)
+        
+        print(f'Computing {len(range_nfold)}-fold xrossvalidation for function model: {model_function}')
+        subdir = 'Xval_' + str(len(range_nfold)) + '-fold_' + model_function + '_' + settings.name_target
         outpath = os.path.join(outpath_root, subdir)
 
         ### X-fold Crossvalidation ###
@@ -121,10 +135,10 @@ def main(fname_settings):
         rmedse_nfold = []
         nrmedse_nfold = []
         meansspe_nfold = []
-        rmse_fmean_nfold = []
-        nrmse_fmean_nfold = []
-        rmedse_fmean_nfold = []
-        nrmedse_fmean_nfold = []
+        #rmse_fmean_nfold = []
+        #nrmse_fmean_nfold = []
+        #rmedse_fmean_nfold = []
+        #nrmedse_fmean_nfold = []
         histresidual = []
         histsspe = []
 
@@ -165,17 +179,18 @@ def main(fname_settings):
                 ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
                 ypred_rf, ynoise_pred, nrmse_rf_test = rf.rf_predict(X_test, rf_model, y_test = y_test)
                 y_train_fmean = ypred_rf_train
-                plt.figure()  # inches
-                plt.title('Random Forest Model')
-                plt.errorbar(y_train, ypred_rf_train, ynoise_train, linestyle='None', marker = 'o', c = 'r', label = 'Train Data')
-                plt.errorbar(y_test, ypred_rf, ynoise_pred, linestyle='None', marker = 'o', c = 'b', label = 'Test Data')
-                plt.legend(loc = 'upper left')
-                plt.xlabel('y True')
-                plt.ylabel('y Predict')
-                plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_RF_pred_vs_true.png'), dpi = 300)
-                if _show:
-                    plt.show()
-                plt.close('all')
+                if not calc_mean_only:
+                    plt.figure()  # inches
+                    plt.title('Random Forest Mean Function')
+                    plt.errorbar(y_train, ypred_rf_train, ynoise_train, linestyle='None', marker = 'o', c = 'r', label = 'Train Data', alpha =0.5)
+                    plt.errorbar(y_test, ypred_rf, ynoise_pred, linestyle='None', marker = 'o', c = 'b', label = 'Test Data', alpha =0.5)
+                    plt.legend(loc = 'upper left')
+                    plt.xlabel('y True')
+                    plt.ylabel('y Predict')
+                    plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_meanfunction_pred_vs_true.png'), dpi = 300)
+                    if _show:
+                        plt.show()
+                    plt.close('all')
             elif mean_function == 'blr':
                 X_train = dftrain[settings.name_features].values
                 y_train = dftrain[settings.name_target].values
@@ -195,18 +210,18 @@ def main(fname_settings):
                 y_train_fmean = ypred_blr_train
                 ynoise_train = ypred_std_blr_train #* fac_noise_train 
                 ynoise_pred = ypred_std_blr #* fac_noise_pred
-
-                plt.figure()  # inches
-                plt.title('BLR Model')
-                plt.scatter(y_train, ypred_blr_train, c = 'r', label='Train Data')
-                plt.scatter(y_test, ypred_blr, c = 'b', label = 'Test Data')
-                plt.legend(loc = 'upper left')
-                plt.xlabel('y True')
-                plt.ylabel('y Predict')
-                plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_BLR_pred_vs_true.png'), dpi = 300)
-                if _show:
-                    plt.show()
-                plt.close('all')
+                if not calc_mean_only:
+                    plt.figure()  # inches
+                    plt.title('BLR Mean function')
+                    plt.errorbar(y_train, ypred_blr_train, ynoise_train, linestyle='None', marker = 'o', c = 'r', label = 'Train Data', alpha =0.5)
+                    plt.errorbar(y_test, ypred_blr, ynoise_pred, linestyle='None', marker = 'o', c = 'b', label = 'Test Data', alpha =0.5)
+                    plt.legend(loc = 'upper left')
+                    plt.xlabel('y True')
+                    plt.ylabel('y Predict')
+                    plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_meanfunction_pred_vs_true.png'), dpi = 300)
+                    if _show:
+                        plt.show()
+                    plt.close('all')
 
             # Subtract mean function of depth from training data for GP with zero mean
             y_train -= y_train_fmean
@@ -229,7 +244,6 @@ def main(fname_settings):
             if _show:
                 plt.show()
 
-
             ### Plot histogram of target values after mean subtraction 
             plt.clf()
             plt.hist(y_train, bins=30)
@@ -240,24 +254,30 @@ def main(fname_settings):
                 plt.show() 
             plt.close('all')  
 
-            # optimise GP hyperparameters 
-            # Use mean of X uncertainity for optimizing since otherwise too many local minima
-            print('Mean of Y:  ' +str(np.round(np.mean(y_train),4)) + ' +/- ' + str(np.round(np.std(y_train),4))) 
-            print('Mean of Mean function:  ' +str(np.round(np.mean(y_train_fmean),4)) + ' +/- ' + str(np.round(np.std(y_train_fmean),4))) 
-            print('Mean of Mean function noise: ' +str(np.round(np.mean(ynoise_train),4)) + ' +/- ' + str(np.round(np.std(ynoise_train),4))) 
-            print('Optimizing GP hyperparameters...')
-            Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
-            # TBD: find automatic way to set hyperparameter boundaries based on data
-            opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_mean)
-            #opt_params, opt_logl = optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_train)
-            params_gp = opt_params
+            if not calc_mean_only:
+                # optimise GP hyperparameters 
+                # Use mean of X uncertainity for optimizing since otherwise too many local minima
+                print('Mean of Y:  ' +str(np.round(np.mean(y_train),4)) + ' +/- ' + str(np.round(np.std(y_train),4))) 
+                print('Mean of Mean function:  ' +str(np.round(np.mean(y_train_fmean),4)) + ' +/- ' + str(np.round(np.std(y_train_fmean),4))) 
+                print('Mean of Mean function noise: ' +str(np.round(np.mean(ynoise_train),4)) + ' +/- ' + str(np.round(np.std(ynoise_train),4))) 
+                print('Optimizing GP hyperparameters...')
+                Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+                # TBD: find automatic way to set hyperparameter boundaries based on data
+                opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_mean)
+                #opt_params, opt_logl = optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_train)
+                params_gp = opt_params
 
-            # Calculate predicted mean values
-            points3D_pred = points3D_test.copy()	
+                # Calculate predicted mean values
+                points3D_pred = points3D_test.copy()	
 
-            print('Computing GP predictions for test set nfold ', ix)
-            ypred, ypred_std, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
-            ypred_train, _ , _ , _ = gp.train_predict_3D(points3D_train, points3D_train, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_train, Xdelta = Xdelta_train)
+                print('Computing GP predictions for test set nfold ', ix)
+                ypred, ypred_std, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                ypred_train, ypred_std_train, _ , _ = gp.train_predict_3D(points3D_train, points3D_train, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_train, Xdelta = Xdelta_train)
+            else:
+                ypred = 0
+                ypred_train =0 
+                ypred_std = ynoise_pred
+                ypred_std_train = ynoise_train
 
             # Add mean function to prediction
             if mean_function == 'rf':
@@ -267,10 +287,9 @@ def main(fname_settings):
                 y_pred_zmean = ypred_blr
                 y_pred_train_zmean = ypred_blr_train
 
-
             y_pred = ypred + y_pred_zmean
             y_pred_train = ypred_train + y_pred_train_zmean
-
+            y_train += y_train_fmean
 
             # Calculate Residual, RMSE, SSPE
             residual_test = y_pred - y_test
@@ -280,25 +299,30 @@ def main(fname_settings):
             rmedse_norm = rmedse / y_test.std()
             #sspe = residual_test**2 / ystd_test**2
             sspe = residual_test**2 / (ypred_std**2)
-            print("GP Marginal Log-Likelihood: ", np.round(logl,2))
-            print("GP Normalized RMSE: ",np.round(rmse_norm,4))
-            print("GP Normalized ROOT MEDIAN SE: ",np.round(rmedse_norm,4))
-            print("GP Mean Theta: ", np.round(np.mean(sspe),4))
-            print("GP Median Theta: ", np.round(np.median(sspe)))
+            if not calc_mean_only:
+                print("GP Marginal Log-Likelihood: ", np.round(logl,2))
+            print("Normalized RMSE: ",np.round(rmse_norm,4))
+            print("Normalized ROOT MEDIAN SE: ",np.round(rmedse_norm,4))
+            print("Mean Theta: ", np.round(np.mean(sspe),4))
+            print("Median Theta: ", np.round(np.median(sspe)))
 
             # Calculate also residual for mean function
-            residual_fmean = y_pred_zmean - y_test
-            rmse_fmean = np.sqrt(np.nanmean(residual_fmean**2))
-            rmse_norm_fmean = rmse_fmean / y_test.std()
-            rmedse_fmean = np.sqrt(np.median(residual_fmean**2))
-            rmedse_norm_fmean = rmedse_fmean / y_test.std()
-            print("Normalized RMSE of Mean function: ", np.round(rmse_norm_fmean,4))
-            print("Normalized ROOT MEDIAN SE of Mean function: ", np.round(rmedse_norm_fmean,4))
+            # if not calc_mean_only:
+            #     residual_fmean = y_pred_zmean - y_test
+            #     rmse_fmean = np.sqrt(np.nanmean(residual_fmean**2))
+            #     rmse_norm_fmean = rmse_fmean / y_test.std()
+            #     rmedse_fmean = np.sqrt(np.median(residual_fmean**2))
+            #     rmedse_norm_fmean = rmedse_fmean / y_test.std()
+            #     sspe_fmean = residual_test**2 / (ynoise_pred**2)
+                # print("Normalized RMSE of Mean function: ", np.round(rmse_norm_fmean,4))
+                # print("Normalized ROOT MEDIAN SE of Mean function: ", np.round(rmedse_norm_fmean,4))
+                # print("GP Mean Theta of Mean function: ", np.round(np.mean(sspe_fmean),4))
 
             # Save results in dataframe
-            dfpred[settings.name_target + '_GPmean'] = y_pred_zmean
-            dfpred[settings.name_target + '_GPmean_residual'] = residual_fmean
-            #dftest[name_target + '_GPmean_stddev'] = y_pred_zmean_std
+            #dfpred[settings.name_target + '_GPmean'] = y_pred_zmean
+            #dfpred[settings.name_target + '_GPmean_residual'] = residual_fmean
+
+             # Save results in dataframe
             dfpred[settings.name_target + '_GPpredict'] = y_pred
             dfpred[settings.name_target + '_GPstddev'] = ypred_std
             dfpred['GPresidual'] = residual_test
@@ -317,7 +341,7 @@ def main(fname_settings):
             #plt.colorbar()                                                                                                                                                                         
             plt.title('Residual Test Data ' + settings.name_target) 
             plt.colorbar()
-            plt.legend()
+            #plt.legend()
             plt.tight_layout()                                                                                                                                                        
             plt.savefig(os.path.join(outpath_nfold, settings.name_target + '_residualmap.png'), dpi = 300) 
             if _show:
@@ -338,16 +362,28 @@ def main(fname_settings):
             plt.close('all')
 
             # Plot Y true vs predict for train and test set:
-            plt.figure() # inches
-            plt.scatter(y_train + y_train_fmean, y_pred_train, c = 'r', label='Train Set')
-            #plt.title('BNN')
-            plt.scatter(y_test, y_pred, c = 'b', label='Test Set')
+            # plt.figure() # inches  
+            # plt.scatter(y_train + y_train_fmean, y_pred_train, c = 'r', label='Train Set')
+            # #plt.title('BNN')
+            # plt.scatter(y_test, y_pred, c = 'b', label='Test Set')
+            # plt.xlabel(settings.name_target + ' True')
+            # plt.ylabel(settings.name_target + ' Predict')
+            # plt.legend()
+            # plt.savefig(os.path.join(outpath_nfold,'pred_vs_true' + settings.name_target + '_nfold' + str(ix) + '.png'), dpi = 300)
+            # if _show:
+            #     plt.show() 
+            # plt.close('all')
+
+            plt.figure() 
+           # plt.title(model_function)
+            plt.errorbar(y_train, y_pred_train, ypred_std_train, linestyle='None', marker = 'o', c = 'r', label = 'Train Data', alpha =0.5)
+            plt.errorbar(y_test, y_pred, ypred_std, linestyle='None', marker = 'o', c = 'b', label = 'Test Data', alpha =0.5)
+            plt.legend(loc = 'upper left')
             plt.xlabel(settings.name_target + ' True')
             plt.ylabel(settings.name_target + ' Predict')
-            plt.legend()
             plt.savefig(os.path.join(outpath_nfold,'pred_vs_true' + settings.name_target + '_nfold' + str(ix) + '.png'), dpi = 300)
             if _show:
-                plt.show() 
+                plt.show()
             plt.close('all')
 
             rmse_nfold.append(rmse)
@@ -355,10 +391,10 @@ def main(fname_settings):
             rmedse_nfold.append(rmedse)
             nrmedse_nfold.append(rmedse_norm)
             meansspe_nfold.append(np.mean(sspe))
-            rmse_fmean_nfold.append(rmse_fmean)
-            nrmse_fmean_nfold.append(rmse_norm_fmean)
-            rmedse_fmean_nfold.append(rmedse_fmean)
-            nrmedse_fmean_nfold.append(rmedse_norm_fmean)
+            #rmse_fmean_nfold.append(rmse_fmean)
+            #nrmse_fmean_nfold.append(rmse_norm_fmean)
+            #rmedse_fmean_nfold.append(rmedse_fmean)
+            #nrmedse_fmean_nfold.append(rmedse_norm_fmean)
             histsspe.append(sspe)
             histresidual.append(residual_test)
 
@@ -368,18 +404,19 @@ def main(fname_settings):
         rmedse_nfold = np.asarray(rmedse_nfold)
         nrmedse_nfold = np.asarray(nrmedse_nfold)
         meansspe_nfold = np.asarray(meansspe_nfold)
-        rmse_fmean_nfold = np.asarray(rmse_fmean_nfold)
-        nrmse_fmean_nfold = np.asarray(nrmse_fmean_nfold)
-        rmedse_fmean_nfold = np.asarray(rmedse_fmean_nfold)
-        nrmedse_fmean_nfold = np.asarray(nrmedse_fmean_nfold)
-        dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold, 'RMSE_fmean': rmse_fmean_nfold, 'nRMSE_fmean': nrmse_fmean_nfold, 'RMEDIANSE_fmean': rmedse_fmean_nfold, 'nRMEDIANSE_fmean': nrmedse_fmean_nfold})
+        #rmse_fmean_nfold = np.asarray(rmse_fmean_nfold)
+        #nrmse_fmean_nfold = np.asarray(nrmse_fmean_nfold)
+        #rmedse_fmean_nfold = np.asarray(rmedse_fmean_nfold)
+        #nrmedse_fmean_nfold = np.asarray(nrmedse_fmean_nfold)
+        #dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold, 'RMSE_fmean': rmse_fmean_nfold, 'nRMSE_fmean': nrmse_fmean_nfold, 'RMEDIANSE_fmean': rmedse_fmean_nfold, 'nRMEDIANSE_fmean': nrmedse_fmean_nfold})
+        dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold})
         dfsum.to_csv(os.path.join(outpath, settings.name_target + 'nfold_summary_stats.csv'), index = False)
 
         print("---- X-validation Summary -----")
         print("Mean normalized RMSE: " + str(np.round(np.mean(nrmse_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_nfold),3)))
-        print("Mean normalized RMSE of Meanfunction: " + str(np.round(np.mean(nrmse_fmean_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_fmean_nfold),3)))
+        #print("Mean normalized RMSE of Meanfunction: " + str(np.round(np.mean(nrmse_fmean_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_fmean_nfold),3)))
         print("Median normalized RMSE: " + str(np.round(np.median(nrmedse_nfold),3)))
-        print("Median normalized RMSE of Meanfunction: " + str(np.round(np.median(nrmedse_fmean_nfold),3)))
+        #print("Median normalized RMSE of Meanfunction: " + str(np.round(np.median(nrmedse_fmean_nfold),3)))
         print("Mean Theta: " + str(np.round(np.mean(meansspe_nfold),3)) + " +/- " + str(np.round(np.std(meansspe_nfold),3)))
 
         histresidual_cut = truncate_data(histresidual, 1)
@@ -410,7 +447,7 @@ def main(fname_settings):
     print('Models ranked based on nRMSE:')
     print('')
     for ix in ix_meanfunction_sorted:
-        print(f'{settings.mean_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
+        print(f'{settings.model_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
 
 
 if __name__ == '__main__':
