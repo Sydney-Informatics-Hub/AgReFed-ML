@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_test/' 
+outpath: '../../../results/Llara_xval_test2/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 
@@ -13,10 +13,12 @@ project_crs: "EPSG:28355"
 # Name of target for prediction (column name in dataframe)
 name_target: 'OC_WB'
 
-# Choose mean function for GP (can be one or a list of mean function), currently implemented:
+# Choose model function, currently implemented:
 #'blr': bayesian linear regression with power transformation
-#'rf': Random Forest 
-mean_functions: ['blr']
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_functions: ['blr-gp'] #'rf', 'rf-gp', 'blr',
 
 ### Select minimum and maximum of depth for data selection [in m]
 zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
