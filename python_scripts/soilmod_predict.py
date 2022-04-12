@@ -9,8 +9,11 @@ Current models implemented:
 
 Core functionality:
 - Training of model and GP, including hyperparameter optimization
-- generating soil property predictions and uncertainties
-- average predictions and uncertainties over area of interest
+- generating soil property predictions and uncertainties for multiple depths or time steps
+- taking into account measurement errors  and uncertainties in measurement locations
+- spatial support for predictions: points, volume blocks, polygons
+- spatial uncertainty integration takes into account spatial covariances between points
+
 
 See documentation for more details.
 
@@ -954,7 +957,6 @@ def model_polygons(settings):
 
 
 
-
 ######################### Main Script ############################
 def main(fname_settings):	
     """
@@ -984,6 +986,9 @@ def main(fname_settings):
         ,3))
     print("Uncertainty Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(std_3d), np.median(std_3d[~np.isnan(std_3d)]),
         np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
+    print('')
+    print('Prediction finished')
+    print(f'All results are saved in output directory {settings.outpath}')
 
 
 if __name__ == '__main__':
