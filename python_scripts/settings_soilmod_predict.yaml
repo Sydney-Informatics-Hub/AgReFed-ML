@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_pointpredict_BLRonly_test2/' 
+outpath: '../../../results/Llara_blockpredict_BLR-GP/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
@@ -41,7 +41,7 @@ list_z_pred:  [0.025] #[0.05] #,  0.25,  0.35,  0.45, 0.55,  0.65,  0.75,  0.85,
 # Default is point prediction if integrate_block = False and integrate_polygon = False
 # number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
 # integrate over certain volume or block size, if True specify block size in meters
-integrate_block: False
+integrate_block: True
 xyblocksize: 100 # in meters
 zblocksize: 0.1
 
@@ -71,6 +71,7 @@ name_features_grid:  ['DEM_30', 'MrVBF', 'MrRTF', 'SlopeDeg',
 
 colname_xcoord: 'Easting'
 colname_ycoord: 'Northing'
+colname_zcoord: 'z'
 
 #### Other optional parameters
 
