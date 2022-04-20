@@ -1,4 +1,4 @@
-# Settings for preprocessing.py
+# Settings for soilmod_xval.py
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'

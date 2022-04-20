@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_blockpredict_BLR-GP/' 
+outpath: '../../../results/Llara_pointpredict_BLR-GP/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
@@ -35,7 +35,7 @@ colname_ycoord: 'Northing'
 axistype: 'vertical' # 'temporal'
 
 
-# If modeltype='vertical', select minimum and maximum of depth for data selection [in m]
+# If axistype='vertical', select minimum and maximum of depth for data selection [in m]
 zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
 zmax: 0.15 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
 
@@ -47,7 +47,7 @@ list_z_pred:  [0.025] #[0.05] #,  0.25,  0.35,  0.45, 0.55,  0.65,  0.75,  0.85,
 colname_zcoord: 'z'
 
 
-### If modeltype='time', select minimum and maximum of depth for data selection [in m]
+### If axistype='temporal', select minimum and maximum of depth for data selection [in m]
 tmin: 0 # start time for prediction
 tmax: 0.15 # end time for prediction 
 
@@ -63,7 +63,7 @@ colname_tcoord: 'date'
 # Default is point prediction if integrate_block = False and integrate_polygon = False
 # number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
 # integrate over certain volume or block size, if True specify block size in meters
-integrate_block: True
+integrate_block: False
 xyblocksize: 100 # in meters
 zblocksize: 0.1
 # or time blocksize if temporal prediction
