@@ -32,6 +32,7 @@ This open-source software is released under the LGPL-3.0 License.
 Author: Sebastian Haan
 
 TBD for prediction and xval script:
+- test temporal predictions
 - Polygon prediction not tested yet, supported so far only points and volume blocks
 - Include dictionary and description of all functions
 """
@@ -198,7 +199,7 @@ def model_blocks(settings):
         y_train_fmean = ypred_blr_train
         ynoise_train = ypred_std_blr_train
 
-    # Subtract mean function of depth from training data 
+    # Subtract mean function from training data 
     y_train -= y_train_fmean
 
     if not calc_mean_only:
@@ -215,7 +216,7 @@ def model_blocks(settings):
     # Set extent of prediction grid
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
-    # Set output path for figures for each depth slice
+    # Set output path for figures for each depth or temporal slice
     outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
     os.makedirs(outpath_fig, exist_ok = True)	
 
@@ -238,8 +239,12 @@ def model_blocks(settings):
     # Slice in blocks for prediction calculating per 30 km x 1cm
 
     for i in range(len(zblock)):
-        # predict for each depth z slice
-        print('Computing slice at depth: ' + str(np.round(100 * zblock[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            # predict for each depth  slice
+            print('Computing slice at depth: ' + str(np.round(100 * zblock[i])) + 'cm')
+        if settings.axistype == 'temporal':
+            # predict for each temporal slice
+            print('Computing slice at date: ' + str(np.round(100 * zblock[i])))
         zrange = np.arange(zblock[i] - 0.5 * settings.zblocksize, zblock[i] + 0.5 * settings.zblocksize + settings.zvoxsize, settings.zvoxsize)
         ix_start = 0
         # Progressbar
@@ -309,8 +314,12 @@ def model_blocks(settings):
         mu_img = mu_block.reshape(block_shape)
         std_img = std_block.reshape(block_shape)
 
-        np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.txt'), np.round(mu_img.flatten(),3), delimiter=',')
-        np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.txt'), np.round(std_img.flatten(),3), delimiter=',')
+        if settings.axistype == 'vertical':
+            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.txt'), np.round(mu_img.flatten(),3), delimiter=',')
+            np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.txt'), np.round(std_img.flatten(),3), delimiter=',')
+        if settings.axistype == 'temporal':
+            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.txt'), np.round(mu_img.flatten(),3), delimiter=',')
+            np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.txt'), np.round(std_img.flatten(),3), delimiter=',')
         if i == 0:
             # Create coordinate array of x and y
             np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_x.txt'), block_x, delimiter=',')
@@ -327,7 +336,10 @@ def model_blocks(settings):
         plt.figure(figsize = (8,8))
         plt.subplot(2, 1, 1)
         plt.imshow(mu_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
-        plt.title(settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            plt.title(settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            plt.title(settings.name_target + ' Date ' + str(np.round(100 * zblock[i])))
         plt.ylabel('Northing [meters]')
         plt.colorbar()
         plt.subplot(2, 1, 2)
@@ -335,19 +347,29 @@ def model_blocks(settings):
         std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
         std_3d_trim[std_3d_trim > std_3d_trim_max] = std_3d_trim_max
         plt.imshow(std_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-        plt.title('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            plt.title('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zblock[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            plt.title(settings.name_target + ' Date ' + str(np.round(100 * zblock[i])))
         plt.colorbar()
         plt.xlabel('Easting [meters]')
         plt.ylabel('Northing [meters]')
         plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.png'), dpi=300)
+        if settings.axistype == 'vertical':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.png'), dpi=300)
+        elif settings.axistype == 'temporal':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.png'), dpi=300)
         if _show:
             plt.show()
         plt.close('all')   
 
         #Save also as geotiff
-        outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.tif')
-        outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.tif')
+        if settings.axistype == 'vertical':
+            outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.tif')
+            outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + 'cm.tif')
+        elif settings.axistype == 'temporal':
+            outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.tif')
+            outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.tif')
         #print('Saving results as geo tif...')
         tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif, settings.project_crs)
         tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif_std, settings.project_crs)
@@ -467,7 +489,7 @@ def model_points(settings):
         y_train_fmean = ypred_blr_train
         ynoise_train = ypred_std_blr_train
 
-    # Subtract mean function of depth from training data 
+    # Subtract mean function from training data 
     y_train -= y_train_fmean
 
     if not calc_mean_only:
@@ -484,7 +506,7 @@ def model_points(settings):
     # Set extent of prediction grid
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
-    # Set output path for figures for each depth slice
+    # Set output path for figures for each depth or temporal slice
     outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
     os.makedirs(outpath_fig, exist_ok = True)	
 
@@ -498,7 +520,7 @@ def model_points(settings):
     #nbatch = dfgrid['ibatch'].max()
     ixrange_batch = dfgrid['ibatch'].unique()
     nbatch = len(ixrange_batch)
-    print("Number of mini-batches per depth slice: ", nbatch)
+    print("Number of mini-batches per depth or time slice: ", nbatch)
     mu_res = np.zeros(len(dfgrid))
     std_res = np.zeros(len(dfgrid))
     coord_x = np.zeros(len(dfgrid))
@@ -511,15 +533,21 @@ def model_points(settings):
         zspace = np.asarray(settings.list_z_pred)
     else:
         zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
-        print('Calculating for depths at: ', zspace)
+        if settings.axistype == 'vertical':
+            print('Calculating for depths at: ', zspace)
+        elif settings.axistype == 'temporal':
+            print('Calculating for time slices at: ', zspace)
     grid_x, grid_y = np.meshgrid(xspace, yspace)
     mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
     std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
     gp_train_flag = 0 # need to be computed only first time
     # Slice in blocks for prediction calculating per 30 km x 1cm
     for i in range(len(zspace)):
-        # predict for each depth z slice
-        print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
+        # predict for each depth  or temporal slice
+        if settings.axistype == 'vertical':
+            print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            print('Computing slices at time: ' + str(np.round(100 * zspace[i])))
         ix_start = 0
         for j in tqdm(ixrange_batch):
             dftest = dfgrid[dfgrid.ibatch == j].copy()
@@ -578,7 +606,7 @@ def model_points(settings):
             ix_start = ix_end
 
 
-        # Save all data for the depth layer
+        # Save all data for the depth or temporal layer
 
         print("saving data and generating plots...")
         # map coordinate array to image
@@ -597,8 +625,12 @@ def model_points(settings):
         coord_xy = np.asarray([coord_x, coord_y]).T
         mu_img, std_img = align_nearest_neighbor(xygridflat, coord_xy, [mu_res, std_res], max_dist = 0.5 * settings.xvoxsize)
 
-        np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.txt'), np.round(mu_img,2), delimiter=',')
-        np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.txt'), np.round(std_img,3), delimiter=',')
+        if settings.axistype == 'vertical':
+            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.txt'), np.round(mu_img,2), delimiter=',')
+            np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.txt'), np.round(std_img,3), delimiter=',')
+        elif settings.axistype == 'temporal':
+            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.txt'), np.round(mu_img,2), delimiter=',')
+            np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.txt'), np.round(std_img,3), delimiter=',')
         if i == 0:
             # Create coordinate array of x and y
             np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_x.txt'), coord_x, delimiter=',')
@@ -624,7 +656,10 @@ def model_points(settings):
         plt.imshow(mu_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
         #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
         #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-        plt.title(settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            plt.title(settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            plt.title(settings.name_target + ' Time ' + str(np.round(100 * zspace[i])))
         plt.ylabel('Northing [meters]')
         plt.colorbar()
         plt.subplot(2, 1, 2)
@@ -635,19 +670,29 @@ def model_points(settings):
         plt.imshow(std_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
         #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
         #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-        plt.title('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            plt.title('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        if settings.axistype == 'temporal':
+            plt.title('Std Dev ' + settings.name_target + ' Time ' + str(np.round(100 * zspace[i])))
         plt.colorbar()
         plt.xlabel('Easting [meters]')
         plt.ylabel('Northing [meters]')
         plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.png'), dpi=300)
+        if settings.axistype == 'vertical':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.png'), dpi=300)
+        elif settings.axistype == 'temporal':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.png'), dpi=300)
         if _show:
             plt.show()
         plt.close('all')
 
         #Save also as geotiff
-        outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.tif')
-        outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.tif')
+        if settings.axistype == 'vertical':
+            outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.tif')
+            outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.tif')
+        elif settings.axistype == 'temporal':
+            outfname_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.tif')
+            outfname_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.tif')
 
         print('Saving results as geo tif...')
         tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
@@ -697,7 +742,10 @@ def model_points(settings):
     #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
     plt.scatter(points3D_train[:,2],points3D_train[:,1], c = dftrain[settings.name_target].values, alpha =0.3, edgecolors = 'k')
 
-    plt.title(settings.name_target + ' Depth Mean')
+    if settings.axistype == 'vertical':
+        plt.title(settings.name_target + ' Depth Mean')
+    elif settings.axistype == 'temporal':
+        plt.title(settings.name_target + ' Time Mean')
     plt.ylabel('Northing [meters]')
     plt.subplot(2, 1, 2)
     plt.imshow(std_3d_trim.mean(axis = 2).T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
@@ -830,7 +878,7 @@ def model_polygons(settings):
         y_train_fmean = ypred_blr_train
         ynoise_train = ypred_std_blr_train
 
-    # Subtract mean function of depth from training data 
+    # Subtract mean function from training data 
     y_train -= y_train_fmean
 
     if not calc_mean_only:
@@ -847,7 +895,7 @@ def model_polygons(settings):
     # Set extent of prediction grid
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
-    # Set output path for figures for each depth slice
+    # Set output path for figures for each depth or time slice
     outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
     os.makedirs(outpath_fig, exist_ok = True)	
 
@@ -856,7 +904,7 @@ def model_polygons(settings):
     #nbatch = dfgrid['ibatch'].max()
     ixrange_batch = dfgrid['ibatch'].unique()
     nbatch = len(ixrange_batch)
-    print("Number of mini-batches per depth slice: ", nbatch)
+    print("Number of mini-batches per depth or time slice: ", nbatch)
     mu_res = np.zeros(len(dfgrid))
     std_res = np.zeros(len(dfgrid))
     coord_x = np.zeros(len(dfgrid))
@@ -869,15 +917,21 @@ def model_polygons(settings):
         zspace = np.asarray(settings.list_z_pred)
     else:
         zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
-        print('Calculating for depths at: ', zspace)
+        if settings.axistype == 'vertical':
+            print('Calculating for depths at: ', zspace)
+        elif settings.axistype == 'temporal':
+            print('Calculating for time slices at: ', zspace)
     grid_x, grid_y = np.meshgrid(xspace, yspace)
     mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
     std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
     gp_train_flag = 0 # need to be computed only first time
     # Slice in blocks for prediction calculating per 30 km x 1cm
     for i in range(len(zspace)):
-        # predict for each depth z slice
-        print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
+        # predict for each depth  or time slice
+        if settings.axistype == 'vertical':
+            print('Computing slices at depth: ' + str(np.round(100 * zspace[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            print('Computing slices at time: ' + str(np.round(100 * zspace[i])))
         ix_start = 0
         dfout_poly['Mean'] = np.nan
         dfout_poly['Std'] = np.nan
@@ -931,24 +985,36 @@ def model_polygons(settings):
             dfout_poly.loc[dfout_poly['ibatch'] == j, 'Std'] = ystd_poly
 
 
-        # Save all data for the depth layer
+        # Save all data for the slice
         dfpoly_z = dfpoly.merge(dfout_poly, how = 'left', on = 'ibatch')
         # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
-        dfpoly_z.to_file(os.path.join(outpath_fig, 'Prediction_poly_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.gpkg'), driver='GPKG')
+        if settings.axistype == 'vertical':
+            dfpoly_z.to_file(os.path.join(outpath_fig, 'Prediction_poly_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.gpkg'), driver='GPKG')
+        elif settings.axistype == 'temporal':
+            dfpoly_z.to_file(os.path.join(outpath_fig, 'Prediction_poly_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.gpkg'), driver='GPKG')
         # make some plots with geopandas
         print("Plotting polygon map ...")
         fig, (ax1, ax2) = plt.subplots(ncols = 1, nrows=2, sharex=True, sharey=True, figsize = (10,10))
         dfpoly_z.plot(column='Mean', legend=True, ax = ax1, cmap = colormap_pred)#, legend_kwds={'label': "",'orientation': "vertical"}))
-        ax1.title.set_text('Mean ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            ax1.title.set_text('Mean ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            ax1.title.set_text('Mean ' + settings.name_target + ' Time ' + str(np.round(100 * zspace[i])))
         ax1.set_ylabel('Northing [meters]')
         #plt.xlabel('Easting [meters]')
         #plt.savefig(os.path.join(outpath_fig, 'Pred_Mean_Poly_' + name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.png'), dpi=300)
         dfpoly_z.plot(column='Std', legend=True,  ax = ax2, cmap = colormap_pred_std)#, legend_kwds={'label': "",'orientation': "vertical"}))
-        ax2.title.set_text('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        if settings.axistype == 'vertical':
+            ax2.title.set_text('Std Dev ' + settings.name_target + ' Depth ' + str(np.round(100 * zspace[i])) + 'cm')
+        elif settings.axistype == 'temporal':
+            ax2.title.set_text('Std Dev ' + settings.name_target + ' Time ' + str(np.round(100 * zspace[i])))
         ax2.set_xlabel('Easting [meters]')
         ax2.set_ylabel('Northing [meters]')
         plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_Poly_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.png'), dpi=300)
+        if settings.axistype == 'vertical':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_Poly_' + settings.name_target + '_z' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + 'cm.png'), dpi=300)
+        elif settings.axistype == 'temporal':
+            plt.savefig(os.path.join(outpath_fig, 'Pred_Poly_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zspace[i])))) + '.png'), dpi=300)
         if _show:
             plt.show()  
         plt.close('all')
@@ -972,6 +1038,22 @@ def main(fname_settings):
     # Parse settings dictinary as namespace (settings are available as 
     # settings.variable_name rather than settings['variable_name'])
     settings = SimpleNamespace(**settings)
+
+    # Assume covariate grid file has same covariate names as training data
+    settings.name_features_grid = settings.name_features.copy()
+
+    # Add temporal or vertical componnet
+    if settings.axistype == 'vertical':
+        settings.name_features.append(settings.colname_zcoord)
+    elif settings.axistype == 'temporal':
+        settings.name_features.append(settings.colname_tcoord)
+        settings.colname_zcoord = settings.colname_tcoord
+        settings.colname_zmin = settings.colname_tmin
+        settings.colname_zmax =  settings.colname_tmax
+        settings.list_z_pred = settings.list_t_pred 
+        settings.zblocksize = settings.tblocksize
+    else:
+        raise ValueError('axistype not supported')
 
     if settings.integrate_polygon:
         mu_3d, std_3d = model_polygons(settings)
@@ -1001,3 +1083,5 @@ if __name__ == '__main__':
 
     # Run main function
     main(args.settings)
+
+
