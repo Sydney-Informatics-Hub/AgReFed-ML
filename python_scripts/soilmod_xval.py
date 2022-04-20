@@ -28,9 +28,6 @@ Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of S
 
 This open-source software is released under the LGPL-3.0 License.
 
-TBD:
-- encapsel model loop as function and plot residual and scatter for combined cross-validation
-
 """
 
 import numpy as np
@@ -192,7 +189,7 @@ def runmodel(dfsel, model_function, settings):
                     plt.show()
                 plt.close('all')
 
-        # Subtract mean function of depth from training data for GP with zero mean
+        # Subtract mean function from training data for GP with zero mean
         y_train -= y_train_fmean
 
         # plot training and testing distribution
@@ -273,23 +270,7 @@ def runmodel(dfsel, model_function, settings):
         print("Mean Theta: ", np.round(np.mean(sspe),4))
         print("Median Theta: ", np.round(np.median(sspe)))
 
-        # Calculate also residual for mean function
-        # if not calc_mean_only:
-        #     residual_fmean = y_pred_zmean - y_test
-        #     rmse_fmean = np.sqrt(np.nanmean(residual_fmean**2))
-        #     rmse_norm_fmean = rmse_fmean / y_test.std()
-        #     rmedse_fmean = np.sqrt(np.median(residual_fmean**2))
-        #     rmedse_norm_fmean = rmedse_fmean / y_test.std()
-        #     sspe_fmean = residual_test**2 / (ynoise_pred**2)
-            # print("Normalized RMSE of Mean function: ", np.round(rmse_norm_fmean,4))
-            # print("Normalized ROOT MEDIAN SE of Mean function: ", np.round(rmedse_norm_fmean,4))
-            # print("GP Mean Theta of Mean function: ", np.round(np.mean(sspe_fmean),4))
-
         # Save results in dataframe
-        #dfpred[settings.name_target + '_GPmean'] = y_pred_zmean
-        #dfpred[settings.name_target + '_GPmean_residual'] = residual_fmean
-
-            # Save results in dataframe
         dfpred[settings.name_target + '_predict'] = y_pred
         dfpred[settings.name_target + '_stddev'] = ypred_std
         dfpred['Residual'] = residual_test
@@ -424,6 +405,15 @@ def main(fname_settings):
     # settings.variable_name rather than settings['variable_name'])
     settings = SimpleNamespace(**settings)
 
+    # Add temporal or vertical componnet
+    if settings.axistype == 'vertical':
+        settings.name_features.append(settings.colname_zcoord)
+    elif settings.axistype == 'temporal':
+        settings.name_features.append(settings.colname_tcoord)
+        settings.colname_zcoord = settings.colname_tcoord
+        settings.colname_zmin = settings.colname_tmin
+        settings.colname_zmax =  settings.colname_tmax
+
     if type(settings.model_functions) != list:
         settings.model_functions = [settings.model_functions]
 
@@ -440,6 +430,14 @@ def main(fname_settings):
     print('Reading data into dataframe...')
     # Read in data
     dfsel = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != 'x':
+        dftrain.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
+    if settings.colname_ycoord != 'y':
+        dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
+    if settings.colname_zcoord != 'z':
+        dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
  
     # Select data between zmin and zmax
     dfsel = dfsel[(dfsel['z'] >= settings.zmin) & (dfsel['z'] <= settings.zmax)]
