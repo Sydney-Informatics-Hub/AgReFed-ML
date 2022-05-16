@@ -53,10 +53,10 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
         D2, Y, Ynoise, Delta = args
         if Delta is not None:
             #kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
-            kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise * np.diag(Ynoise**2)
+            kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise + np.diag(Ynoise**2)
         else:
             #kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
-            kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise * np.diag(Ynoise**2)
+            kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise
         try:
             k_chol = cholesky(kcov, lower=True)
             Ky = solve_triangular(k_chol, Y, lower=True).flatten()
@@ -100,7 +100,7 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
     """
     optimiser = 'Powell'
     res = minimize(calc_nlogl3D, x0 = [1, 0.1, 10*zmin, 10*xymin],
-                bounds=[(0.01, 10), (0.001, 2.0), (zmin, zmin*1000), (xymin, xymin*1000)],
+                bounds=[(0.01, 10), (0.0001, 1.0), (zmin, zmin*1000), (xymin, xymin*1000)],
                 method=optimiser,
                 args = (Dtrain, Y, Ynoise, Delta_00))         
     if not res.success:
@@ -167,15 +167,13 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
     if Xdelta is not None:
         Delta_00 = calcDeltaMatrix_multidim(Xdelta)
         Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
-        kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise * np.diag(Ynoise**2)
-        #kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + np.diag(Ynoise**2)
+        kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise + np.diag(Ynoise**2)
         kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
     else:
-        kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise * np.diag(Ynoise**2)
-        #kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + np.diag(Ynoise**2)
+        kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise 
         kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
-    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
-    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
 
 
     try:
@@ -257,9 +255,8 @@ def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred =
         kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01) 	
     else:
         kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
-    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + gp_noise * np.diag(Ynoise2**2) 
-    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
-    #kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) * (1 + np.diag(Ynoise2**2))
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
     v = solve_triangular(k_chol, kcov01, lower=True)
     # predicted mean
     mu = np.dot(v.T, Ky)
