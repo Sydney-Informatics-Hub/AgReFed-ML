@@ -101,6 +101,7 @@ def runmodel(dfsel, model_function, settings):
     rmedse_nfold = []
     nrmedse_nfold = []
     meansspe_nfold = []
+    r2_nfold = []
     #rmse_fmean_nfold = []
     #nrmse_fmean_nfold = []
     #rmedse_fmean_nfold = []
@@ -273,7 +274,7 @@ def runmodel(dfsel, model_function, settings):
         y_pred_train = ypred_train + y_pred_train_zmean
         y_train += y_train_fmean
 
-        # Calculate Residual, RMSE, SSPE
+        # Calculate Residual, RMSE, R2, SSPE
         residual_test = y_pred - y_test
         rmse = np.sqrt(np.nanmean(residual_test**2))
         rmse_norm = rmse / y_test.std()
@@ -281,10 +282,12 @@ def runmodel(dfsel, model_function, settings):
         rmedse_norm = rmedse / y_test.std()
         #sspe = residual_test**2 / ystd_test**2
         sspe = residual_test**2 / (ypred_std**2)
+        r2 = 1 - np.nanmean(residual_test**2) / np.nanmean((y_test - y_test.mean())**2)
         if not calc_mean_only:
             print("GP Marginal Log-Likelihood: ", np.round(logl,2))
         print("Normalized RMSE: ",np.round(rmse_norm,4))
         print("Normalized ROOT MEDIAN SE: ",np.round(rmedse_norm,4))
+        print("R^2: ", np.round(r2,4))
         print("Mean Theta: ", np.round(np.mean(sspe),4))
         print("Median Theta: ", np.round(np.median(sspe)))
 
@@ -344,6 +347,7 @@ def runmodel(dfsel, model_function, settings):
         rmedse_nfold.append(rmedse)
         nrmedse_nfold.append(rmedse_norm)
         meansspe_nfold.append(np.mean(sspe))
+        r2_nfold.append(r2)
         #rmse_fmean_nfold.append(rmse_fmean)
         #nrmse_fmean_nfold.append(rmse_norm_fmean)
         #rmedse_fmean_nfold.append(rmedse_fmean)
@@ -375,12 +379,13 @@ def runmodel(dfsel, model_function, settings):
     rmedse_nfold = np.asarray(rmedse_nfold)
     nrmedse_nfold = np.asarray(nrmedse_nfold)
     meansspe_nfold = np.asarray(meansspe_nfold)
+    r2_nfold = np.asarray(r2_nfold)
     #rmse_fmean_nfold = np.asarray(rmse_fmean_nfold)
     #nrmse_fmean_nfold = np.asarray(nrmse_fmean_nfold)
     #rmedse_fmean_nfold = np.asarray(rmedse_fmean_nfold)
     #nrmedse_fmean_nfold = np.asarray(nrmedse_fmean_nfold)
     #dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold, 'RMSE_fmean': rmse_fmean_nfold, 'nRMSE_fmean': nrmse_fmean_nfold, 'RMEDIANSE_fmean': rmedse_fmean_nfold, 'nRMEDIANSE_fmean': nrmedse_fmean_nfold})
-    dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold})
+    dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'R2': r2_nfold, 'Theta': meansspe_nfold})
     dfsum.to_csv(os.path.join(outpath, settings.name_target + 'nfold_summary_stats.csv'), index = False)
 
     print("---- X-validation Summary -----")
@@ -388,6 +393,7 @@ def runmodel(dfsel, model_function, settings):
     #print("Mean normalized RMSE of Meanfunction: " + str(np.round(np.mean(nrmse_fmean_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_fmean_nfold),3)))
     print("Median normalized RMSE: " + str(np.round(np.median(nrmedse_nfold),3)))
     #print("Median normalized RMSE of Meanfunction: " + str(np.round(np.median(nrmedse_fmean_nfold),3)))
+    print("Mean R^2: " + str(np.round(np.mean(r2_nfold),3)))
     print("Mean Theta: " + str(np.round(np.mean(meansspe_nfold),3)) + " +/- " + str(np.round(np.std(meansspe_nfold),3)))
 
     histresidual_cut = truncate_data(histresidual, 1)
