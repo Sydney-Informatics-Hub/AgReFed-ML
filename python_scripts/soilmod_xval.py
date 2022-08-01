@@ -61,7 +61,7 @@ def runmodel(dfsel, model_function, settings):
     Input:
     ------
     dfsel: dataframe with data for training and testing (nfold column required to split data)
-    model_function: str, function to train model (supported: 'blr', 'rf', 'blr-gp', 'rf-gp')
+    model_function: str, function to train model (supported: 'blr', 'rf', 'blr-gp', 'rf-gp', 'gp-only')
     settings: settings for model function
 
     Returns:
@@ -83,6 +83,8 @@ def runmodel(dfsel, model_function, settings):
         # print('mean function:', mean_function)
     if (model_function == 'rf-gp') | (model_function == 'rf'):
         mean_function = 'rf'
+    if model_function == 'gp-only':
+        mean_function = 'const'
         # print('mean function:', mean_function)
 
     # get train and test data, here we can include loop over ix for cross validation
@@ -193,6 +195,12 @@ def runmodel(dfsel, model_function, settings):
                 if _show:
                     plt.show()
                 plt.close('all')
+        elif mean_function == 'const':
+            y_train_fmean = np.mean(y_train) * np.ones(y_train.shape)
+            ypred_const = np.mean(y_train) * np.ones(y_test.shape)
+            ypred_const_train = np.mean(y_train) * y_train_fmean
+            ynoise_train = 1e-6 * np.ones(y_train.shape)
+            ynoise_pred = 1e-6 * np.ones(y_test.shape)
 
         # Subtract mean function from training data for GP with zero mean
         y_train -= y_train_fmean
@@ -257,6 +265,9 @@ def runmodel(dfsel, model_function, settings):
         elif mean_function == 'blr':
             y_pred_zmean = ypred_blr
             y_pred_train_zmean = ypred_blr_train
+        elif mean_function == 'const':
+            y_pred_zmean = ypred_const
+            y_pred_train_zmean = ypred_const_train
 
         y_pred = ypred + y_pred_zmean
         y_pred_train = ypred_train + y_pred_train_zmean
