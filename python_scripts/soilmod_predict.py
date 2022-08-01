@@ -139,6 +139,7 @@ def model_blocks(settings):
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    settings.name_features.append('z')
 
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
@@ -159,6 +160,7 @@ def model_blocks(settings):
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    settings.name_features.append('z')
 
 
     ## Get coordinates for training data and set coord origin to (0,0)  
@@ -429,6 +431,7 @@ def model_points(settings):
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    settings.name_features.append('z')
 
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
@@ -815,6 +818,7 @@ def model_polygons(settings):
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    settings.name_features.append('z')
 
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
@@ -856,7 +860,10 @@ def model_polygons(settings):
     y_train = dftrain[settings.name_target].values
 
     # spatial uncertainty of coordinates:
-    Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+    if 'z_diff' in list(dftrain):
+        Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+    else:
+        Xdelta_train = np.asarray([0 * dftrain.z.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
 
     # Calculate predicted mean values of training data
     X_train = dftrain[settings.name_features].values
@@ -1043,17 +1050,12 @@ def main(fname_settings):
     settings.name_features_grid = settings.name_features.copy()
 
     # Add temporal or vertical componnet
-    if settings.axistype == 'vertical':
-        settings.name_features.append(settings.colname_zcoord)
-    elif settings.axistype == 'temporal':
-        settings.name_features.append(settings.colname_tcoord)
+    if settings.axistype == 'temporal':
         settings.colname_zcoord = settings.colname_tcoord
-        settings.colname_zmin = settings.colname_tmin
-        settings.colname_zmax =  settings.colname_tmax
+        settings.zmin = settings.tmin
+        settings.zmax =  settings.tmax
         settings.list_z_pred = settings.list_t_pred 
         settings.zblocksize = settings.tblocksize
-    else:
-        raise ValueError('axistype not supported')
 
     if settings.integrate_polygon:
         mu_3d, std_3d = model_polygons(settings)

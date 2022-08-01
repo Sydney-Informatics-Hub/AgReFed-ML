@@ -131,8 +131,13 @@ def runmodel(dfsel, model_function, settings):
         y_train = dftrain[settings.name_target].values
         y_test = dftest[settings.name_target].values
         # Uncertainty in coordinates
-        Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
-        Xdelta_test = np.asarray([0.5 * dftest.z_diff.values, dftest.y.values * 0, dftest.x.values * 0.]).T
+        if 'z_diff' in list (dftrain):
+            Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+            Xdelta_test = np.asarray([0.5 * dftest.z_diff.values, dftest.y.values * 0, dftest.x.values * 0.]).T
+        else:
+            Xdelta_train = np.asarray([0 * dftrain.z.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+            Xdelta_test = np.asarray([0 * dftest.z.values, dftest.y.values * 0, dftest.x.values * 0.]).T
+
 
 
         if mean_function == 'rf':
@@ -227,7 +232,9 @@ def runmodel(dfsel, model_function, settings):
             print('Optimizing GP hyperparameters...')
             Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
             # TBD: find automatic way to set hyperparameter boundaries based on data
-            opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_mean)
+            xymin = 0.5 * (points3D_train[:,1].max() - points3D_train[:,1].min()) / np.unique(points3D_train[:,1]).size
+            zmin = 0.5 * (points3D_train[:,0].max() - points3D_train[:,0].min()) / np.unique(points3D_train[:,0]).size
+            opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = xymin, zmin = zmin, Xdelta = Xdelta_mean)
             #opt_params, opt_logl = optimize_gp_3D(points3D_train, y_train, ynoise_train, xymin = 30, zmin = 0.05, Xdelta = Xdelta_train)
             params_gp = opt_params
 
@@ -406,10 +413,7 @@ def main(fname_settings):
     settings = SimpleNamespace(**settings)
 
     # Add temporal or vertical componnet
-    if settings.axistype == 'vertical':
-        settings.name_features.append(settings.colname_zcoord)
-    elif settings.axistype == 'temporal':
-        settings.name_features.append(settings.colname_tcoord)
+    if settings.axistype == 'temporal':
         settings.colname_zcoord = settings.colname_tcoord
         settings.colname_zmin = settings.colname_tmin
         settings.colname_zmax =  settings.colname_tmax
@@ -433,17 +437,24 @@ def main(fname_settings):
 
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != 'x':
-        dftrain.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
+        dfsel.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
     if settings.colname_ycoord != 'y':
-        dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
-    if settings.colname_zcoord != 'z':
-        dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+        dfsel.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
+    if (settings.axistype == 'vertical') & (settings.colname_zcoord != 'z'):
+        dfsel.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    else:
+        dfsel.rename(columns={settings.colname_tcoord: 'z'}, inplace = True)
+        dfsel.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+    settings.name_features.append('z')
  
     # Select data between zmin and zmax
-    dfsel = dfsel[(dfsel['z'] >= settings.zmin) & (dfsel['z'] <= settings.zmax)]
+    dfsel = dfsel[(dfsel['z'] >= settings.colname_zmin) & (dfsel['z'] <= settings.colname_zmax)]
 
     # Generate kfold indices
-    dfsel = gen_kfold(dfsel, nfold = 10, label_nfold = 'nfold', id_unique = ['x','y'], precision_unique = 0.01)
+    if settings.axistype == 'vertical':
+        dfsel = gen_kfold(dfsel, nfold = settings.nfold, label_nfold = 'nfold', id_unique = ['x','y'], precision_unique = 0.01)
+    elif settings.axistype == 'temporal':
+        dfsel = gen_kfold(dfsel, nfold = settings.nfold, label_nfold = 'nfold', id_unique = ['x','y', 'z'], precision_unique = 0.01)
 
     ## Get coordinates for training data and set coord origin to (0,0)
     bound_xmin = dfsel.x.min()
