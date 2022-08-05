@@ -16,7 +16,7 @@ This package is part of the machine learning project developed for the Agricultu
 
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
-This open-source software is released under the AGPL-3.0 License.
+This open-source software is released under the LGPL-3.0 License.
 """
 from scipy import reshape, sqrt, identity
 from scipy.linalg import pinv, solve, cholesky, solve_triangular
@@ -25,6 +25,8 @@ from scipy.special import erf
 import numpy as np
 # import local functions
 from utils import print2
+# Speed up computation with numba
+import numba
 
 
 def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None):
