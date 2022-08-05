@@ -411,7 +411,9 @@ def runmodel(dfsel, model_function, settings):
         plt.show()
     plt.close('all')
 
-    stats_summary = (np.round(np.mean(nrmse_nfold),3), np.round(np.std(nrmse_nfold),3),  np.round(np.mean(meansspe_nfold),3), np.round(np.std(meansspe_nfold),3))
+    stats_summary = (np.round(np.mean(nrmse_nfold),3), np.round(np.std(nrmse_nfold),3),  
+    np.round(np.mean(meansspe_nfold),3), np.round(np.std(meansspe_nfold),3),  
+    np.round(np.mean(r2_nfold),3), np.round(np.std(r2_nfold),3) )
     return dfsum, stats_summary, outpath
 
 
@@ -487,6 +489,8 @@ def main(fname_settings):
     nrmse_meanfunction_std = []
     theta_meanfunction = []
     theta_meanfunction_std = []
+    r2_meanfunction = []
+    r2_meanfunction_std = []
 
     # Loop over model functions and evaluate
     for model_function in settings.model_functions:
@@ -499,6 +503,8 @@ def main(fname_settings):
         nrmse_meanfunction_std.append(stats_summary[1])
         theta_meanfunction.append(stats_summary[2])
         theta_meanfunction_std.append(stats_summary[3])
+        r2_meanfunction.append(stats_summary[4])
+        r2_meanfunction_std.append(stats_summary[5])
 
 
     #End of xval loop over all models
@@ -509,7 +515,7 @@ def main(fname_settings):
     print('Models ranked based on nRMSE:')
     print('')
     for ix in ix_meanfunction_sorted:
-        print(f'{settings.model_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
+        print(f'{settings.model_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Mean R2= {r2_meanfunction[ix]} +/- {r2_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
 
 
 
