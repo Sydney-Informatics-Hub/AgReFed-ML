@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/preprocessed/'
-outpath: '../../../results/Llara_xval_test2/' 
+outpath: '../../../results/Llara_xval_test3/' 
 # File name with soil data and corresponding covariates
 infname: 'Llara_processed.csv' 
 
