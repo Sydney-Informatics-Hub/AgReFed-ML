@@ -1,0 +1,53 @@
+# Settings for soilmod_xval.py
+
+### Input Specifications ###
+inpath: '../../../data/Llara/OC_data_2018_2021/'
+outpath: '../../../results/Llara_OC_2018_2021_xval/' 
+# File name with soil data and corresponding covariates
+infname: 'OC_NDVI_data_final.csv' 
+
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+# Name of target for prediction (column name in dataframe)
+name_target: 'OC.WB' # 'OC.stock' #
+
+# Name of x (Easting) and y (Northing) coordinate columns
+colname_xcoord: 'x'
+colname_ycoord: 'y'
+
+# Choose model function, currently implemented:
+#'blr': bayesian linear regression with power transformation
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_functions: ['rf', 'rf-gp', 'blr', 'rf', 'gp-only'] #'rf', 'rf-gp', 'blr', 'gp-only'
+
+# Name of column for index of test data for Xfold cross-validation (to separate train and test data), only relevant for option 'calc_xval':
+name_ixval: 'Label_nfold'
+
+# Is third dimension of prediction the vertical depth ('vertical') or temporal ('temporal')?
+axistype: 'temporal' # 'vertical' # 'temporal'
+
+### If axistype='vertical', select minimum and maximum of depth for data selection [in m]
+colname_zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+colname_zmax: 1 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+colname_zcoord: 'z'
+
+### If axistype='temporal', select minimum and maximum of time for data selection [in m]
+colname_tmin: 2016 # start time for prediction
+colname_tmax: 2022 # end time for prediction 
+colname_tcoord: 'year'
+
+
+### Name of covariates in soil training data or the crossvalidation data
+name_features: [ 'DEM_30',
+ 'SlopeDeg',
+ 'rad_dose',
+ 'rad_u',
+ 'NDVI_1yr',
+ 'NDVI_3yr']
+
+ ## Number of cross-validations:
+nfold: 7
