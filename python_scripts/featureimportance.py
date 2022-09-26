@@ -54,6 +54,7 @@ from sklearn.datasets import make_regression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
 from sklearn.linear_model import BayesianRidge
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+from sklearn.feature_selection import mutual_info_regression
 from sklearn.inspection import permutation_importance
 from scipy.stats import spearmanr
 from scipy.cluster import hierarchy
@@ -240,38 +241,10 @@ def rf_factor_importance(X_train, y_train, correlated = False):
 	imp_mean_corr[imp_mean_corr < 0.001] = 0
 	return imp_mean_corr
 
-
-
-def test_rf_factor_importance():
-	"""
-	Test function for rf_factor_importance
-	"""
-	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'quadratic', noise = 0.05)
-	X = dfsim[feature_names].values
-	y = dfsim['Ytarget'].values
-	imp_mean_corr = rf_factor_importance(X, y)
-	assert np.argmax(coefsim) == np.argmax(imp_mean_corr)
-
-
-
-
-def test_blr_factor_importance():
-	"""
-	Test function for blr_factor_importance
-	"""
-	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'linear', noise = 0.05)
-	X = dfsim[feature_names].values
-	y = dfsim['Ytarget'].values
-	coef_signif = blr_factor_importance(X, y)
-	assert np.argmax(coefsim) == np.argmax(coef_signif)
-
-
 def rdt_factor_importance(X_train, y_train):
 	"""
 	Factor importance using randomized decision trees (a.k.a. extra-trees)
 	on various sub-samples of the dataset
-	Including training of Random Forest regression model with training data 
-	and setting non-significant coefficients to zero.
 
 	Input:
 		X: input data matrix with shape (npoints,nfeatures)
@@ -285,6 +258,54 @@ def rdt_factor_importance(X_train, y_train):
 	result = model.feature_importances_
 	result[result < 0.001] = 0
 	return result
+
+
+
+def test_rf_factor_importance():
+	"""
+	Test function for rf_factor_importance
+	"""
+	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'quadratic', noise = 0.05)
+	X = dfsim[feature_names].values
+	y = dfsim['Ytarget'].values
+	imp_mean_corr = rf_factor_importance(X, y)
+	assert np.argmax(coefsim) == np.argmax(imp_mean_corr)
+
+
+def test_blr_factor_importance():
+	"""
+	Test function for blr_factor_importance
+	"""
+	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'linear', noise = 0.05)
+	X = dfsim[feature_names].values
+	y = dfsim['Ytarget'].values
+	coef_signif = blr_factor_importance(X, y)
+	assert np.argmax(coefsim) == np.argmax(coef_signif)
+
+
+
+
+
+def mi_factor_importance(X_train, y_train):
+	"""
+	Factor importance using mutual information.
+
+	Ref:
+	- https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_regression.html
+	- A. Kraskov, H. Stogbauer and P. Grassberger, "Estimating mutual
+       information". Phys. Rev. E 69, 2004.
+
+	Input:
+		X: input data matrix with shape (npoints,nfeatures)
+		y: target varable with shape (npoints)
+
+	Return:
+		mi: mutual information
+	"""
+	
+	mi = mutual_info_regression(X_train, y_train)
+	mi /= np.max(mi)
+	return mi
 
 
 
@@ -484,6 +505,11 @@ def main(fname_settings):
 	corr = rdt_factor_importance(X, y)
 	plot_correlationbar(corr, settings.name_features, settings.outpath, 'RDT-feature-importance.png', name_method = 'RDT feature importance', show = False)
 
+	# 6) Generate feature importance using mutual information regeression
+	print("Calculate mutual information scores...")
+	corr = mi_factor_importance(X, y)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'Mutual_information.png', name_method = 'Mutual information score', show = True)
+
 
 
 def test_main():
@@ -525,7 +551,8 @@ def test_main():
 	assert os.path.isfile(os.path.join(outpath, 'BLR-linear-correlation.png')), 'Plot for BLR linear correlation not generated'
 	assert os.path.isfile(os.path.join(outpath, 'BLR-log-correlation.png')), 'Plot for BLR log-correlation not generated'
 	assert os.path.isfile(os.path.join(outpath, 'RF-permutation-importance.png')), 'Plot for RF permutation importance not generated'
-	assert os.path.isfile(os.path.join(outpath, 'RDT-feature-importance.png')), 'Plot for RF permutation importance not generated'
+	assert os.path.isfile(os.path.join(outpath, 'RDT-feature-importance.png')), 'Plot for random decision trees not generated'
+	assert os.path.isfile(os.path.join(outpath, 'Mutual_information.png')), 'Plot for Mutual information not generated'
 
 	# Remove temporary result folder
 	# shutil.rmtree(outpath)
