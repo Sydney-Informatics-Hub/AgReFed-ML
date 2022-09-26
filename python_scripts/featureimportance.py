@@ -53,7 +53,7 @@ import pandas as pd
 from sklearn.datasets import make_regression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
 from sklearn.linear_model import BayesianRidge
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
 from sklearn.inspection import permutation_importance
 from scipy.stats import spearmanr
 from scipy.cluster import hierarchy
@@ -241,6 +241,7 @@ def rf_factor_importance(X_train, y_train, correlated = False):
 	return imp_mean_corr
 
 
+
 def test_rf_factor_importance():
 	"""
 	Test function for rf_factor_importance
@@ -250,6 +251,40 @@ def test_rf_factor_importance():
 	y = dfsim['Ytarget'].values
 	imp_mean_corr = rf_factor_importance(X, y)
 	assert np.argmax(coefsim) == np.argmax(imp_mean_corr)
+
+
+
+
+def test_blr_factor_importance():
+	"""
+	Test function for blr_factor_importance
+	"""
+	dfsim, coefsim, feature_names = create_simulated_features(6, model_order = 'linear', noise = 0.05)
+	X = dfsim[feature_names].values
+	y = dfsim['Ytarget'].values
+	coef_signif = blr_factor_importance(X, y)
+	assert np.argmax(coefsim) == np.argmax(coef_signif)
+
+
+def rdt_factor_importance(X_train, y_train):
+	"""
+	Factor importance using randomized decision trees (a.k.a. extra-trees)
+	on various sub-samples of the dataset
+	Including training of Random Forest regression model with training data 
+	and setting non-significant coefficients to zero.
+
+	Input:
+		X: input data matrix with shape (npoints,nfeatures)
+		y: target varable with shape (npoints)
+
+	Return:
+		result: feature importances
+	"""
+	model = ExtraTreesRegressor(n_estimators=500, random_state = 42)
+	model.fit(X_train, y_train)
+	result = model.feature_importances_
+	result[result < 0.001] = 0
+	return result
 
 
 
@@ -444,6 +479,10 @@ def main(fname_settings):
 	corr = rf_factor_importance(X, y)
 	plot_correlationbar(corr, settings.name_features, settings.outpath, 'RF-permutation-importance.png', name_method = 'RF permutation importance', show = False)
 
+	# 5) Generate feature importance using randomized decision trees
+	print("Calculate feature importance for randomized decision trees (RDT)...")
+	corr = rdt_factor_importance(X, y)
+	plot_correlationbar(corr, settings.name_features, settings.outpath, 'RDT-feature-importance.png', name_method = 'RDT feature importance', show = False)
 
 
 
@@ -486,6 +525,7 @@ def test_main():
 	assert os.path.isfile(os.path.join(outpath, 'BLR-linear-correlation.png')), 'Plot for BLR linear correlation not generated'
 	assert os.path.isfile(os.path.join(outpath, 'BLR-log-correlation.png')), 'Plot for BLR log-correlation not generated'
 	assert os.path.isfile(os.path.join(outpath, 'RF-permutation-importance.png')), 'Plot for RF permutation importance not generated'
+	assert os.path.isfile(os.path.join(outpath, 'RDT-feature-importance.png')), 'Plot for RF permutation importance not generated'
 
 	# Remove temporary result folder
 	# shutil.rmtree(outpath)
