@@ -1,0 +1,25 @@
+infname: SyntheticData_quadratic_20nfeatures_2022_02_09-05-45-13_PM.csv
+inpath: ../synthetic_data/1000samples_20features/
+name_features:
+- Feature_1
+- Feature_2
+- Feature_3
+- Feature_4
+- Feature_5
+- Feature_6
+- Feature_7
+- Feature_8
+- Feature_9
+- Feature_10
+- Feature_11
+- Feature_12
+- Feature_13
+- Feature_14
+- Feature_15
+- Feature_16
+- Feature_17
+- Feature_18
+- Feature_19
+- Feature_20
+name_target: Ytarget
+outpath: test_featureimportance_1000samples_20features
