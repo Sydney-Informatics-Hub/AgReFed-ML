@@ -2,12 +2,12 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/bars/rescaled_csv/'
-outpath: '../../../results/Llara_pointpredict_blr-gp_moisture_2021/' 
+outpath: '../../../results/Llara_pointpredict_rf_moisture_2020/' 
 # File name with soil data and corresponding covariates
-infname: 'Soilmoisture_all_covariates_weekly_2021.csv' 
+infname: 'Soilmoisture_all_covariates_weekly_2020.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
 # if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
-gridname: 'grid_covariates_spatial_temporal_weekly_2021.csv'
+gridname: 'grid_covariates_spatial_temporal_weekly_2020.csv'
 
 # set project coordinate reference system
 project_crs: "EPSG:28355" 
@@ -31,9 +31,6 @@ zvoxsize: 1 # set depth resolution
 colname_xcoord: 'EASTING'
 colname_ycoord: 'NORTHING'
 
-# Is third dimension of prediction the vertical depth ('vertical') or temporal ('temporal')?
-axistype: 'temporal'
-
 
 ### If axistype='temporal', select minimum and maximum of depth for data selection [in m]
 tmin: 0 # start time for prediction
@@ -41,8 +38,8 @@ tmax: 54 # end time for prediction
 
 # or use only certain years for prediction (leave blank list [] if all  intervals between tmin and tmax should be considered),
 # otherwise provide list of time
-#list_t_pred:  [14, 27, 40] # corresponding to 2020-04-01, 2020-07-01, 2020-10-01
-list_t_pred:  [13, 26, 39] # corresponding to 2021-04-01, 2021-07-01, 2021-10-01
+list_t_pred:  [14, 27, 40] # corresponding to 2020-04-01, 2020-07-01, 2020-10-01
+#list_t_pred:  [13, 26, 39] # corresponding to 2021-04-01, 2021-07-01, 2021-10-01
 
 # Column name for time coordinate
 colname_tcoord: 'week'
@@ -74,11 +71,3 @@ name_features: [
   "Landscape_Slope_median_300m", 
   "Landscape_MrVBF", 
   "DEM"]
-
-
-
-
-
-
-
-
