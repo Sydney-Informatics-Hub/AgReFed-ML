@@ -81,6 +81,39 @@ colormap_pred_std =  'viridis'
 colormap_prob = 'coolwarm'
 # Or use seaborn colormaps 
 
+
+def preprocess_settings(fname_settings):
+    """
+    Preprocess settings.
+
+    Input:
+        fname_settings: path and filename to settings file
+
+    Returns:
+        settings: settings Namespace object
+
+    """
+    # Load settings from yaml file
+    with open(fname_settings, 'r') as f:
+        settings = yaml.load(f, Loader=yaml.FullLoader)
+    # Parse settings dictinary as namespace (settings are available as 
+    # settings.variable_name rather than settings['variable_name'])
+    settings = SimpleNamespace(**settings)
+
+    # Assume covariate grid file has same covariate names as training data
+    settings.name_features_grid = settings.name_features.copy()
+
+    # Add temporal or vertical componnet
+    if settings.axistype == 'temporal':
+        settings.colname_zcoord = settings.colname_tcoord
+        settings.zmin = settings.tmin
+        settings.zmax =  settings.tmax
+        settings.list_z_pred = settings.list_t_pred 
+        settings.zblocksize = settings.tblocksize
+    
+    return settings
+
+
 ######### Volume Block prediction #########
 def model_blocks(settings):
     """
@@ -339,7 +372,7 @@ def model_blocks(settings):
         std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
         std_3d_trim[std_3d_trim > std_3d_trim_max] = std_3d_trim_max
         plt.imshow(std_3d_trim.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-        plt.title(settings.name_target + ' Date ' + str(np.round(zblock[i])))
+        plt.title('Std Dev ' + settings.name_target + ' Date ' + str(np.round(zblock[i])))
         plt.colorbar()
         plt.xlabel('Easting [meters]')
         plt.ylabel('Northing [meters]')
@@ -620,7 +653,7 @@ def model_points(settings):
             np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_x.txt'), coord_x, delimiter=',')
             np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_y.txt'), coord_y, delimiter=',')
         """
-        
+
         mu_img = mu_img.reshape(grid_x.shape)
         std_img = std_img.reshape(grid_x.shape)
 
@@ -874,7 +907,7 @@ def model_polygons(settings):
 
     dfout_poly =  dfgrid[['ibatch']].copy()
         
-    #nbatch = dfgrid['ibatch'].max()
+
     ixrange_batch = dfgrid['ibatch'].unique()
     nbatch = len(ixrange_batch)
     print("Number of mini-batches per depth or time slice: ", nbatch)
@@ -987,23 +1020,8 @@ def main(fname_settings):
         fname_settings: path and filename to settings file
     """
 
-    # Load settings from yaml file
-    with open(fname_settings, 'r') as f:
-        settings = yaml.load(f, Loader=yaml.FullLoader)
-    # Parse settings dictinary as namespace (settings are available as 
-    # settings.variable_name rather than settings['variable_name'])
-    settings = SimpleNamespace(**settings)
-
-    # Assume covariate grid file has same covariate names as training data
-    settings.name_features_grid = settings.name_features.copy()
-
-    # Add temporal or vertical componnet
-    if settings.axistype == 'temporal':
-        settings.colname_zcoord = settings.colname_tcoord
-        settings.zmin = settings.tmin
-        settings.zmax =  settings.tmax
-        settings.list_z_pred = settings.list_t_pred 
-        settings.zblocksize = settings.tblocksize
+    # Process settings
+    settings = preprocess_settings(fname_settings)
 
     if settings.integrate_polygon:
         mu_3d, std_3d = model_polygons(settings)
