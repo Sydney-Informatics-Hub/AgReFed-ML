@@ -103,14 +103,12 @@ def preprocess_settings(fname_settings):
     # Assume covariate grid file has same covariate names as training data
     settings.name_features_grid = settings.name_features.copy()
 
-    # Add temporal or vertical componnet
-    if settings.axistype == 'temporal':
-        settings.colname_zcoord = settings.colname_tcoord
-        settings.zmin = settings.tmin
-        settings.zmax =  settings.tmax
-        settings.list_z_pred = settings.list_t_pred 
-        settings.zblocksize = settings.tblocksize
-    
+    settings.colname_zcoord = settings.colname_tcoord
+    settings.zmin = settings.tmin
+    settings.zmax =  settings.tmax
+    settings.list_z_pred = settings.list_t_pred 
+    settings.zblocksize = settings.tblocksize
+
     return settings
 
 
@@ -252,7 +250,7 @@ def model_blocks(settings):
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
     # Set output path for figures for each depth or temporal slice
-    outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
+    outpath_fig = os.path.join(settings.outpath, 'Predictions')
     os.makedirs(outpath_fig, exist_ok = True)	
 
     xblock = np.arange(dfgrid['x'].min(), dfgrid['x'].max(), settings.xblocksize) + 0.5 * settings.xblocksize
@@ -526,7 +524,7 @@ def model_points(settings):
     extent = (0, bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
     # Set output path for figures for each depth or temporal slice
-    outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
+    outpath_fig = os.path.join(settings.outpath, 'Predictions')
     os.makedirs(outpath_fig, exist_ok = True)	
 
     # Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
@@ -722,7 +720,7 @@ def model_points(settings):
     plt.colorbar()
     #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
     plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-    plt.title('ESP ' +settings.name_target + ' Mean')
+    plt.title(settings.name_target + ' Mean')
     plt.ylabel('Northing [meters]')
 
     plt.subplot(2, 1, 2)
@@ -902,7 +900,7 @@ def model_polygons(settings):
     extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
 
     # Set output path for figures for each depth or time slice
-    outpath_fig = os.path.join(settings.outpath, 'Figures_zslices/')
+    outpath_fig = os.path.join(settings.outpath, 'Predictions/')
     os.makedirs(outpath_fig, exist_ok = True)	
 
     dfout_poly =  dfgrid[['ibatch']].copy()
