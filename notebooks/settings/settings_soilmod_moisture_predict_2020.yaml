@@ -1,8 +1,8 @@
-# Settings for soilmodel_predict_st.py
+# Settings for spatial temporal  soilmodel predictions for soil moisture 2020
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/bars/rescaled_csv/'
-outpath: 'Results_Llara_pointmodel_blr-gp_moisture_2020/' 
+outpath: '../../../results/Llara_pointpredict_blr-gp_moisture_2020/' 
 # File name with soil data and corresponding covariates
 infname: 'Soilmoisture_all_covariates_weekly_2020.csv' 
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
@@ -39,7 +39,7 @@ tmax: 54 # end time for prediction
 # or use only certain years for prediction (leave blank list [] if all  intervals between tmin and tmax should be considered),
 # otherwise provide list of time
 list_t_pred:  [14, 27, 40] # corresponding to 2020-04-01, 2020-07-01, 2020-10-01
-#list_t_pred:  [13, 26, 39] # corresponding to 2021-04-01, 2021-07-01, 2021-10-01
+
 
 # Column name for time coordinate
 colname_tcoord: 'week'
@@ -71,11 +71,3 @@ name_features: [
   "Landscape_Slope_median_300m", 
   "Landscape_MrVBF", 
   "DEM"]
-
-
-
-
-
-
-
-
