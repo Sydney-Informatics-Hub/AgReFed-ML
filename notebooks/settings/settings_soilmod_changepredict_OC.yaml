@@ -2,7 +2,7 @@
 
 ### Input Specifications ###
 inpath: '../../../data/Llara/OC_data_2018_2021/'
-outpath: '../../../results/Llara_OC_2018_2021_rf-gp_changemaps/' 
+outpath: '../../../results/Llara_OC_2018_2021_rf-gp_changemaps_30m/' 
 # File name with soil data and corresponding covariates
 infname: 'OC_NDVI_data_final.csv'  
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
