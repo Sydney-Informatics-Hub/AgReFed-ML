@@ -389,26 +389,7 @@ def model_blocks(settings):
         plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(100 * zblock[i])))) + '.png'), dpi=300)
         if _show:
             plt.show()
-        plt.close('all')  
-
-        # Save delta image
-        plt.figure(figsize = (8,8))
-        plt.subplot(2, 1, 1)
-        plt.imshow(delta_img.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
-        plt.title(settings.name_target + ' Change ' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]))
-        plt.ylabel('Northing [meters]')
-        plt.colorbar()
-        plt.subplot(2, 1, 2)
-        plt.imshow(delta_std_img.T,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
-        plt.title(settings.name_target + ' Std Change ' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]))
-        plt.colorbar()
-        plt.xlabel('Easting [meters]')
-        plt.ylabel('Northing [meters]')
-        plt.tight_layout()
-        plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_dt_' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]) +'.png'), dpi=300)
-        if _show:
-            plt.show()
-        plt.close('all')   
+        plt.close('all')    
 
         #Save also as geotiff
         if settings.axistype == 'vertical':
@@ -421,6 +402,28 @@ def model_blocks(settings):
         tif_ok = array2geotiff(mu_3d[:,:,i].T, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif, settings.project_crs)
         tif_ok = array2geotiff(std_3d[:,:,i].T, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif_std, settings.project_crs)
     
+    
+    # Save delta image
+    plt.figure(figsize = (8,8))
+    plt.subplot(2, 1, 1)
+    plt.imshow(delta_img,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred)
+    plt.title(settings.name_target + ' Change ' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]))
+    plt.ylabel('Northing [meters]')
+    plt.colorbar()
+    plt.subplot(2, 1, 2)
+    plt.imshow(delta_std_img,origin='lower', aspect = 'equal', extent = extent, cmap = colormap_pred_std)
+    plt.title(settings.name_target + ' Std Change ' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]))
+    plt.colorbar()
+    plt.xlabel('Easting [meters]')
+    plt.ylabel('Northing [meters]')
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_dt_' + str(settings.list_z_pred[1]) + '-' + str(settings.list_z_pred[0]) +'.png'), dpi=300)
+    if _show:
+        plt.show()
+    plt.close('all') 
+
+
+    # save as tif
     outfname_dt_tif = os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_dt.tif')
     outfname_dt_tif_std = os.path.join(outpath_fig, 'Std_' + settings.name_target + '_dt.tif')
     tif_ok = array2geotiff(delta_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_dt_tif, settings.project_crs)
