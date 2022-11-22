@@ -1,0 +1,93 @@
+# Settings for soilmod prediction change model for OC
+
+### Input Specifications ###
+inpath: '../../../data/Llara/OC_data_2018_2021/'
+outpath: '../../../results/Llara_OC_2018_2021_rf-gp_changemaps/' 
+# File name with soil data and corresponding covariates
+infname: 'OC_NDVI_data_final.csv'  
+# File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
+# if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
+gridname: 'grid_NDVI_data_final.csv'
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+# Name of target for prediction (column name in dataframe)
+name_target: 'OC.WB'
+
+# Choose model function, currently implemented:
+#'blr': bayesian linear regression with power transformation
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_function: 'rf-gp'
+
+### Select spacing for prediction predictions (ideally should be same as covariate grid),
+# Settings for Cube geometry that is generated (in meters)
+xyvoxsize:  30 # same as grid measurements
+zvoxsize: 0.1 # set depth resolution
+
+# Column name for x and y coordinate
+colname_xcoord: 'Easting'
+colname_ycoord: 'Northing'
+
+# Keep temporal
+axistype: 'temporal' 
+
+
+# If axistype='vertical', select minimum and maximum of depth for data selection [in m]
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 0.15 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+
+# or use only certain depths for prediction (leave blank list [] if all depth intervals at zvoxsize should be predicted),
+# otherwise provide list of depths, e.g. [0.1, 0.3, 0.6]
+list_z_pred:  [0.025] #[0.05] #,  0.25,  0.35,  0.45, 0.55,  0.65,  0.75,  0.85,  0.95] # [0.1, 0.3, 0.6]
+
+# Column name for depth coordinate
+colname_zcoord: 'z'
+
+
+### If axistype='temporal', select minimum and maximum of depth for data selection [in m]
+tmin: 2017 # start time for prediction
+tmax: 2022 # end time for prediction 
+
+# or use only certain years for prediction (leave blank list [] if all  intervals between tmin and tmax should be considered),
+# otherwise provide list of time, e.g. [2019, 2020, 2021]
+list_t_pred:  [2018, 2021] 
+
+# Column name for time coordinate
+colname_tcoord: 'year'
+
+
+### Spatial options for predictions, only relevant for prediction (option 'predict_new') 
+# Default is point prediction if integrate_block = False and integrate_polygon = False
+# number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
+# integrate over certain volume or block size, if True specify block size in meters
+integrate_block: True
+xyblocksize: 30 # in meters
+zblocksize: 0.1
+# or time blocksize if temporal prediction
+tblocksize: 0.1
+
+
+### Polygon not tested yet
+# Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
+integrate_polygon: False
+# File name of polygons to be used to average prediction (can be in any common geospatial format, e.g. shp, gpkg, geojson)
+polyname: 'testpolytri.gpkg' # must be in directory inpath
+
+
+### Name of covariates in soil training data (names need to match names in grid covariate file)
+name_features: [ 'DEM_30',
+ 'SlopeDeg',
+ 'rad_dose',
+ 'rad_u',
+ 'NDVI_1yr']
+
+
+
+
+
+
+
+
