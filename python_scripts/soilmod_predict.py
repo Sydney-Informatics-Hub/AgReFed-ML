@@ -431,8 +431,16 @@ def model_points(settings):
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
-    settings.name_features.append('z')
+        if settings.colname_zcoord in settings.name_features:
+            settings.name_features.remove(settings.colname_zcoord)
+            settings.name_features.append('z')
 
+    # Convert z and z_diff to meters if in cm (>10):
+    if (dftrain['z'].max() > 10):
+        dftrain['z'] = dftrain['z'] / 100
+        if 'z_diff' in dftrain.columns:
+            dftrain['z_diff'] = dftrain['z_diff'] / 100
+  
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
 
@@ -450,8 +458,9 @@ def model_points(settings):
         dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
     if settings.colname_ycoord != 'y':
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
-    if settings.colname_zcoord != 'z':
-        dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+
+
+
 
 
     ## Get coordinates for training data and set coord origin to (0,0)  
@@ -720,7 +729,7 @@ def model_points(settings):
     plt.colorbar()
     #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin='lower', aspect = 'equal', extent = extent) 
     plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = 'k',facecolors='none')
-    plt.title('ESP ' +settings.name_target + ' Mean')
+    plt.title(settings.name_target + ' Mean')
     plt.ylabel('Northing [meters]')
 
     plt.subplot(2, 1, 2)
