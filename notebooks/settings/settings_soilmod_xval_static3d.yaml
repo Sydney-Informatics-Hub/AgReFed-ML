@@ -1,0 +1,54 @@
+# Settings for soilmod_xval_static workflow notebook
+
+### Input Specifications ###
+inpath: '../../../data/Llara/'
+
+outpath: '../../../results/Llara_xval_static3d/' 
+
+# File name with soil data and corresponding covariates
+infname: 'soildata_static3d.csv' 
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+# Name of target for prediction (column name in dataframe)
+name_target: 'OC_WB'
+
+# Column name for Easting (x axis)
+colname_xcoord: 'Easting'
+
+#Column name for Northing (y axis)
+colname_ycoord: 'Northing'
+
+#Column name for soil depth, optional
+colname_zcoord: 'mid_depth'
+
+# Choose model function, currently implemented:
+#'blr': bayesian linear regression with power transformation
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_functions: ['blr-gp', 'rf', 'rf-gp', 'blr']
+
+# Name of column for index of test data for n-fold cross-validation (to separate train and test data), only relevant for option 'calc_xval':
+name_ixval: 'nfold'
+
+ ## Number of cross-validations:
+nfold: 8
+
+# Is third dimension of prediction the vertical depth ('vertical') or temporal ('temporal')?
+axistype: 'vertical'
+
+### If axistype='vertical', select minimum and maximum of depth for data selection [in m]
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 100 # maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+
+
+### Name of covariates in soil training data or the cross-validation data
+name_features:
+  - mid_depth 
+  - NDVI_50
+  - NDVI_95
+  - silica
+  - rad_u
+  - EM
