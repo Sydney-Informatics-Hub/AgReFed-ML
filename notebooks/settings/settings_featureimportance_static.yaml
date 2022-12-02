@@ -1,0 +1,44 @@
+# Settings for 3D feature importance model (static)
+
+# Input data path
+inpath: '../../../data/Llara/'
+
+# File name with soil data and corresponding covariates
+infname: 'soildata_depth.csv'
+
+# Output results path
+outpath: '../../../results/Llara/featureimportance_static/'
+
+# Name of target for prediction (column name in dataframe)
+name_target: OC_WB
+
+# Column name for Easting (x axis)
+colname_xcoord: 'Easting'
+
+#Column name for Northing (y axis)
+colname_ycoord: 'Northing'
+
+#Column name for soil depth, optional
+colname_zcoord: 'mid_depth'
+
+# Name or List of features (column names in infname)
+# (covariates to be considered )
+name_features: 
+- DEM_30
+- MrVBF 
+- MrRTF
+- SlopeDeg
+- rad_dose
+- rad_u
+- rad_th
+- rad_k
+- silica
+- NDVI_5
+- NDVI_50
+- NDVI_95
+- rain
+- temp
+- TWI
+- Aspect
+- EM
+- gamma_K
