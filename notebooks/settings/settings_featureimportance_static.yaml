@@ -4,7 +4,7 @@
 inpath: '../../../data/Llara/'
 
 # File name with soil data and corresponding covariates
-infname: 'soildata_depth.csv'
+infname: 'soildata_static3d.csv'
 
 # Output results path
 outpath: '../../../results/Llara/featureimportance_static/'
