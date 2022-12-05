@@ -31,6 +31,11 @@ The main functions supported by the worklflow scripts are:
 - visualisation of prediction maps of soil properties and uncertainties
 
 
+<figure>
+    <img src="figures/feature_importance.jpg" alt="Feature Importance">
+    <figcaption>Example plot of feature importance scores for multiple models.<figcaption>
+</figure> 
+
 
 ## Use Case Scenarios
 
@@ -42,7 +47,7 @@ The static model is a spatial model for generating prediction maps of soil prope
 As example use-case, a spatial probabilistic model is trained and predictions are produced for multiple soil properties for the L'lara farm area (see figure below). Soil data and covariates are provided by the University of Sydney.
 
 <figure>
-    <img src="figures/map_data.png" alt="Data Map">
+    <img src="figures/map_data.jpg" alt="Data Map">
     <figcaption>Map of data probe locations for L'lara<figcaption>
 </figure> 
 
