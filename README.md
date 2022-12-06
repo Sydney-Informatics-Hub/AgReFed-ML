@@ -30,11 +30,26 @@ The main functions supported by the worklflow scripts are:
 - multi-model testing and automatic cross-validation on subsets of train and test data
 - visualisation of prediction maps of soil properties and uncertainties
 
-
 <figure>
     <img src="figures/feature_importance.jpg" alt="Feature Importance">
     <figcaption>Example plot of feature importance scores for multiple models.<figcaption>
 </figure> 
+
+## Installation
+
+1) Download or clone github repo
+2) Unzip samples.zip in folder notebook, which creates a folder notebook/samples with all sample data files
+3) Setup AgReFed environment with conda/mamba (installation):
+    - if conda not installed yet, please install (see e.g., for conda-miniforge [https://github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge)) 
+    - run following commands in your terminal, here show for conda (if other environmnet used, please adjust):
+    ```bash
+    conda env create -n agrefed --file env_agrefed_combined.yaml
+
+    conda activate agrefed
+
+    cd notebooks
+    ```
+4) Open notebooks (see section below). Notebooks can be run, for example, in Jupyterlab environment, or within VSCode (using Jupyter or Quarto plugin), or via ```jupyter notebook```
 
 
 ## Use Case Scenarios
