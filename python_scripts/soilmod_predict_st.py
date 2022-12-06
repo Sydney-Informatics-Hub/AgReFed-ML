@@ -10,7 +10,7 @@ Current models implemented:
 Core functionality:
 - Training of model and GP, including hyperparameter optimization
 - generating soil property predictions and uncertainties for multiple depths or time steps
-- taking into account measurement errors  and uncertainties in measurement locations
+- taking into account measurement errors and uncertainties in measurement locations
 - spatial support for predictions: points, volume blocks, polygons
 - spatial uncertainty integration takes into account spatial covariances between points
 
@@ -31,10 +31,6 @@ This open-source software is released under the LGPL-3.0 License.
 
 Author: Sebastian Haan
 
-TBD for prediction and xval script:
-- test temporal predictions
-- Polygon prediction not tested yet, supported so far only points and volume blocks
-- Include dictionary and description of all functions
 """
 
 import numpy as np
