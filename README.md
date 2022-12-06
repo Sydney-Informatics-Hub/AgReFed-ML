@@ -21,7 +21,7 @@ One powerful machine learning technique that can be used for soil property predi
 
 Each workflow consists of the following main steps:
 
-1) data preprocessing (sample data included already pre-processed)
+1) data preprocessing (included sample data already pre-processed)
 2) feature analysis and selection
 3) mixture-model training, optimization, evaluation, and model selection
 4) generating geo-referenced prediction and uncertainty maps
