@@ -134,7 +134,7 @@ def runmodel(dfsel, model_function, settings):
         y_train = dftrain[settings.name_target].values
         y_test = dftest[settings.name_target].values
         # Uncertainty in coordinates
-        if 'z_diff' in list (dftrain):
+        if 'z_diff' in list(dftrain):
             Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
             Xdelta_test = np.asarray([0.5 * dftest.z_diff.values, dftest.y.values * 0, dftest.x.values * 0.]).T
         else:
