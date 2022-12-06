@@ -13,15 +13,15 @@ Machine learning tools for modelling and predicting agriculture systems and thei
 
 ## Introduction
 
-Agricultural soil models can be either mechanistic (e.g., soil-physics) or of data-driven, statistical nature (e.g., Probabilistic Neural Nets, Bayesian Models, Random Forests), or a combination of both (e.g., for data-driven estimation/optimisation of mechanistic model parameters and their uncertainty). The output of these models, such as spatial-temporal predictions, is used for a wide range of application (e.g., soil, yield, crops, animals). These models require inter-operable data flows of appropriately calibrated, cleaned data variables. Understanding the model limitations, assumptions and then interpreting the outputs is required. This project will contribute software scripts that provide multiple machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
+Agricultural soil models can be either mechanistic (e.g., soil-physics) or of data-driven, statistical nature (e.g., Probabilistic Neural Nets, Bayesian Models, Random Forests), or a combination of both (e.g., for data-driven estimation and optimisation of mechanistic model parameters and their uncertainty). The output of these models, such as spatial-temporal predictions, is used for a wide range of application (e.g., soil, yield, crops, animals). These models require inter-operable data flows of appropriately calibrated, cleaned data variables. Understanding the model limitations, assumptions and then interpreting the outputs is required. This project will contribute software scripts that provide multiple machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
 
 ## Method
 
-One powerful machine learning technique that can be used for soil property prediction is the probabilistic Mixture Model. This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using probabilistic Mixture Models, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the model details can be found in Methods.pdf.
+One powerful machine learning technique that can be used for soil property prediction is the probabilistic Mixture Model. This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using probabilistic Mixture Models, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the probabilistic model details and feature selection can be found in [Method.pdf](docs/Method.pdf).
 
-The complete workflow consists of the following steps:
+Each workflow consists of the following main steps:
 
-1) data preprocessing
+1) data preprocessing (sample data included already pre-processed)
 2) feature analysis and selection
 3) mixture-model training, optimization, evaluation, and model selection
 4) generating geo-referenced prediction and uncertainty maps
@@ -29,16 +29,17 @@ The complete workflow consists of the following steps:
 
 ## Functionality
 
-The main functions supported by the worklflow scripts are:
+The main functions supported by the workflow scripts are:
 
 - automatic feature importance analysis and ranking using using a multiple model approach
 - generator function for of range of synthetic data for testing
-- mutiple machine learning models for soil properties under sparse and uncertain input:
+- multiple machine learning models for soil properties under sparse and uncertain input:
     - static 3D properties
     - change model and temporal covariances
     - spatial-temporal model
 - multi-model testing and automatic cross-validation on subsets of train and test data
 - visualisation of prediction maps of soil properties and uncertainties
+- support for importing/saving settings using YAML settings files for reproducible workflows
 
 <figure>
     <img src="figures/feature_importance.jpg" alt="Feature Importance">
@@ -61,7 +62,7 @@ The modelling approach includes the following features:
 2) Unzip samples.zip in folder notebook, which creates a folder notebook/samples with all sample data files
 3) Setup AgReFed environment with conda/mamba (installation):
     - if conda not installed yet, please install (see e.g., for conda-miniforge [https://github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge)) 
-    - run following commands in your terminal, here show for conda (if other environmnet used, please adjust):
+    - run following commands in your terminal, as shown here for conda (if other environment used, please adjust):
         ```bash
         conda env create -n agrefed --file env_agrefed_combined.yaml
 
@@ -69,7 +70,7 @@ The modelling approach includes the following features:
 
         cd notebooks
         ```
-4) Open notebooks (see section below). Notebooks can be run, for example, in Jupyterlab environment, or within VSCode (using Jupyter or Quarto plugin), or via ```jupyter notebook```
+4) Open notebooks (see section below). Notebooks can be run, for example, in JupyterLab environment, or within VSCode (using Jupyter or Quarto plugin), or via ```jupyter notebook```
 
 The environment file `env_agrefed_combined.yaml` includes all dependencies for this AgReFed Machine Learning project plus all dependencies for the AgReFed Harvester project, so both projects can be run in the same environment.
 
