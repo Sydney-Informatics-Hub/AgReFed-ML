@@ -51,6 +51,8 @@ The main functions supported by the worklflow scripts are:
     ```
 4) Open notebooks (see section below). Notebooks can be run, for example, in Jupyterlab environment, or within VSCode (using Jupyter or Quarto plugin), or via ```jupyter notebook```
 
+The environment file `env_agrefed_combined.yaml` includes all dependencies for this AgReFed Machine Learning project plus all dependencies for the AgReFed Harvester project, so both projects can be run in the same environment.
+
 
 ## Use Case Scenarios
 
