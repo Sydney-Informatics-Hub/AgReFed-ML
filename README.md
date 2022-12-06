@@ -64,16 +64,16 @@ The static model is a spatial model for generating prediction maps of soil prope
 As example use-case, a spatial probabilistic model is trained and predictions are produced for multiple soil properties for the L'lara farm area (see figure below). Soil data and covariates are provided by the University of Sydney.
 
 <figure>
-    <img src="figures/map_data.jpg" alt="Data Map">
+    <img src="figures/Map_data.jpg" alt="Data Map">
     <figcaption>Map of data probe locations for L'lara<figcaption>
 </figure> 
 
 #### How to run the static 3D example
 Download github repo and run the following three notebooks:
     
-    - Feature importance: `feature_importance_static.ipynb`, configure settings in `settings_featureimportance_static.yaml`
-    - Model testing: `testmodels_static.ipynb`, configure settings in `settings_testmodels_static.yaml`
-    - 3D soil predictions: `prediction_static3d_OC.ipynb`, configure settings in `settings_soilmod_predict_static.yaml`
+- Feature importance: `feature_importance_static.ipynb`, configure settings in `settings_featureimportance_static.yaml`
+- Model testing: `testmodels_static.ipynb`, configure settings in `settings_testmodels_static.yaml`
+- 3D soil predictions: `prediction_static3d_OC.ipynb`, configure settings in `settings_soilmod_predict_static.yaml`
 
 All notebooks can be found in the folder `notebooks` and the settings file in `notebooks/settings`.
 
@@ -102,9 +102,9 @@ Soil moisture data is provided by the University of Sydney and multiple spatial-
 #### How to run the spatial-temporal example
 The worklflows for this scenario are included in the following notebooks:
     
-    - Feature selection: `feature_selection_moisture.ipynb` (this notebook includes functions for generating settings file)
-    - Model testing: `testmodels_st_moisture.ipynb`, configure settings in `settings_soilmod_xval_moisture_20xx.yaml`
-    - Prediction notebooks: `prediction_st_moisture.ipynb` + `settings_soilmod_moisture_predict_20xx.yaml` (GPR plus Random Forest),  `prediction_st_blr-gp_moisture.ipynb` + `settings_soilmod_moisture_predict_blr-gp_20xx.yaml` (GPR plus Bayesian Linear Regression)
+- Feature selection: `feature_selection_moisture.ipynb` (this notebook includes functions for generating settings file)
+- Model testing: `testmodels_st_moisture.ipynb`, configure settings in `settings_soilmod_xval_moisture_20xx.yaml`
+- Prediction notebooks: `prediction_st_moisture.ipynb` + `settings_soilmod_moisture_predict_20xx.yaml` (GPR plus Random Forest), `prediction_st_blr-gp_moisture.ipynb` + `settings_soilmod_moisture_predict_blr-gp_20xx.yaml` (GPR plus Bayesian Linear Regression)
 
 
 ## Attribution and Acknowledgments
