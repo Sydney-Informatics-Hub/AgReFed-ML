@@ -1,9 +1,9 @@
 # Settings spatial temporal cross-validation model 2021
 
 # Input path
-inpath: "samples/
+inpath: 'samples/'
 
-# Output path"
+# Output path
 outpath: 'results/Llara_moisture_2021_xval_spatial/' 
 
 # File name with soil data and corresponding covariates
