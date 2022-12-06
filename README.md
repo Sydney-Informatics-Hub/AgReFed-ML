@@ -1,6 +1,16 @@
 # AgReFed-ML
 Machine learning tools for modelling and predicting agriculture systems and their uncertainties.
 
+## Content
+
+- [Introduction](#introduction)
+- [Method](#method)
+- [Functionality](#functionality)
+- [Installation](#installation)
+- [Use Case Scenarios](#use-case-scenarios)
+- [Attribution and Acknowledgments](#attribution-and-acknowledgments)
+
+
 ## Introduction
 
 Agricultural soil models can be either mechanistic (e.g., soil-physics) or of data-driven, statistical nature (e.g., Probabilistic Neural Nets, Bayesian Models, Random Forests), or a combination of both (e.g., for data-driven estimation/optimisation of mechanistic model parameters and their uncertainty). The output of these models, such as spatial-temporal predictions, is used for a wide range of application (e.g., soil, yield, crops, animals). These models require inter-operable data flows of appropriately calibrated, cleaned data variables. Understanding the model limitations, assumptions and then interpreting the outputs is required. This project will contribute software scripts that provide multiple machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
@@ -35,6 +45,16 @@ The main functions supported by the worklflow scripts are:
     <figcaption>Example plot of feature importance scores for multiple models.<figcaption>
 </figure> 
 
+The modelling approach includes the following features:
+
+- accommodate the spatial (-temporal) support of the observations
+- accommodate the spatial (-temporal) auto-correlation of the observations
+- accommodate measurement error of the observations
+- incorporate numerous variables as predictors (covariates)
+- prediction of heteroscedastic uncertainty estimates
+- prediction at any spatial (-temporal) support (e.g., for block integration)
+
+
 ## Installation
 
 1) Download or clone github repo
@@ -42,13 +62,13 @@ The main functions supported by the worklflow scripts are:
 3) Setup AgReFed environment with conda/mamba (installation):
     - if conda not installed yet, please install (see e.g., for conda-miniforge [https://github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge)) 
     - run following commands in your terminal, here show for conda (if other environmnet used, please adjust):
-    ```bash
-    conda env create -n agrefed --file env_agrefed_combined.yaml
+        ```bash
+        conda env create -n agrefed --file env_agrefed_combined.yaml
 
-    conda activate agrefed
+        conda activate agrefed
 
-    cd notebooks
-    ```
+        cd notebooks
+        ```
 4) Open notebooks (see section below). Notebooks can be run, for example, in Jupyterlab environment, or within VSCode (using Jupyter or Quarto plugin), or via ```jupyter notebook```
 
 The environment file `env_agrefed_combined.yaml` includes all dependencies for this AgReFed Machine Learning project plus all dependencies for the AgReFed Harvester project, so both projects can be run in the same environment.
@@ -65,7 +85,7 @@ As example use-case, a spatial probabilistic model is trained and predictions ar
 
 <figure>
     <img src="figures/Map_data.jpg" alt="Data Map">
-    <figcaption>Map of data probe locations for L'lara<figcaption>
+    <figcaption>Map of data probe locations for sample data (included).<figcaption>
 </figure> 
 
 #### How to run the static 3D example
@@ -98,9 +118,13 @@ This notebook includes the three workflows for feature importance, model selecti
 This workflow generates soil moisture prediction maps (for top-soil layer) and their uncertainty for multiple time intervals. Model training data is based on daily and weekly averaged data from soil moisture probes and multiple spatial-temporal dependent covariates for 2020-2022 from sample sites in L'lara. 
 Soil moisture data is provided by the University of Sydney and multiple spatial-temporal covariates are extracted with the AgReFed Data Harvester software.
 
+<figure>
+    <img src="figures/prediction_st.jpg" alt="Spatial Temporal Prediction">
+    <figcaption>Spatial-temporal predictions and uncertainty for Organic Carbon at different dates.<figcaption>
+</figure> 
 
 #### How to run the spatial-temporal example
-The worklflows for this scenario are included in the following notebooks:
+The workflows for this scenario are demonstrated in the following notebooks:
     
 - Feature selection: `feature_selection_moisture.ipynb` (this notebook includes functions for generating settings file)
 - Model testing: `testmodels_st_moisture.ipynb`, configure settings in `settings_soilmod_xval_moisture_20xx.yaml`
@@ -121,16 +145,13 @@ AgReFed is supported by the Australian Research Data Commons (ARDC) and the Aust
 
 ## License
 
-Copyright 2022 The University of Sydney
+Copyright 2023 The University of Sydney
 
-This is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License (LGPL version 3) as
-published by the Free Software Foundation.
+This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License (LGPL version 3) as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
-General Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program (see LICENSE). If not, see
