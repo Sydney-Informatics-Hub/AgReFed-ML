@@ -1,12 +1,15 @@
-# Settings for soilmod prediction change model for OC
+# Settings for soilmod change prediction model for OC
 
-### Input Specifications ###
-inpath: '../../../data/Llara/OC_data_2018_2021/'
-outpath: '../../../results/Llara_OC_2018_2021_rf-gp_changemaps_30m/' 
+# Input path
+inpath: 'samples/'
+
+# Output path
+outpath: 'results/Llara_OC_2018_2021_rf-gp_changemaps_30m/' 
+
 # File name with soil data and corresponding covariates
 infname: 'OC_NDVI_data_final.csv'  
-# File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
-# if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
+
+# File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters
 gridname: 'grid_NDVI_data_final.csv'
 
 # set project coordinate reference system
@@ -33,7 +36,6 @@ colname_ycoord: 'Northing'
 
 # Keep temporal
 axistype: 'temporal' 
-
 
 # If axistype='vertical', select minimum and maximum of depth for data selection [in m]
 zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
@@ -69,13 +71,9 @@ zblocksize: 0.1
 # or time blocksize if temporal prediction
 tblocksize: 0.1
 
-
 ### Polygon not tested yet
 # Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
 integrate_polygon: False
-# File name of polygons to be used to average prediction (can be in any common geospatial format, e.g. shp, gpkg, geojson)
-polyname: 'testpolytri.gpkg' # must be in directory inpath
-
 
 ### Name of covariates in soil training data (names need to match names in grid covariate file)
 name_features: [ 'DEM_30',

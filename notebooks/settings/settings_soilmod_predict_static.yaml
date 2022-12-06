@@ -1,9 +1,9 @@
-# Settings for spatial temporal  soilmodel predictions for soil moisture 2020
+# Settings for static 3D soilmodel predictions
 
 ### Input Specifications ###
-inpath: '../../../data/Llara/'
+inpath: 'samples/'
 
-outpath: '../../../results/Llara_predictions_static3d/' 
+outpath: 'results/Llara_predictions_static3d/' 
 
 # File name with soil data and corresponding covariates
 infname: 'soildata_static3d.csv' 

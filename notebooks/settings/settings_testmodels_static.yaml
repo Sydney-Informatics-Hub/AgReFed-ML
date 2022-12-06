@@ -1,9 +1,9 @@
 # Settings for testmodels_static workflow notebook
 
 ### Input Specifications ###
-inpath: '../../../data/Llara/'
+inpath: 'samples/'
 
-outpath: '../../../results/Llara_xval_static3d/' 
+outpath: 'results/Llara_xval_static3d/' 
 
 # File name with soil data and corresponding covariates
 infname: 'soildata_static3d.csv' 

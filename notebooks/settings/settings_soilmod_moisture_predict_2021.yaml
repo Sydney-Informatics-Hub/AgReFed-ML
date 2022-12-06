@@ -1,18 +1,21 @@
-# Settings for spatial temporal  soilmodel predictions for soil moisture 2021
+# Settings for spatial temporal soilmodel predictions for soil moisture 2021
 
-### Input Specifications ###
-inpath: '../../../data/Llara/bars/rescaled_csv/'
-outpath: '../../../results/Llara_pointpredict_blr-gp_moisture_2021/' 
+# Input path
+inpath: 'samples'
+
+# Output path
+outpath: 'results/Llara_pointpredict_rf-gp_moisture_2021/' 
+
 # File name with soil data and corresponding covariates
 infname: 'Soilmoisture_all_covariates_weekly_2021.csv' 
+
 # File with grid coordinates and covariates (used if predict_grid_all = True): if csv columns 'x' and 'y' represent spatial coordinates in meters,
-# if shapefile or geopackage with polygon vectors, the result will be integrated over each polygon geometry.
 gridname: 'grid_covariates_spatial_temporal_weekly_2021.csv'
 
 # set project coordinate reference system
 project_crs: "EPSG:28355" 
 
-# Name of target for prediction (column name in dataframe)
+# Name of target for prediction (column name in dataframe for topsoil layer for OC)
 name_target: 'D1'
 
 # Choose model function, currently implemented:
@@ -20,7 +23,7 @@ name_target: 'D1'
 #'rf': Random Forest Regression
 #'blr-gp' Gaussian Process with bayesian linear regression as mean function
 #'rf-gp' Gaussian Process with random forest regression as mean function
-model_function: 'blr-gp'
+model_function: 'rf-gp'
 
 ### Select spacing for prediction predictions (ideally should be same as covariate grid),
 # Settings for Cube geometry that is generated (in meters)
@@ -58,8 +61,6 @@ tblocksize: 1
 ### Polygon not tested yet
 # Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
 integrate_polygon: False
-# File name of polygons to be used to average prediction (can be in any common geospatial format, e.g. shp, gpkg, geojson)
-polyname: 'testpolytri.gpkg' # must be in directory inpath
 
 
 ### Name of covariates in soil training data (names need to match names in grid covariate file)

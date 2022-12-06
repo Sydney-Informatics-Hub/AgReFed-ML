@@ -1,17 +1,19 @@
-# Settings for soilmod_xval.py
+# Settings for soil change model notebook
 
-### Input Specifications ###
-inpath: '../../../data/Llara/OC_data_2018_2021/'
-outpath: '../../../results/Llara_OC_2018_2021_xval/' 
+# Input path
+inpath: 'samples/'
+
+# Output path
+outpath: 'results/Llara_OC_2018_2021_xval/' 
+
 # File name with soil data and corresponding covariates
 infname: 'OC_NDVI_data_final.csv' 
-
 
 # set project coordinate reference system
 project_crs: "EPSG:28355" 
 
 # Name of target for prediction (column name in dataframe)
-name_target: 'OC.WB' # 'OC.stock' #
+name_target: 'OC.WB' 
 
 # Name of x (Easting) and y (Northing) coordinate columns
 colname_xcoord: 'x'
@@ -41,7 +43,7 @@ colname_tmax: 2022 # end time for prediction
 colname_tcoord: 'year'
 
 
-### Name of covariates in soil training data or the crossvalidation data
+### Name of covariates in soil training data or the cross-validation data
 name_features: [ 'DEM_30',
  'SlopeDeg',
  'rad_dose',

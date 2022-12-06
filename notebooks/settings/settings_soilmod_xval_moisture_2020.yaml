@@ -1,19 +1,18 @@
-# Settings spatial temporal cross-validation model 2021
+# Settings for spatial temporal cross-validation model 2020
 
 # Input path
-inpath: "samples/
+inpath: "samples/"
 
-# Output path"
-outpath: 'results/Llara_moisture_2021_xval_spatial/' 
+# Output path
+outpath: 'results/Llara_moisture_2020_xval_spatial/' 
 
 # File name with soil data and corresponding covariates
-infname: "Soilmoisture_all_covariates_weekly_2021.csv" 
-
+infname: "Soilmoisture_all_covariates_weekly_2020.csv" 
 
 # set project coordinate reference system
 project_crs: "EPSG:28355" 
 
-# Name of target for prediction (column name in dataframe)
+# Name of target for prediction (column name in dataframe that corresponds to top soil layer)
 name_target: 'D1'
 
 # Name of x (Easting) and y (Northing) coordinate columns
@@ -25,7 +24,7 @@ colname_ycoord: 'NORTHING'
 #'rf': Random Forest Regression
 #'blr-gp' Gaussian Process with bayesian linear regression as mean function
 #'rf-gp' Gaussian Process with random forest regression as mean function
-model_functions: ['rf-gp', 'blr-gp']
+model_functions: ['rf-gp', 'blr-gp'] #only mean functions: 'rf',  'blr', 
 
 # Name of column for index of test data for Xfold cross-validation (to separate train and test data), only relevant for option 'calc_xval':
 name_ixval: 'nfold'
@@ -39,7 +38,7 @@ axistype: 'temporal' # 'vertical' # 'temporal'
 #colname_zcoord: 'z'
 
 ### If axistype='temporal', select minimum and maximum of time for data selection [in m]
-colname_tmin: 0 # for > 2022-01-01 ; 2458849.5 # start time for prediction
+colname_tmin: 0
 colname_tmax: 54 # end time for prediction 
 colname_tcoord: 'week'
 
