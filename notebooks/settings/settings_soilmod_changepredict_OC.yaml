@@ -25,7 +25,8 @@ name_target: 'OC.WB'
 #'rf-gp' Gaussian Process with random forest regression as mean function
 model_function: 'rf-gp'
 
-### Select spacing for prediction predictions (ideally should be same as covariate grid),
+### Select spacing for spatial support 
+# (needs to be <= block size, ideally should be same size as covariate grid),
 # Settings for Cube geometry that is generated (in meters)
 xyvoxsize:  30 # same as grid measurements
 zvoxsize: 0.1 # set depth resolution
@@ -34,27 +35,11 @@ zvoxsize: 0.1 # set depth resolution
 colname_xcoord: 'Easting'
 colname_ycoord: 'Northing'
 
-# Keep temporal
-axistype: 'temporal' 
-
-# If axistype='vertical', select minimum and maximum of depth for data selection [in m]
-zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
-zmax: 0.15 # 1.5 maximum depth for prediction (in meters), starting at zero depth to minus zmax 
-
-# or use only certain depths for prediction (leave blank list [] if all depth intervals at zvoxsize should be predicted),
-# otherwise provide list of depths, e.g. [0.1, 0.3, 0.6]
-list_z_pred:  [0.025] #[0.05] #,  0.25,  0.35,  0.45, 0.55,  0.65,  0.75,  0.85,  0.95] # [0.1, 0.3, 0.6]
-
-# Column name for depth coordinate
-colname_zcoord: 'z'
-
-
-### If axistype='temporal', select minimum and maximum of depth for data selection [in m]
+### Select minimum and maximum of time for training data selection 
 tmin: 2017 # start time for prediction
 tmax: 2022 # end time for prediction 
 
-# or use only certain years for prediction (leave blank list [] if all  intervals between tmin and tmax should be considered),
-# otherwise provide list of time, e.g. [2019, 2020, 2021]
+# select the two years for change prediction
 list_t_pred:  [2018, 2021] 
 
 # Column name for time coordinate
@@ -62,18 +47,10 @@ colname_tcoord: 'year'
 
 
 ### Spatial options for predictions, only relevant for prediction (option 'predict_new') 
-# Default is point prediction if integrate_block = False and integrate_polygon = False
-# number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
-# integrate over certain volume or block size, if True specify block size in meters
-integrate_block: True
 xyblocksize: 30 # in meters
 zblocksize: 0.1
 # or time blocksize if temporal prediction
 tblocksize: 0.1
-
-### Polygon not tested yet
-# Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
-integrate_polygon: False
 
 ### Name of covariates in soil training data (names need to match names in grid covariate file)
 name_features: [ 'DEM_30',
