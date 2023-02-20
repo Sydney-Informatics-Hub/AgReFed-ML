@@ -1,22 +1,9 @@
 """
-Preprocessing functions for geospatial soil data 
-
-
-Requirements:
-- python>=3.9
-- matplotlib>=3.5.1
-- numpy>=1.22.0
-- pandas>=1.3.5
-- PyYAML>=6.0
-- geopandas>=0.7.0
+Preprocessing functions for geospatial soil data.
 
 For more package details see conda environment file: environment.yaml
 
-This package is part of tqhe machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
 """
 
 import numpy as np
@@ -49,9 +36,7 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
     - Trims data to zmin and zmax
     - Automatically converts categorical features to binary feature representations.
     - Generates cross-validation indices for cross-validation.
-    
     - Generates geospatial dataframe with coordinates (not yet implemented)
-
 
     Input:
         inpath: input path
@@ -71,7 +56,6 @@ def preprocess(inpath, infname, outpath, outfname, name_target, name_features,
         project_crs: string, EPSG code for projected coordinate reference system 
         of colname_xcoord and colname_ycoord (e.g. 'EPSG:28355')
 
-    TODO: automatically detect if coordinates are projected or not
     """
     ## Keep track of all covariates
     #name_features2 = name_features.copy()
@@ -239,6 +223,7 @@ def gen_kfold(df, nfold, label_nfold = 'Label_nfold', id_unique = None, precisio
     if id_unique is None:
         # Use index as unique ID
         id_unique = df.index.values
+        df["ID_unique"] = id_unique
     elif isinstance(id_unique, list):
         # Use joint list of features as unique ID
         id_array = np.empty(shape = (len(id_unique), len(df)), dtype='<U21')
@@ -295,9 +280,6 @@ def gen_kfold(df, nfold, label_nfold = 'Label_nfold', id_unique = None, precisio
         df.drop(columns = ['ID_unique', 'new_id'], inplace = True)
     return df
         
-
-
-
 
 def preprocess_grid(inpath, infname, outpath, outfname, name_features, categorical = None):
     """
@@ -403,7 +385,7 @@ def preprocess_grid_poly(path, infname_grid, infname_poly, name_features,
 	c) use Centroidal Voronoi tessellation (use vorbin or pytess), d) use iterative inwards buffering, e) find points by dynmaic simulation
 	or split in halfs iteratively: https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
 	use centroid, then any line through centroid splits polygon in half
-	Porpose new algorithm: centroidal hexagonal grid (densest cirle packing), 
+	Propose new algorithm: centroidal hexagonal grid (densest cirle packing), 
 	this need optimise only one parameter: rotational angle so that a) maximal number of poinst are in polygon and 
 	b) that distance of point to nearest polygon edge is maximised for all points (which aligns points towards center)
 	"""

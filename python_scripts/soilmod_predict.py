@@ -28,13 +28,6 @@ This package is part of the machine learning project developed for the Agricultu
 Copyright Sydney Informatics Hub (SIH), The University of Sydney
 
 This open-source software is released under the LGPL-3.0 License.
-
-Author: Sebastian Haan
-
-TBD for prediction and xval script:
-- test temporal predictions
-- Polygon prediction not tested yet, supported so far only points and volume blocks
-- Include dictionary and description of all functions
 """
 
 import numpy as np
@@ -91,6 +84,11 @@ def model_blocks(settings):
     Parameters
     ----------
     settings : settings namespace
+
+    Return:
+    -------
+    mu_3d: prediction cube
+    std_std: corresponding cube of standard deviation
 
     """
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -388,6 +386,11 @@ def model_points(settings):
     Parameters
     ----------
     settings : settings namespace
+
+    Return:
+    -------
+    mu_3d: prediction cube
+    std_3d: standard deviation cube
     """
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -458,9 +461,6 @@ def model_points(settings):
         dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
     if settings.colname_ycoord != 'y':
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
-
-
-
 
 
     ## Get coordinates for training data and set coord origin to (0,0)  
@@ -654,10 +654,7 @@ def model_points(settings):
         mu_3d[:,:,i] = mu_img.T
         std_3d[:,:,i] = std_img.T
 
-        #mu_3d[~np.isnan(mu_3d) & (mu_3d > 100)] = np.nan
 
-        #for i in range(3):
-        # Create Result Plots
         print("Creating plots...")
         mu_3d_trim = mu_3d[:,:,i].copy()
         mu_3d_trim_max = np.percentile(mu_3d_trim[~np.isnan(mu_3d_trim)], 99.5)
@@ -780,13 +777,22 @@ def model_points(settings):
 ######### Polygon prediction #########
 def model_polygons(settings):
     """
-    Predict soil properties and uncertainties for location points.
+    Predict soil properties and uncertainties for polygons.
     All output is saved in output directory as specified in settings.
+
+    Note: This is an experimental function and is not tested yet.
 
     Parameters
     ----------
     settings : settings namespace
+
+    Return
+    ------
+    mu_3d: prediction cube
+    std_3d: standard deviation cube
     """
+
+    from preprocessing import preprocess_grid_poly
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
         # only mean function model
@@ -842,7 +848,6 @@ def model_polygons(settings):
     dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
         name_features = settings.name_features_grid, name_target = settings.name_target, grid_crs = settings.project_crs, categorical = 'Soiltype')
 
-
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != 'x':
         dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
@@ -860,7 +865,6 @@ def model_polygons(settings):
 
     dfgrid['x'] = dfgrid.x - bound_xmin
     dfgrid['y'] = dfgrid.y - bound_ymin
-
 	
     # Define grid coordinates:
     points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
@@ -1042,7 +1046,7 @@ def model_polygons(settings):
 ######################### Main Script ############################
 def main(fname_settings):	
     """
-    Main function for running the script.
+    Main function for running soilmodel predictions.
 
     Input:
         fname_settings: path and filename to settings file
