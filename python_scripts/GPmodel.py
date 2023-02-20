@@ -12,8 +12,6 @@ to be both positive semi-definite and informative.
 For more information on sparse covariances in GPs, see the following paper: 
 "A Sparse Covariance Function for Exact Gaussian Process Inference in Large Datasets" (2009, Melkumyan and Ramos)
 
-This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
 Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
 This open-source software is released under the LGPL-3.0 License.
@@ -23,10 +21,10 @@ from scipy.linalg import pinv, solve, cholesky, solve_triangular
 from scipy.optimize import minimize, shgo
 from scipy.special import erf
 import numpy as np
+
 # import local functions
 from utils import print2
-# Speed up computation with numba (not implemented yet)
-# import numba
+# Speed up computation with numba 
 from numba import jit
 
 
@@ -44,8 +42,8 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
         Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train
 
     RETURN:
-        Optimised Hyperparamters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
-        Marginbal Log Likelihood of best solution
+        Optimised Hyperparameters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
+        Marginal Log Likelihood of best solution
     """
 
     def calc_nlogl3D(gp_params, *args):
@@ -82,9 +80,8 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
     print('Mean Input Noise: ', np.mean(Ynoise))
     Ntrain = len(points3d_train)
 
-    # Optimize hyperparameters
+    # Optimize hyperparameters with SHGO (slower and latest scipy update made it unstable)
     # Global optimisation
-    # SHGO is disabled for now (too slow and latest scipy update made it unstable)
     # TBD: test dual_annealing with scipy.optimize.dual_annealing?
     # res = shgo(calc_nlogl3D, n=20, iters =20,
     #             #bounds=[(0.001, 1000), (ynoise_min, 1), (zmin, zmin*1000), (xymin, xymin*1000)],
@@ -116,11 +113,21 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
 
 
 
-def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, params_gp, Ynoise_pred = None, Xdelta = None,  calclogl = True, save_gptrain = True, out_covar = False):
+def train_predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    Y_train,
+    Ynoise_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None,  
+    calclogl = True, 
+    save_gptrain = True, 
+    out_covar = False):
     """
     Train and predict mean and covariance of GP model.
 
-    INPUT
+    INPUT:
         points3d_train: Array with training point coordinates for (z,y,x)
         points3d_pred: Array with point coordinates to be predicted in form (z,y,x)
         Y_train: vector of training data with same length as points3d_train
@@ -152,7 +159,6 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
     D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
     D2_11 = calcDistanceMatrix_multidim(points3D_pred)
 
-
     # Set GP hyperparameter
     params_gp = np.asarray(params_gp)
     gp_amp = params_gp[0]
@@ -164,7 +170,6 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
         Ynoise2 = Ynoise_pred / ystd
     else:
         Ynoise2 = np.ones(len(points3D_pred))
-
 
     # if with noise in position
     if Xdelta is not None:
@@ -178,7 +183,6 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
     # Add also predicted variances of mean function as diagonal elements
     kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
 
-
     try:
         k_chol = cholesky(kcov00, lower=True)
     except:
@@ -191,8 +195,9 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
     mu = np.dot(v.T, Ky)
     # predicted covariance
     covar = kcov11 - np.dot(v.T, v)
+    ## optional regularisation (not enabled)
     # if (Ynoise_pred is not None) & (gp_amp < 1):
-    #     #Caclulate diaginal elements as amplitude weighted average of  noise and GP noise
+    #     #Calculate diaginal elements as amplitude weighted average of  noise and GP noise
     #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
     #     np.fill_diagonal(covar, varcomb)
     # Calculate marginal log likelihood
@@ -217,7 +222,14 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
         return ypred, np.sqrt(yvar), logl, gp_train
 
 @jit
-def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = None, out_covar = False):
+def predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    gp_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None, 
+    out_covar = False):
     """
     Predict mean and covariance based on trained GP. 
     This caluclation saves time as cholesky decompsoition  is already pre-computed. 
@@ -596,7 +608,6 @@ def gpkernel_sparse(D2, gamma):
         K: kernel matrix
     """
     D2 = np.sqrt(D2)
-    #gamma = 4 * gamma
     res = np.zeros_like(D2)
     res[D2 < gamma] = (2 + np.cos(2*np.pi * D2[D2 < gamma] /gamma))/3.*(1-D2[D2 < gamma] /gamma) + 1/(2.*np.pi) * np.sin(2*np.pi*D2[D2 < gamma] /gamma)
     # Remove floating errors
