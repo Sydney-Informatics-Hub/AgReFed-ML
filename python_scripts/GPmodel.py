@@ -25,8 +25,9 @@ from scipy.special import erf
 import numpy as np
 # import local functions
 from utils import print2
-# Speed up computation with numba
-import numba
+# Speed up computation with numba (not implemented yet)
+# import numba
+from numba import jit
 
 
 def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None):
@@ -114,10 +115,10 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
     return res.x, -res.fun
 
 
-	
+
 def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, params_gp, Ynoise_pred = None, Xdelta = None,  calclogl = True, save_gptrain = True, out_covar = False):
     """
-    Train adn predict mean and covariance of GP model.
+    Train and predict mean and covariance of GP model.
 
     INPUT
         points3d_train: Array with training point coordinates for (z,y,x)
@@ -215,7 +216,7 @@ def train_predict_3D(points3D_train, points3D_pred, Y_train, Ynoise_train, param
     else:
         return ypred, np.sqrt(yvar), logl, gp_train
 
-
+@jit
 def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = None, Xdelta = None, out_covar = False):
     """
     Predict mean and covariance based on trained GP. 
@@ -278,7 +279,7 @@ def predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred =
         return ypred, np.sqrt(yvar)
 
 
-
+@jit
 def calcGridPoints3D(Lpix, pixscale):
     """
     returns grid points for distance matrix calculation.
@@ -301,7 +302,7 @@ def calcGridPoints3D(Lpix, pixscale):
     xr, yr, zr = _xg.ravel(), _yg.ravel(), _zg.ravel()
     return np.asarray([xr, yr, zr]).T
 
-
+@jit
 def calcDistanceMatrix(nDimPoints, 
                        distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
     """ Returns the matrix of squared distances between coordinates in nDimPoints.
@@ -325,6 +326,7 @@ def calcDistanceMatrix(nDimPoints,
     # returns  squared distance:
     return dist 
 
+@jit
 def calcDistance2Matrix(nDimPoints0, nDimPoints1,
                        distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
     """ Returns the matrix of squared distances between two cooridnate sets.
@@ -351,6 +353,7 @@ def calcDistance2Matrix(nDimPoints0, nDimPoints1,
     # returns  squared distance:
     return dist 
 
+@jit
 def calcDistanceMatrix_multidim(nDimPoints):
     """ Returns the matrix of squared distances between points in multiple dimensions. 
 
@@ -369,6 +372,7 @@ def calcDistanceMatrix_multidim(nDimPoints):
         delta[d] = abs(data - np.reshape(data,(len(data),1))) # computes all possible combinations
     return np.asarray(delta) 
 
+@jit
 def calcDistance2Matrix_multidim(nDimPoints0, nDimPoints1):
     """ Returns the matrix of squared distances between to corrdinate sets in multiple dimensions.
 
@@ -391,7 +395,7 @@ def calcDistance2Matrix_multidim(nDimPoints0, nDimPoints1):
         delta[d] = abs(data0 - np.reshape(data1,(len(data1),1))) # computes all possible combinations
     return np.asarray(delta)
 
-
+@jit
 def calcDeltaMatrix_multidim(nDimPoints):
     """ Returns the matrix of the sum of data points from one coordinate to any other
 
@@ -409,6 +413,7 @@ def calcDeltaMatrix_multidim(nDimPoints):
         delta[d] = abs(data + np.reshape(data,(len(data),1))) # computes all possible combinations
     return np.asarray(delta) 
 
+@jit
 def calcDelta2Matrix_multidim(nDimPoints0, nDimPoints1):
     """ Returns the matrix of the sum of data points between two coordinate sets    
 
@@ -430,7 +435,7 @@ def calcDelta2Matrix_multidim(nDimPoints0, nDimPoints1):
         delta[d] = abs(data0 + np.reshape(data1,(len(data1),1))) # computes all possible combinations
     return np.asarray(delta)
 
-
+@jit
 def calc_square_distances2D(Lpix, pixscale):
     """
     Initialize (squared) distance matrix for stationary kernel.
@@ -455,7 +460,7 @@ def calc_square_distances2D(Lpix, pixscale):
     return Dx**2 + Dy**2
 
 
-
+@jit
 def gpkernel_sparse_multidim_noise(Delta, gamma, sigma_delta = None):
     """
     Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
@@ -490,7 +495,7 @@ def gpkernel_sparse_multidim_noise(Delta, gamma, sigma_delta = None):
         kres *= res
     return kres
 
-
+@jit
 def gpkernel_sparse_multidim(Delta, gamma):
     """
     Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
@@ -519,7 +524,7 @@ def gpkernel_sparse_multidim(Delta, gamma):
         kres *= res
     return kres
 
-
+@jit
 def gpkernel_sparse_multidim2(Delta, gamma):
     """
     Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 13, 20
@@ -545,6 +550,7 @@ def gpkernel_sparse_multidim2(Delta, gamma):
     res[r < 1] = (2 + np.cos(2*np.pi * r[r < 1]))/3.*(1-r[r < 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r < 1])
     return res
 
+@jit
 def gpkernel_sparse_multidim2_noise(Delta, gamma, sigma_delta = None):
     """
     Modified Multi-dimensional RBF kernel with X unicertainity, 
@@ -576,7 +582,7 @@ def gpkernel_sparse_multidim2_noise(Delta, gamma, sigma_delta = None):
     res[r < 1] = (2 + np.cos(2*np.pi * r[r < 1]))/3.*(1-r[r < 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r < 1])
     return res
 
-
+@jit
 def gpkernel_sparse(D2, gamma):
     """
     2-D rsparse RBF kernel with , defined in Melkumyan and Ramos, 2009, Eq 13 
