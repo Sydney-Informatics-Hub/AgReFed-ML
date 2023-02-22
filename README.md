@@ -64,7 +64,7 @@ The modelling approach includes the following features:
     - if conda not installed yet, please install (see e.g., for conda-miniforge [https://github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge)) 
     - run following commands in your terminal, as shown here for conda (if other environment used, please adjust):
         ```bash
-        conda env create -n agrefed --file env_agrefed_combined.yaml
+        conda env create --file env_agrefed_combined.yaml
 
         conda activate agrefed
 

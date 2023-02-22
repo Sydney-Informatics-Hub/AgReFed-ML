@@ -1,3 +1,4 @@
+name: agrefed
 channels:
 - conda-forge
 dependencies:
