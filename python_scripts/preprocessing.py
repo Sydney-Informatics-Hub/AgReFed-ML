@@ -322,14 +322,14 @@ def preprocess_grid(inpath, infname, outpath, outfname, name_features, categoric
 
 
 def preprocess_grid_poly(path, infname_grid, infname_poly, name_features, 
-	grid_crs, grid_colname_Easting = 'x', grid_colname_Northing = 'y',
-	categorical = None):
-	"""
-	Converts input dataframe into more useable data and saves as new dataframe on disk.
-	Grid points will be spatially joioned with polygons for prediction
-	To Do add conversion to categorical
+    grid_crs, grid_colname_Easting = 'x', grid_colname_Northing = 'y',
+    categorical = None):
+    """
+    Converts input dataframe into more useable data and saves as new dataframe on disk.
+    Grid points will be spatially joioned with polygons for prediction
+    To Do add conversion to categorical
 
-	Input:
+    Input:
         path: input path (same used for output)
         infname_grid: input file name of grid covariates
         infname_poly: input file name of polygon shape for predictions
@@ -338,63 +338,63 @@ def preprocess_grid_poly(path, infname_grid, infname_poly, name_features,
         grid_colname_Easting: column name of Easting coordinate (or Longitude)
         grid_colname_Northing: coumn name for Northing coodinate (or Latitude)
         categorical: name of categorical feature, converts categorical feature into additional features with binary coding
-	
+
     Return:
         processed dataframe
         names of features with updated categorical (if none, then return original input name_features)
-	"""
-	from shapely.geometry import Point
-	print("Preprocessing grid covariates and joining with polygon geometry...")
-	name_features2 = name_features.copy()
-	df = pd.read_csv(os.path.join(path, infname_grid))
-	if categorical is not None:
-		# Add categories as features with binary coding
-		cat_levels = df[categorical].unique()
-		print('Adding following categories as binary features: ', cat_levels)
-		name_features2.extend(cat_levels)
-		for level in cat_levels:
-			df[level] = 0
-			df.loc[df[categorical].values == level, level] = 1
-		name_features2.remove(categorical)
-	# Convert grid covariates to geospatial point data
-	geometry = [Point(xy) for xy in zip(df[grid_colname_Easting], df[grid_colname_Northing])]
-	gdf = gpd.GeoDataFrame(df, crs=grid_crs, geometry=geometry)
-	# Read in polygon data
-	dfpoly =  gpd.read_file(os.path.join(path, infname_poly))
-	dfpoly['ibatch'] = dfpoly.index.values.astype(int)
-	# Check before merging that grid and poly are in same crs, of not, convert poly to same crs as grid
-	if not (dfpoly.crs == gdf.crs):
-		dfpoly = dfpoly.to_crs(gdf.crs)
-	# Spatially merge points that are within polygons and keep point grid geometry
-	dfcomb = gpd.sjoin(gdf, dfpoly, how="left", op="within") 
-	# alternatively use op='intersects' to includfe also points that are on boundary of polygon
-	# Remove all points that are not in a polygon
-	dfcomb.dropna(subset = ['ibatch'], inplace=True)
-	dfcomb['ibatch'] = dfcomb['ibatch'].astype(int) # Need to be converted again to int since merge changes type
-	if len(dfcomb) == 0:
-		print('WARNING: NO GRID POINTS IN POLYGONS!')
-	
-	# if convert_to_crs is not None:
-	# 	# Convert to meters and get batch x,y coordinate list for each polygon:
-	# 	dfcomb = dfcomb.to_crs(epsgcrs)
-	# 	dfpoly = dfpoly.to_crs(epsgcrs)
-	
-	""" If evalutaion points are not given by grid points, following approaches can be tried
-	evaluation  points need to subdivide polygon in equal areas (voronoi), otherwise not equal spatial weight 
-	options a) rasterize polygon  and then turn pixels in points, b) use pygridtools https://github.com/Geosyntec/pygridtools
-	c) use Centroidal Voronoi tessellation (use vorbin or pytess), d) use iterative inwards buffering, e) find points by dynmaic simulation
-	or split in halfs iteratively: https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
-	use centroid, then any line through centroid splits polygon in half
-	Propose new algorithm: centroidal hexagonal grid (densest cirle packing), 
-	this need optimise only one parameter: rotational angle so that a) maximal number of poinst are in polygon and 
-	b) that distance of point to nearest polygon edge is maximised for all points (which aligns points towards center)
-	"""
-	if isinstance(name_features2, list): 
-		selcols = ['x', 'y', 'ibatch']
-		selcols.extend(name_features2)
-	else:
-		selcols = ['Sample.ID','x', 'y', 'ibatch', name_features2]
-	return dfcomb[selcols].copy(), dfpoly, name_features2
+    """
+    from shapely.geometry import Point
+    print("Preprocessing grid covariates and joining with polygon geometry...")
+    name_features2 = name_features.copy()
+    df = pd.read_csv(os.path.join(path, infname_grid))
+    if categorical is not None:
+        # Add categories as features with binary coding
+        cat_levels = df[categorical].unique()
+        print('Adding following categories as binary features: ', cat_levels)
+        name_features2.extend(cat_levels)
+        for level in cat_levels:
+            df[level] = 0
+            df.loc[df[categorical].values == level, level] = 1
+        name_features2.remove(categorical)
+    # Convert grid covariates to geospatial point data
+    geometry = [Point(xy) for xy in zip(df[grid_colname_Easting], df[grid_colname_Northing])]
+    gdf = gpd.GeoDataFrame(df, crs=grid_crs, geometry=geometry)
+    # Read in polygon data
+    dfpoly =  gpd.read_file(os.path.join(path, infname_poly))
+    dfpoly['ibatch'] = dfpoly.index.values.astype(int)
+    # Check before merging that grid and poly are in same crs, of not, convert poly to same crs as grid
+    if not (dfpoly.crs == gdf.crs):
+        dfpoly = dfpoly.to_crs(gdf.crs)
+    # Spatially merge points that are within polygons and keep point grid geometry
+    dfcomb = gpd.sjoin(gdf, dfpoly, how="left", op="within") 
+    # alternatively use op='intersects' to includfe also points that are on boundary of polygon
+    # Remove all points that are not in a polygon
+    dfcomb.dropna(subset = ['ibatch'], inplace=True)
+    dfcomb['ibatch'] = dfcomb['ibatch'].astype(int) # Need to be converted again to int since merge changes type
+    if len(dfcomb) == 0:
+        print('WARNING: NO GRID POINTS IN POLYGONS!')
+
+    # if convert_to_crs is not None:
+    # 	# Convert to meters and get batch x,y coordinate list for each polygon:
+    # 	dfcomb = dfcomb.to_crs(epsgcrs)
+    # 	dfpoly = dfpoly.to_crs(epsgcrs)
+
+    """ If evalutaion points are not given by grid points, following approaches can be tried
+    evaluation  points need to subdivide polygon in equal areas (voronoi), otherwise not equal spatial weight 
+    options a) rasterize polygon  and then turn pixels in points, b) use pygridtools https://github.com/Geosyntec/pygridtools
+    c) use Centroidal Voronoi tessellation (use vorbin or pytess), d) use iterative inwards buffering, e) find points by dynmaic simulation
+    or split in halfs iteratively: https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
+    use centroid, then any line through centroid splits polygon in half
+    Propose new algorithm: centroidal hexagonal grid (densest cirle packing), 
+    this need optimise only one parameter: rotational angle so that a) maximal number of poinst are in polygon and 
+    b) that distance of point to nearest polygon edge is maximised for all points (which aligns points towards center)
+    """
+    if isinstance(name_features2, list): 
+        selcols = [grid_colname_Easting, grid_colname_Northing, 'ibatch']
+        selcols.extend(name_features2)
+    else:
+        selcols = ['Sample.ID',grid_colname_Easting, grid_colname_Northing, 'ibatch', name_features2]
+    return dfcomb[selcols].copy(), dfpoly, name_features2
 
 
 def main(fname_settings):
