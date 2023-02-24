@@ -137,8 +137,19 @@ def model_blocks(settings):
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
-    settings.name_features.append('z')
+        name_features_grid = settings.name_features.copy()
+        if settings.colname_zcoord in settings.name_features:
+            settings.name_features.remove(settings.colname_zcoord)
+            name_features_grid.remove(settings.colname_zcoord)
+            settings.name_features.append('z')
+            name_features = settings.name_features
 
+    # Convert z and z_diff to meters if in cm (>10):
+    if (dftrain['z'].max() > 10):
+        dftrain['z'] = dftrain['z'] / 100
+        if 'z_diff' in dftrain.columns:
+            dftrain['z_diff'] = dftrain['z_diff'] / 100
+  
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
 
@@ -826,16 +837,19 @@ def model_polygons(settings):
     dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
 
 
-        # Rename x and y coordinates of input data
+    # Rename x and y coordinates of input data
     if settings.colname_xcoord != 'x':
         dftrain.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
     if settings.colname_ycoord != 'y':
         dftrain.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dftrain.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
+        name_features_grid = settings.name_features.copy()
         if settings.colname_zcoord in settings.name_features:
             settings.name_features.remove(settings.colname_zcoord)
+            name_features_grid.remove(settings.colname_zcoord)
             settings.name_features.append('z')
+            name_features = settings.name_features
 
     # Convert z and z_diff to meters if in cm (>10):
     if (dftrain['z'].max() > 10):
@@ -846,7 +860,6 @@ def model_polygons(settings):
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
 
-    name_features = settings.name_features
     
     # check if z_diff is in dftrain
     if 'z_diff' not in dftrain.columns:
@@ -854,7 +867,7 @@ def model_polygons(settings):
 
     # Read in polygon data:
     dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
-        name_features = settings.name_features_grid,  grid_crs = settings.project_crs, 
+        name_features = name_features_grid,  grid_crs = settings.project_crs, 
         grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
 
     # Rename x and y coordinates of input data
@@ -1065,7 +1078,7 @@ def main(fname_settings):
     settings = SimpleNamespace(**settings)
 
     # Assume covariate grid file has same covariate names as training data
-    settings.name_features_grid = settings.name_features.copy()
+    # settings.name_features_grid = settings.name_features.copy()
 
     # Add temporal or vertical componnet
     if settings.axistype == 'temporal':
