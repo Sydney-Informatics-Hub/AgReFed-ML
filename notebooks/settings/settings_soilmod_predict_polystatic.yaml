@@ -1,0 +1,73 @@
+# Settings for static 3D soilmodel predictions
+
+### Input Specifications ###
+inpath: 'samples/'
+
+outpath: 'results/Llara_predictions_static/' 
+
+# File name with soil data and corresponding covariates
+infname: 'soildata_static3d.csv' 
+
+# File with grid coordinates and covariates (used if predict_grid_all = True):
+gridname: 'Llara_COVARIATES_subsoil_prediction_30m_cropped.csv'
+
+# Filename for polygons (need to include geometry column)
+polyname: 'Llara_hexpoly_500m.gpkg'
+
+# set project coordinate reference system
+project_crs: "EPSG:28355" 
+
+# Name of target for prediction (column name in dataframe)
+name_target: 'OC_WB'
+
+# Column name for Easting (x axis)
+colname_xcoord: 'Easting'
+
+#Column name for Northing (y axis)
+colname_ycoord: 'Northing'
+
+#Column name for soil depth, optional
+colname_zcoord: 'mid_depth'
+
+# Choose model function, currently implemented:
+#'blr': bayesian linear regression with power transformation
+#'rf': Random Forest Regression
+#'blr-gp' Gaussian Process with bayesian linear regression as mean function
+#'rf-gp' Gaussian Process with random forest regression as mean function
+model_function: 'blr-gp'
+
+# Is third dimension of prediction the vertical depth ('vertical') or temporal ('temporal')?
+axistype: 'vertical'
+
+### Select spacing for prediction predictions (ideally should be same as covariate grid),
+# Settings for Cube geometry that is generated (in cm)
+xyvoxsize: 30 
+zvoxsize:  1
+
+# list of z predictions (in meter)
+list_z_pred: [0.05] #[0.05, 0.15, 0.3, 0.6, 1.0]
+
+### Spatial options for predictions, only relevant for prediction (option 'predict_new') 
+# Default is point prediction if integrate_block = False and integrate_polygon = False
+# number of points averaged is determined by spacing of xvoxsize, yvoxsize, zvoxsize. 
+# integrate over certain volume or block size, if True specify block size in meters
+integrate_block: False
+xyblocksize: 200 # in meters
+# temporal blocksize
+zblocksize: 1
+
+
+### Polygon not tested yet
+# Or Calculate  prediction over polygons (only relevant for prediction: predict_new)
+integrate_polygon: True
+
+### If axistype='vertical', select minimum and maximum of depth for data selection [in m]
+zmin: 0 # minimum depth for prediction (in meters), starting at zero depth to minus zmax 
+zmax: 0.1 # maximum depth for prediction (in meters), starting at zero depth to minus zmax 
+
+### Name of covariates in soil training data
+name_features:
+  - NDVI_50
+  - NDVI_95
+  - silica
+  - rad_u
