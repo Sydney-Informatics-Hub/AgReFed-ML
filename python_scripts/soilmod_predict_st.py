@@ -55,7 +55,7 @@ from tqdm import tqdm
 # Custom local libraries:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
-from preprocessing import gen_kfold
+from preprocessing import gen_kfold, preprocess_grid_poly
 import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
 import model_blr as blr
 import model_rf as rf
@@ -824,7 +824,8 @@ def model_polygons(settings):
 
     # Read in polygon data:
     dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
-        name_features = settings.name_features_grid, name_target = settings.name_target, grid_crs = settings.project_crs, categorical = 'Soiltype')
+        name_features = settings.name_features_grid, grid_crs = settings.project_crs,
+        grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
 
 
     # Rename x and y coordinates of input data
@@ -900,6 +901,7 @@ def model_polygons(settings):
     os.makedirs(outpath_fig, exist_ok = True)	
 
     dfout_poly =  dfgrid[['ibatch']].copy()
+    dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
         
 
     ixrange_batch = dfgrid['ibatch'].unique()
@@ -919,8 +921,6 @@ def model_polygons(settings):
         zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
         print('Calculating for time slices at: ', zspace)
     grid_x, grid_y = np.meshgrid(xspace, yspace)
-    mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
-    std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
     gp_train_flag = 0 # need to be computed only first time
     # Slice in blocks for prediction calculating per 30 km x 1cm
     for i in range(len(zspace)):
@@ -1001,8 +1001,6 @@ def model_polygons(settings):
             plt.show()  
         plt.close('all')
 
-    return mu_3d, std_3d
-
 
 
 ######################### Main Script ############################
@@ -1018,18 +1016,17 @@ def main(fname_settings):
     settings = preprocess_settings(fname_settings)
 
     if settings.integrate_polygon:
-        mu_3d, std_3d = model_polygons(settings)
+        model_polygons(settings)
     else:
         if settings.integrate_block:
             mu_3d, std_3d = model_blocks(settings)
         else:
             mu_3d, std_3d = model_points(settings)
-
-    print("Prediction Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(mu_3d), np.median(mu_3d[~np.isnan(mu_3d)]), 
-        np.nanstd(mu_3d), np.percentile(mu_3d[~np.isnan(mu_3d)],25), np.percentile(mu_3d[~np.isnan(mu_3d)],75)] 
-        ,3))
-    print("Uncertainty Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(std_3d), np.median(std_3d[~np.isnan(std_3d)]),
-        np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
+        print("Prediction Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(mu_3d), np.median(mu_3d[~np.isnan(mu_3d)]), 
+            np.nanstd(mu_3d), np.percentile(mu_3d[~np.isnan(mu_3d)],25), np.percentile(mu_3d[~np.isnan(mu_3d)],75)] 
+            ,3))
+        print("Uncertainty Mean, Median, Std, 25Perc, 75Perc:", np.round([np.nanmean(std_3d), np.median(std_3d[~np.isnan(std_3d)]),
+            np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
     print('')
     print('Prediction finished')
     print(f'All results are saved in output directory {settings.outpath}')
