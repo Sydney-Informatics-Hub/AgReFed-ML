@@ -1,5 +1,5 @@
 """
-Machine Learning model for 3D Cube Soil Generator using Gaussian Process Priors with mean functions. 
+Machine Learning model for spatial-temporal soil mapping using Gaussian Process Priors with mean functions. 
 
 Current models implemented:
 - Bayesian linear regression (BLR) 
@@ -14,23 +14,19 @@ Core functionality:
 - spatial support for predictions: points, volume blocks, polygons
 - spatial uncertainty integration takes into account spatial covariances between points
 
-
 See documentation for more details.
 
 User settings, such as input/output paths and all other options, are set in the settings file 
 (Default filename: settings_soilmodel_predict.yaml) 
 Alternatively, the settings file can be specified as a command line argument with: 
 '-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
-(e.g. python featureimportance.py -s settings_featureimportance.yaml).
+(e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
 
-Copyright Sydney Informatics Hub (SIH), The University of Sydney
+Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
 
 This open-source software is released under the LGPL-3.0 License.
-
-Author: Sebastian Haan
-
 """
 
 import numpy as np
@@ -111,7 +107,7 @@ def preprocess_settings(fname_settings):
 ######### Volume Block prediction #########
 def model_blocks(settings):
     """
-    Predict soil properties and uncertainties for block sizes rather than points.
+    Predict soil properties and uncertainties for block sizes.
     The predicted uncertainty takes into account spatial covariance within each block
     All output is saved in output directory as specified in settings.
 
@@ -119,6 +115,10 @@ def model_blocks(settings):
     ----------
     settings : settings namespace
 
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
     """
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
         # only mean function model
@@ -389,12 +389,17 @@ def model_blocks(settings):
 ######### Point prediction #########
 def model_points(settings):
     """
-    Predict soil properties and uncertainties for location points.
+    Predict soil properties and uncertainties for raster points.
     All output is saved in output directory as specified in settings.
 
     Parameters
     ----------
     settings : settings namespace
+
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
     """
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -525,22 +530,8 @@ def model_points(settings):
 
     # Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
     batchsize = 500
-    #def chunker(df, batchsize):
-    #	return (df[pos:pos + batchsize] for pos in np.arange(0, len(df), batchsize))
+
     dfgrid = dfgrid.reset_index()
-    """
-    dfgrid['ibatch'] = dfgrid.index // batchsize
-        
-    #nbatch = dfgrid['ibatch'].max()
-    ixrange_batch = dfgrid['ibatch'].unique()
-    nbatch = len(ixrange_batch)
-    print("Number of mini-batches per slice: ", nbatch)
-    mu_res = np.zeros(len(dfgrid))
-    std_res = np.zeros(len(dfgrid))
-    coord_x = np.zeros(len(dfgrid))
-    coord_y = np.zeros(len(dfgrid))
-    ix = np.arange(len(dfgrid))
-    """
 
     xspace = np.arange(dfgrid['x'].min(), dfgrid['x'].max(), settings.xvoxsize)
     yspace = np.arange(dfgrid['y'].min(), dfgrid['y'].max(), settings.yvoxsize)
@@ -608,9 +599,8 @@ def model_points(settings):
                 ypred = y_pred_zmean
                 ystd = ynoise_pred
 
-            # Combine noise of GP and mean functiojn for prediction (already in coavraice function):
+            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
             #ystd = np.sqrt(ystd**2 + ynoise_pred**2)	
-
         
             # Save results in 3D array
             ix_end = ix_start + len(ypred)
@@ -639,23 +629,12 @@ def model_points(settings):
         coord_xy = np.asarray([coord_x, coord_y]).T
         mu_img, std_img = align_nearest_neighbor(xygridflat, coord_xy, [mu_res, std_res], max_dist = 0.5 * settings.xvoxsize)
 
-        """
-        np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(zspace[i])))) + '.txt'), np.round(mu_img,2), delimiter=',')
-        np.savetxt(os.path.join(outpath_fig, 'Pred_Stddev_' + settings.name_target + '_t' + str("{:03d}".format(int(np.round(zspace[i])))) + '.txt'), np.round(std_img,3), delimiter=',')
-        if i == 0:
-            # Create coordinate array of x and y
-            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_x.txt'), coord_x, delimiter=',')
-            np.savetxt(os.path.join(outpath_fig, 'Pred_' + settings.name_target + '_coord_y.txt'), coord_y, delimiter=',')
-        """
-
         mu_img = mu_img.reshape(grid_x.shape)
         std_img = std_img.reshape(grid_x.shape)
 
         mu_3d[:,:,i] = mu_img.T
         std_3d[:,:,i] = std_img.T
 
-
-        #for i in range(3):
         # Create Result Plots
         print("Creating plots...")
         mu_3d_trim = mu_3d[:,:,i].copy()
@@ -770,6 +749,10 @@ def model_polygons(settings):
     Parameters
     ----------
     settings : settings namespace
+
+    Return
+    ------
+    None
     """
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
