@@ -8,6 +8,7 @@ Machine learning tools for modelling and predicting agriculture systems and thei
 - [Functionality](#functionality)
 - [Installation](#installation)
 - [Use Case Scenarios](#use-case-scenarios)
+- [Contributions](#contributions)
 - [Attribution and Acknowledgments](#attribution-and-acknowledgments)
 
 
@@ -130,6 +131,11 @@ The workflows for this scenario are demonstrated in the following notebooks:
 - Feature selection: `feature_selection_moisture.ipynb` (this notebook includes functions for generating settings file)
 - Model testing: `testmodels_st_moisture.ipynb`, configure settings in `settings_soilmod_xval_moisture_20xx.yaml`
 - Prediction notebooks: `prediction_st_moisture.ipynb` + `settings_soilmod_moisture_predict_20xx.yaml` (GPR plus Random Forest), `prediction_st_blr-gp_moisture.ipynb` + `settings_soilmod_moisture_predict_blr-gp_20xx.yaml` (GPR plus Bayesian Linear Regression)
+
+## Contributions
+We are happy for any contribution to this project, whether feedbacks and bug reports via github Issues, adding use-case examples via notebook contributions, to improving source-code and adding new data examles.
+
+For more details about about how to contribute to the development, please visit the [AgReFed-ML contribution guidelines](docs/Contributing.md).
 
 
 ## Attribution and Acknowledgments
