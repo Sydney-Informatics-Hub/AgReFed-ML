@@ -90,9 +90,8 @@ To login to this platform, please follow the instructions:
     !git clone https://github.com/Sydney-Informatics-Hub/AgReFed-ML
     # unzip sample data
     import zipfile
-    cd ./AgReFed-ML/notebooks
-    with zipfile.ZipFile("samples.zip", 'r') as zip_file:
-        zip_file.extractall("./")
+    with zipfile.ZipFile("./AgReFed-ML/notebooks/samples.zip", 'r') as zip_file:
+        zip_file.extractall("./AgReFed-ML/notebooks/")
     ```
 - start with opening a AgReFed-ML notebook in the `notebooks` folder
 
