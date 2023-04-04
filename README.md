@@ -84,11 +84,17 @@ As play-ground for testing the AgReFed-ML notebooks we provide a pre-installed c
 To login to this platform, please follow the instructions:
 - login to [AgReFed Nectar Cloud](https://jupyterhub.rc.nectar.org.au/hub/login?next=%2Fhub%2F).
 - select as Server Option the `AgReFed Python environment` 
-- open new Jupyter notebook and run the following command to clone the AgReFed-ML repo:
+- open new Jupyter notebook and run the following command to clone the AgReFed-ML repo to your cloud home directory, and to unzip sample data:
     ```python
+    # clone AgReFed-ML repo
     !git clone https://github.com/Sydney-Informatics-Hub/AgReFed-ML
+    # unzip sample data
+    import zipfile
+    cd ./AgReFed-ML/notebooks
+    with zipfile.ZipFile("samples.zip", 'r') as zip_file:
+        zip_file.extractall("./")
     ```
-- navigate to the `AgReFed-ML/notebooks` folder and open the notebooks.
+- start with opening a AgReFed-ML notebook in the `notebooks` folder
 
 
 ## Use Case Scenarios
