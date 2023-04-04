@@ -14,18 +14,18 @@ Machine learning tools for modelling and predicting agriculture systems and thei
 
 ## Introduction
 
-Agricultural soil models can be either mechanistic (e.g., soil-physics) or of data-driven, statistical nature (e.g., Probabilistic Neural Nets, Bayesian Models, Random Forests), or a combination of both (e.g., for data-driven estimation and optimisation of mechanistic model parameters and their uncertainty). The output of these models, such as spatial-temporal predictions, is used for a wide range of application (e.g., soil, yield, crops, animals). These models require inter-operable data flows of appropriately calibrated, cleaned data variables. Understanding the model limitations, assumptions and then interpreting the outputs is required. This project will contribute software scripts that provide multiple machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
+Machine learning (ML) models have emerged as a powerful approach for building agriculture soil models, allowing researchers to analyze large and complex spatiotemporal datasets to make predictions about soil properties and processes. The output of these models, such as spatiotemporal predictions, is used for a wide range of application (e.g., soil, yield, crops, carbon cycle). These models require inter-operable data flows and the correct propagation of uncertainties from soil measurements and model parameter tuning to the final soil predictions and their uncertainties. Understanding the model limitations, assumptions and then interpreting the outputs is required. The AgReFed-ML project will contribute software that provide reproducible machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
 
 ## Method
 
-One powerful machine learning technique that can be used for soil property prediction is the probabilistic Mixture Model. This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using probabilistic Mixture Models, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the probabilistic model details and feature selection can be found in [Method.pdf](docs/Method.pdf).
+This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using such probabilistic Mixture Model, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the probabilistic model details and feature selection can be found in [Method.pdf](docs/Method.pdf).
 
 Each workflow consists of the following main steps:
 
-1) data preprocessing (included sample data already pre-processed)
-2) feature analysis and selection
-3) mixture-model training, optimization, evaluation, and model selection
-4) generating geo-referenced prediction and uncertainty maps
+0) data preprocessing (included sample data already pre-processed)
+1) feature analysis and selection
+2) model training, optimization, evaluation, and model selection
+3) generating geo-referenced prediction and uncertainty maps
 
 
 ## Functionality
@@ -59,6 +59,8 @@ The modelling approach includes the following features:
 
 ## Installation
 
+### Local Installation
+
 1) Download or clone github repo
 2) Unzip samples.zip in folder notebook, which creates a folder notebook/samples with all sample data files
 3) Setup AgReFed environment with conda/mamba (installation):
@@ -75,33 +77,38 @@ The modelling approach includes the following features:
 
 The environment file `env_agrefed_combined.yaml` includes all dependencies for this AgReFed Machine Learning project plus all dependencies for the AgReFed Harvester project, so both projects can be run in the same environment.
 
+### AgReFed Nectar Cloud Environment
+
+As play-ground for testing the AgReFed-ML notebooks we provide a pre-installed cloud Python Jupyterlab environment, which does not require any local installation. This Jupyter environment is hosted on the ARDC Nectar Research Cloud in partnership with AgReFed and Australian Research Data Commons (ARDC). Note that this sandbox is currently hosted for test purposes only and generated data is not permanently stored.
+
+To login to this platform, please follow the instructions:
+- login to [AgReFed Nectar Cloud](https://jupyterhub.rc.nectar.org.au/hub/login?next=%2Fhub%2F).
+- select as Server Option the `AgReFed Python environment` 
+- open new Jupyter notebook and run the following command to clone the AgReFed-ML repo:
+    ```python
+    !git clone https://github.com/Sydney-Informatics-Hub/AgReFed-ML
+    ```
+- navigate to the `AgReFed-ML/notebooks` folder and open the notebooks.
+
 
 ## Use Case Scenarios
 
-This project aims to demonstrates ML workflows for three use case scenarios as example applications for agricultural research. Each scenario is described by a reproducible workflow process that includes feature engineering, model selection and validation, and prediction mapping/cubing.
+This project aims to demonstrates ML workflows for three use case scenarios as example applications for agricultural research. Each scenario is described by a reproducible workflow that includes feature engineering, model selection and validation, and prediction mapping/cubing. The workflows are implemented in Jupyter notebooks and can be run in a local environment. The notebooks are configured using YAML settings files, which can be used to adjust the workflow to different use cases. For how to run the notebooks, see [notebooks](notebooks/README.md).
 
 ### A) Static Soil Model
 
 The static model is a spatial model for generating prediction maps of soil properties for one given time. The output are geo-referenced prediction and uncertainty maps (2D) at multiple soil depths. The soil model takes into account the spatial and depth correlations via a joint 3D GP kernel with two lengthscale hyperparameters (spatial and depth).
-As example use-case, a spatial probabilistic model is trained and predictions are produced for multiple soil properties for the L'lara farm area (see figure below). Soil data and covariates are provided by the University of Sydney.
+As example use-case, a spatial probabilistic model is trained and predictions are produced for multiple soil properties for a farm area (see figure below). 
 
 <figure>
     <img src="figures/Map_data.jpg" alt="Data Map">
     <figcaption>Map of data probe locations for sample data (included).<figcaption>
 </figure> 
 
-#### How to run the static 3D example
-Download github repo and run the following three notebooks:
-    
-- Feature importance: `feature_importance_static.ipynb`, configure settings in `settings_featureimportance_static.yaml`
-- Model testing: `testmodels_static.ipynb`, configure settings in `settings_testmodels_static.yaml`
-- 3D soil predictions: `prediction_static3d_OC.ipynb`, configure settings in `settings_soilmod_predict_static.yaml`
-
-All notebooks can be found in the folder `notebooks` and the settings file in `notebooks/settings`.
 
 ### B) Change Model for Carbon Accounting Mapping
 
-This workflow generates prediction and uncertainty maps for the change of soil properties within a certain period of time. The use-case goal for this example is to model the change of the Organic Carbon (OC) stock volume for a farm. A particular focus is to model the uncertainty of the change, which needs to take into account the covariances of the prediction in space and time. The model training data is based on laboratory measurements of Organic Carbon stock for 2018 and 2021 from sample sites in L'lara
+This workflow generates prediction and uncertainty maps for the change of soil properties within a certain period of time. The use-case goal for this example is to model the change of the Organic Carbon (OC) stock volume for a farm. A particular focus is to model the uncertainty of the change, which needs to take into account the covariances of the prediction in space and time. 
 
 <figure>
     <img src="figures/prediction_change.png" alt="Change Prediction">
@@ -109,28 +116,15 @@ This workflow generates prediction and uncertainty maps for the change of soil p
 </figure> 
 
 
-#### How to run the change model example
-
-Download github repo and run the following notebook: `model_soilchange_OC.ipynb`
-This notebook includes the three workflows for feature importance, model selection, and change mapping. The corresponding settings files for these three processes are `settings_featureimportance_OC.yaml`, `settings_featureimportance_OC.yaml` `settings_soilmod_changepredict_OC.yaml`, respectively.
-
-
 ### C) Spatial-Temporal Model
 
-This workflow generates soil moisture prediction maps (for top-soil layer) and their uncertainty for multiple time intervals. Model training data is based on daily and weekly averaged data from soil moisture probes and multiple spatial-temporal dependent covariates for 2020-2022 from sample sites in L'lara. 
-Soil moisture data is provided by the University of Sydney and multiple spatial-temporal covariates are extracted with the AgReFed Data Harvester software.
+This workflow generates soil moisture prediction maps (for top-soil layer) and their uncertainty for multiple time intervals. Model training data is based on daily and weekly averaged data from soil moisture probes and multiple spatial-temporal dependent covariates for 2020-2022 from sample sites. 
 
 <figure>
     <img src="figures/prediction_st.jpg" alt="Spatial Temporal Prediction">
     <figcaption>Spatial-temporal predictions and uncertainty for Organic Carbon at different dates.<figcaption>
 </figure> 
 
-#### How to run the spatial-temporal example
-The workflows for this scenario are demonstrated in the following notebooks:
-    
-- Feature selection: `feature_selection_moisture.ipynb` (this notebook includes functions for generating settings file)
-- Model testing: `testmodels_st_moisture.ipynb`, configure settings in `settings_soilmod_xval_moisture_20xx.yaml`
-- Prediction notebooks: `prediction_st_moisture.ipynb` + `settings_soilmod_moisture_predict_20xx.yaml` (GPR plus Random Forest), `prediction_st_blr-gp_moisture.ipynb` + `settings_soilmod_moisture_predict_blr-gp_20xx.yaml` (GPR plus Bayesian Linear Regression)
 
 ## Contributions
 We are happy for any contribution to this project, whether feedbacks and bug reports via github Issues, adding use-case examples via notebook contributions, to improving source-code and adding new data examles.
