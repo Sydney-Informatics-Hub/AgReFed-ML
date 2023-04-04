@@ -34,6 +34,7 @@ Relevant notebooks and settings files:
 - Feature selection: `feature_importance_static.ipynb` + `settings_featureimportance_static.yaml`
 - Model testing: `testmodels_static.ipynb` + `settings_testmodels_static.yaml`
 - 3D soil predictions: `prediction_static3d_OC.ipynb` + `settings_soilmod_predict_static.yaml`
+- 3D soil predictions for different spatial types (points, polygons, blocks): `prediction_staticpoly_OC.ipynb` + `settings_soilmod_predict_polystatic.yaml`
 
 
 ## B) Change Model for Carbon Accounting Mapping
