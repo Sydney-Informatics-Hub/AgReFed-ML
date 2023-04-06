@@ -10,6 +10,8 @@ Machine learning tools for modelling and predicting agriculture systems and thei
 - [Use Case Scenarios](#use-case-scenarios)
 - [Contributions](#contributions)
 - [Attribution and Acknowledgments](#attribution-and-acknowledgments)
+- [License](#license)
+- [References](#references)
 
 
 ## Introduction
@@ -33,7 +35,6 @@ Each workflow consists of the following main steps:
 The main functions supported by the workflow scripts are:
 
 - automatic feature importance analysis and ranking using using a multiple model approach
-- generator function for of range of synthetic data for testing
 - multiple machine learning models for soil properties under sparse and uncertain input:
     - static 3D properties
     - change model and temporal covariances
@@ -41,6 +42,9 @@ The main functions supported by the workflow scripts are:
 - multi-model testing and automatic cross-validation on subsets of train and test data
 - visualisation of prediction maps of soil properties and uncertainties
 - support for importing/saving settings using YAML settings files for reproducible workflows
+- support for different spatial prediction types (e.g., points, blocks, polygons)
+- support for measurement errors in the observations (if provided as part of the input data)
+- generator function for of range of synthetic data for testing
 
 <figure>
     <img src="figures/feature_importance.jpg" alt="Feature Importance">
@@ -54,7 +58,7 @@ The modelling approach includes the following features:
 - accommodate measurement error of the observations
 - incorporate numerous variables as predictors (covariates)
 - prediction of heteroscedastic uncertainty estimates
-- prediction at any spatial (-temporal) support (e.g., for block integration)
+- prediction at any spatial (-temporal) resolution
 
 
 ## Installation
@@ -95,10 +99,12 @@ To login to this platform, please follow the instructions:
     ```
 - start with opening a AgReFed-ML notebook in the `notebooks` folder
 
+The AgReFed cloud environment is pre-installed with all dependencies for this AgReFed-ML project plus all dependencies for the AgReFed Harvester project, so both projects can be run in the same environment. In case any additional packages are required, please contact us. Alternatively additional packages can be installed via `!pip install` in a new cell in the notebook.
+
 
 ## Use Case Scenarios
 
-This project aims to demonstrates ML workflows for three use case scenarios as example applications for agricultural research. Each scenario is described by a reproducible workflow that includes feature engineering, model selection and validation, and prediction mapping/cubing. The workflows are implemented in Jupyter notebooks and can be run in a local environment. The notebooks are configured using YAML settings files, which can be used to adjust the workflow to different use cases. For how to run the notebooks, see [notebooks](notebooks/README.md).
+This project aims to demonstrates ML workflows for three use case scenarios as example applications for agricultural research. Each scenario is described by a reproducible workflow that includes feature engineering, model selection and validation, and prediction mapping/cubing. The workflows are implemented in Jupyter notebooks and can be run in a local environment. The notebooks are configured using YAML settings files, which can be used to adjust the workflow to different use cases. For how to run the notebooks, see the [Notebooks Guide](notebooks/README.md).
 
 ### A) Static Soil Model
 
@@ -162,3 +168,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General 
 You should have received a copy of the GNU Lesser General Public License
 along with this program (see LICENSE). If not, see
 <https://www.gnu.org/licenses/>.
+
+## References
+
+- [AgReFed Homepage](https://agrefed.org.au/)
+
+- [AgReFed Geodata-Harvester Overview](https://sydney-informatics-hub.github.io/geodata-harvester/py_dataharvester.html)
+
+- [AgReFed Geodata-Harvester Python Github](https://github.com/Sydney-Informatics-Hub/geodata-harvester)
+
+- [Method documentation](docs/Method.pdf)
+
+- [Feature Importance and Selection](https://pypi.org/project/selectio/)
