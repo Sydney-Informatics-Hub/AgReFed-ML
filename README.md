@@ -1,5 +1,11 @@
 # AgReFed-ML
-Machine learning tools for modelling and predicting agriculture systems and their uncertainties.
+Data-driven Machine Learning for modelling and predicting agriculture systems and their uncertainties.
+
+<!-- Badges  start -->
+
+[![License](https://img.shields.io/badge/License-LGPL3-blue)](#license)
+
+<!-- Badges end -->
 
 ## Content
 
@@ -16,7 +22,7 @@ Machine learning tools for modelling and predicting agriculture systems and thei
 
 ## Introduction
 
-Machine learning (ML) models have emerged as a powerful approach for building agriculture soil models, allowing researchers to analyze large and complex spatiotemporal datasets to make predictions about soil properties and processes. The output of these models, such as spatiotemporal predictions, is used for a wide range of application (e.g., soil, yield, crops, carbon cycle). These models require inter-operable data flows and the correct propagation of uncertainties from soil measurements and model parameter tuning to the final soil predictions and their uncertainties. Understanding the model limitations, assumptions and then interpreting the outputs is required. The AgReFed-ML project will contribute software that provide reproducible machine learning workflows and tools for agriculture researchers, with a focus on developing a software tool to map soil properties under sparse and uncertain input. Our data-driven models are not restricted to only soil modeling but can be applied for a wide range of environmental model applications.
+Machine learning (ML) models have emerged as a powerful approach for building agriculture soil models, allowing researchers to analyze large and complex spatiotemporal datasets to make predictions about soil properties and processes. The output of these models, such as spatiotemporal predictions, is used for a wide range of application (e.g., soil, yield, crops, carbon cycle). These models need to take into account multiple data sources such as ground and subsurface soil measurements, satellite imagery, climate data, and other remote sources. The fusion of these data sources is a challenging task, as it requires the development of inter-operable probabilistic data models and uncertainty quantification. The AgReFed-ML project is contributing software tools that provide reproducible machine learning workflows for agriculture researchers, with a focus on developing applications to map soil properties under sparse and uncertain input. These data-driven models are not limited to soil modeling only, but can be applied for a wide range of environmental applications.
 
 ## Method
 
@@ -58,7 +64,6 @@ The modelling approach includes the following features:
 - accommodate measurement error of the observations
 - incorporate numerous variables as predictors (covariates)
 - prediction of heteroscedastic uncertainty estimates
-- prediction at any spatial (-temporal) resolution
 
 
 ## Installation
@@ -180,3 +185,7 @@ along with this program (see LICENSE). If not, see
 - [Method documentation](docs/Method.pdf)
 
 - [Feature Importance and Selection](https://pypi.org/project/selectio/)
+
+## Authors
+
+- [Sebastian Haan](https://github.com/sebhaan)
