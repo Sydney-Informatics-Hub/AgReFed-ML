@@ -65,6 +65,8 @@ The modelling approach includes the following features:
 - incorporate numerous variables as predictors (covariates)
 - prediction of heteroscedastic uncertainty estimates
 
+For a complete overview of all functions, please refer to the [API reference documentation](https://sydney-informatics-hub.github.io/AgReFed-ML/python_scripts/index.html).
+
 
 ## Installation
 
@@ -175,6 +177,8 @@ along with this program (see LICENSE). If not, see
 <https://www.gnu.org/licenses/>.
 
 ## References
+
+- [API references](https://sydney-informatics-hub.github.io/AgReFed-ML/python_scripts/index.html)
 
 - [AgReFed Homepage](https://agrefed.org.au/)
 
