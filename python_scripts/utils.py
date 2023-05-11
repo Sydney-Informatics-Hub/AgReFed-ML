@@ -1,11 +1,7 @@
 """
-Some useful functions
+Some utility functions.
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
 """
 
 import os
@@ -29,20 +25,18 @@ def project_data(infname, outfname, colname_lng_source, colname_lat_source, tocr
 
     Result
     ------
-    Csv file saved to disk
+    CSV file saved to disk
 
     """
     df_soil = pd.read_csv(infname)
-    #df_soil = pd.read_csv(os.path.join(inpath,'ESP_original_depths_covariates_NAMOI.csv'))
+
     #First convert WGS84 ( or epsg:4326) to meters, here we choose default web merkator projection (epgs:3857) 
     gdf = gpd.GeoDataFrame(df_soil.copy(), geometry=gpd.points_from_xy(df_soil[colname_lng_source], df_soil[colname_lat_source]))
     #gdf.crs = {'init' :'epsg:4326'} # Depreciated with geopandas >= 0.7
     gdf.crs = "EPSG:4326"
-    #gdf = gdf.to_crs('EPSG:3857')
     gdf = gdf.to_crs(tocrs_epsg)
     gdf['Easting'] = gdf.geometry.x
     gdf['Northing'] = gdf.geometry.y
-    #gdf.to_file(os.path.join(inpath, 'clipped_ESP_llara_COVARIATES_proj.gpkg'), driver='GPKG')
     # Save without geometry column as csv
     gdf.drop('geometry', axis=1).to_csv(outfname)
 
@@ -126,8 +120,8 @@ def print2(text, fname_out = os.path.join('loginfo.txt')):
 	Alternative: Use logger info
 
 	INPUT:
-	text: string (if 'init' new header will be written, and old contentwill be overwritten)
-	fname_out: path + file name (Default: {outpath}/info.txt)
+	    text: string (if 'init' new header will be written, and old contentwill be overwritten)
+	    fname_out: path + file name (Default: {outpath}/info.txt)
 	""" 
 	if text == 'init':
 		# Initialise a new file (e.g., if program is restarted)
@@ -149,12 +143,14 @@ def truncate_data(data, cutperc):
 	"""
 	Combines lits of arrays and truncates with lower and upper percentile
 
-	INPUT
-	data: list of numpy arrays
-	cutperc: percent to cut off from percentile
+	Input
+    -----
+	    data: list of numpy arrays
+	    cutperc: percent to cut off from percentile
 
 	Return
-	truncated flattened data array
+    -------
+	    truncated flattened data array
 	"""
 	datacomb = data[0]
 	for i in range(len(data)-1):
@@ -170,10 +166,10 @@ def create_vtkcube(data, origin, voxelsize, fname):
     and create a range of 3D cube plots with pyvista
 
     INPUT
-    :param data: 3D cube in shape (xdim, ydim, zdim)
-    :param origin: origin cooridnates of cube
-    :param voxelsize: voxel sizes in (xsize, ysize, zsize)
-    :param fname: path + filename for files
+        data: 3D cube in shape (xdim, ydim, zdim)
+        origin: origin cooridnates of cube
+        voxelsize: voxel sizes in (xsize, ysize, zsize)
+        fname: path + filename for files
     """
     grid = pv.UniformGrid()
     grid.dimensions = np.array(data.shape) + 1

@@ -1,7 +1,7 @@
 """
 Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations. 
 
-The genaretd models are regression models and can be either linear, quadratic or cubic.
+The genrated models are regression models and can be either linear, quadratic or cubic.
 Options for spatial correlations are defined by spatial correlation lengthscale and amplitude
 and implemented by using a squared exponential kernel (currently only option).
 
@@ -11,34 +11,7 @@ Alternatively, the settings file can be specified as a command line argument wit
 '-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
 (e.g. python featureimportance.py -s settings_featureimportance.yaml).
 
-Requirements:
-- python>=3.9
-- matplotlib>=3.5.1
-- numpy>=1.22.0
-- pandas>=1.3.5
-- PyYAML>=6.0
-- scikit_learn>=1.0.2
-- scipy>=1.7.3
-
-
-ToDo:
-    - enable/disable return of dataframe with simulated features in function gen_synthetic()
-    - generate geopackage including coordinates and features
-
-Possible future add-ons:
-    - add spatial correllation with different lengthscales for each dimension 
-    (currently implementation had one lengthscale for spatial distance in x,y plane)
-    - mix of regression and categorical features (current implementation has only regression features)
-    - add options for third dimension (currently only 2D)
-    - add temporal features
-    - add multiple kernel functions for spatial correlations (currently only squared exponential implemented)
-
-
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
 """
 
 import os
@@ -270,7 +243,6 @@ def main(fname_settings):
 	if settings.grid & (settings.nsample_from_grid > 0):
 		outfname_samples = sample_fromgrid(outfname, settings.nsample_from_grid)
 		print(f'Samples from grid saved to {outfname_samples}')
-
 
 if __name__ == '__main__':
 	# Parse command line arguments

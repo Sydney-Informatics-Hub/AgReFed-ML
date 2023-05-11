@@ -14,7 +14,6 @@ Core functionality:
 - spatial support for predictions: points, volume blocks, polygons
 - spatial uncertainty integration takes into account spatial covariances between points
 
-
 See documentation for more details.
 
 User settings, such as input/output paths and all other options, are set in the settings file 
@@ -24,10 +23,6 @@ Alternatively, the settings file can be specified as a command line argument wit
 (e.g. python featureimportance.py -s settings_featureimportance.yaml).
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
 """
 
 import numpy as np
@@ -38,7 +33,6 @@ import sys
 from scipy.special import erf
 from scipy.interpolate import interp1d, griddata
 import matplotlib.pyplot as plt
-#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
 import subprocess
 from sklearn.model_selection import train_test_split 
 # Save and load trained models and scalers:
@@ -49,7 +43,7 @@ import argparse
 from types import SimpleNamespace  
 from tqdm import tqdm
 
-# Custom local libraries:
+# AgReFed modules:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
 from preprocessing import gen_kfold
@@ -83,12 +77,12 @@ def model_blocks(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return:
     -------
-    mu_3d: prediction cube
-    std_std: corresponding cube of standard deviation
+        mu_3d: prediction cube
+        std_std: corresponding cube of standard deviation
 
     """
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -170,7 +164,6 @@ def model_blocks(settings):
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
     settings.name_features.append('z')
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -273,9 +266,6 @@ def model_blocks(settings):
                 ysel = dftest.y.values
                 xsel = dftest.x.values
                 zsel = dftest.z.values
-                #zz, yy = np.meshgrid(zrange, ysel)
-                #zz, xx = np.meshgrid(zrange, xsel)
-                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
                 points3D_pred = np.asarray([zsel, ysel, xsel]).T		
                 # Calculate mean function for prediction
 
@@ -310,7 +300,6 @@ def model_blocks(settings):
                     ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
                 else:
                     ypred_block, ystd_block = averagestats(ypred, covar)
-
 
                 # Save results in block array
                 mu_block[j] = ypred_block
@@ -396,12 +385,12 @@ def model_points(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return:
     -------
-    mu_3d: prediction cube
-    std_3d: standard deviation cube
+        mu_3d: prediction cube
+        std_3d: standard deviation cube
     """
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -472,7 +461,6 @@ def model_points(settings):
         dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
     if settings.colname_ycoord != 'y':
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -611,10 +599,9 @@ def model_points(settings):
                 ypred = y_pred_zmean
                 ystd = ynoise_pred
 
-            # Combine noise of GP and mean functiojn for prediction (already in coavraice function):
+            # Alterantive: Combine noise of GP and mean function for prediction (already in coavraice function):
             #ystd = np.sqrt(ystd**2 + ynoise_pred**2)	
 
-        
             # Save results in 3D array
             ix_end = ix_start + len(ypred)
             if not calc_mean_only:
@@ -630,18 +617,11 @@ def model_points(settings):
 
 
         # Save all data for the depth or temporal layer
-
         print("saving data and generating plots...")
-        # map coordinate array to image
-        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = 'nearest')
-        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = 'nearest')
-
-        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
         mu_img = np.zeros_like(grid_x.flatten()) * np.nan
         std_img = np.zeros_like(grid_x.flatten()) * np.nan
         xgridflat = grid_x.flatten()
         ygridflat = grid_y.flatten()
-
 
         # Calculate nearest neighbor
         xygridflat = np.asarray([xgridflat, ygridflat]).T
@@ -661,10 +641,8 @@ def model_points(settings):
         
         mu_img = mu_img.reshape(grid_x.shape)
         std_img = std_img.reshape(grid_x.shape)
-
         mu_3d[:,:,i] = mu_img.T
         std_3d[:,:,i] = std_img.T
-
 
         print("Creating plots...")
         mu_3d_trim = mu_3d[:,:,i].copy()
@@ -795,11 +773,7 @@ def model_polygons(settings):
 
     Parameters
     ----------
-    settings : settings namespace
-
-    Return
-    ------
-    None
+        settings : settings namespace
     """
 
     from preprocessing import preprocess_grid_poly
@@ -836,7 +810,6 @@ def model_polygons(settings):
     # Read in data for model training:
     dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
 
-
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != 'x':
         dftrain.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
@@ -860,7 +833,6 @@ def model_polygons(settings):
     # Select data between zmin and zmax
     dftrain = dftrain[(dftrain['z'] >= settings.zmin) & (dftrain['z'] <= settings.zmax)]
 
-    
     # check if z_diff is in dftrain
     if 'z_diff' not in dftrain.columns:
         dftrain['z_diff'] = 0.0
@@ -877,7 +849,6 @@ def model_polygons(settings):
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -1061,7 +1032,7 @@ def model_polygons(settings):
 
 
 
-######################### Main Script ############################
+######################### Main Function ############################
 def main(fname_settings):	
     """
     Main function for running soilmodel predictions.
@@ -1069,16 +1040,12 @@ def main(fname_settings):
     Input:
         fname_settings: path and filename to settings file
     """
-
     # Load settings from yaml file
     with open(fname_settings, 'r') as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)
     # Parse settings dictinary as namespace (settings are available as 
     # settings.variable_name rather than settings['variable_name'])
     settings = SimpleNamespace(**settings)
-
-    # Assume covariate grid file has same covariate names as training data
-    # settings.name_features_grid = settings.name_features.copy()
 
     # Add temporal or vertical componnet
     if settings.axistype == 'temporal':
@@ -1115,5 +1082,3 @@ if __name__ == '__main__':
 
     # Run main function
     main(args.settings)
-
-

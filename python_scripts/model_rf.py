@@ -1,14 +1,7 @@
 """
 Random Forest Model with uncertainty estimates and feature importance.
 
-
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
-
-@author: Sebastian Haan
 """
 
 import matplotlib.pyplot as plt
@@ -28,11 +21,13 @@ def pred_ints(model, X, percentile=95):
 	Predict standard deviation and CI using stats of all decision trees
 
 	INPUT
+	-----
 	model: trained sklearn model
 	X: input data matrix with shape (npoints,nfeatures)
 	percentile: percentile of confidence interval
 
 	RETURN
+	-----
 	stddev: standard deviation of prediction
 	err_down: lower bound of confidence interval
 	err_up: upper bound of confidence interval
@@ -63,17 +58,19 @@ def rf_train(X_train, y_train):
 	return rf_reg
 	
 
-
 def rf_predict(X_test, rf_model, y_test = None, outpath = None):
 	"""
 	Returns Prediction for Random Forest regression model
 
 	INPUT
-	X_text: input datpoints in shape (ndata,n_feature). THe number of features has to be the same as for the training data
+	-----
+	X_text: input datpoints in shape (ndata,n_feature). 
+			The number of features has to be the same as for the training data
 	xg_model: pre-trained XGboost regression model
 	y_test: if True, uses true y data for normalized RMSE calculation
 
 	Return
+	-----
 	ypred: predicted y values
 	ypred_std: standard deviation of prediction
 	rmse_test: RMSE of test data (if y_test is not None)
@@ -103,6 +100,7 @@ def rf_train_predict(X_train, y_train, X_test, y_test = None, outpath = None):
 	Trains Random Forest regression model with trainig data and returns prediction for test data
 
 	INPUT
+	-----
 	X_train: input data matrix with shape (npoints,nfeatures)
 	y_train: target varable with shape (npoints)
 	X_test: input data matrix with shape (npoints_test,nfeatures)
@@ -110,6 +108,7 @@ def rf_train_predict(X_train, y_train, X_test, y_test = None, outpath = None):
 	outpath: path to save plots
 
 	RETURN
+	------
 	ypred: predicted y values
 	residuals: residuals of prediction
 	"""
@@ -133,13 +132,13 @@ def test_rf(logspace = False, nsamples = 600, nfeatures = 14, ninformative = 12,
 	Test RF model on synthetic data
 
 	INPUT
+	-----
 	logspace: if True, uses logarithmic scale for features
 	nsamples: number of samples
 	nfeatures: number of features
 	ninformative: number of informative features
 	noise: noise level
 	outpath: path to save plots
-
 	"""
 	# Create simulated data
 	from sklearn.datasets import make_regression

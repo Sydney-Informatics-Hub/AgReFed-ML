@@ -1,4 +1,6 @@
-# Function to calculate weighted mean and uncertainity for uncorrelated AND correlated values
+"""
+Functions for calculating multiple statistics with uncertainties.
+"""
 
 import numpy as np
 from scipy.stats import spearmanr
@@ -30,8 +32,6 @@ def averagestats(x, var):
 	Mean: the weighted mean
 	sigma: the weighted stddev
 	"""
-
-	
 	if not hasattr(x, "__len__") | (x.size == 1):
 		return np.asarray([x]), np.asarray([np.sqrt(var)])
 	if not hasattr(var, "__len__") | (var.size == 1):
@@ -42,7 +42,7 @@ def averagestats(x, var):
 		var = np.diag(var)
 	elif var.shape == (len(x),len(x)):
 		calc_covar = True
-		#Assume correlated meausrements given by covariance sigma
+		#Assume correlated measurements given by covariance sigma
 		#print("Calculating average with covariance matrix var")
 	else:
 		print("Unsupported input for var")
@@ -58,7 +58,6 @@ def averagestats(x, var):
 	w = np.nansum(inv, axis=1) / np.nansum(inv)
 	# Scale sum of w to 1
 	w = w / np.sum(w)
-	#assert np.sum(w) = 1
 	#Calculate weighted mean
 	wmean = np.nansum(w * x)
 	#Calculate error of mean
@@ -89,9 +88,8 @@ def calc_featurecorrelations(X, feature_names, thresh = 0.9, plot = False):
 	Return
 	------
 	correlated feature array
-	index array of corralted features for input features
+	index array of correlated features for input features
 	correlation coeffcients
-
 	"""
 	names = np.asarray(feature_names)
 	corr = spearmanr(X).correlation
@@ -142,9 +140,3 @@ def calc_change(X1, X2, var_X1, var_X2, cov_X1X2 = None):
 	else:
 		sigma = np.sqrt(var_X2 + var_X1 - 2*cov_X1X2)
 	return delta, sigma
-		
-
-
-
-
-

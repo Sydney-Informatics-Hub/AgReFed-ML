@@ -23,10 +23,6 @@ Alternatively, the settings file can be specified as a command line argument wit
 (e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
 """
 
 import numpy as np
@@ -37,7 +33,6 @@ import sys
 from scipy.special import erf
 from scipy.interpolate import interp1d, griddata
 import matplotlib.pyplot as plt
-#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
 import subprocess
 from sklearn.model_selection import train_test_split 
 # Save and load trained models and scalers:
@@ -48,7 +43,7 @@ import argparse
 from types import SimpleNamespace  
 from tqdm import tqdm
 
-# Custom local libraries:
+# AgReFed modules:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
 from preprocessing import gen_kfold, preprocess_grid_poly
@@ -113,12 +108,12 @@ def model_blocks(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     """
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
         # only mean function model
@@ -188,7 +183,6 @@ def model_blocks(settings):
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
     settings.name_features.append('z')
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -277,20 +271,10 @@ def model_blocks(settings):
             dftest = dfgrid[(dfgrid.x >= block_x[j] - 0.5 * settings.xblocksize) & (dfgrid.x <= block_x[j] + 0.5 * settings.xblocksize) &
                 (dfgrid.y >= block_y[j] - 0.5 * settings.yblocksize) & (dfgrid.y <= block_y[j] + 0.5 * settings.yblocksize) &
                 (dfgrid.z >= zblock[i] - 0.5 * settings.zblocksize) & (dfgrid.z <= zblock[i] + 0.5 * settings.zblocksize)].copy()
-            if len(dftest) > 0:
-                # dfnew = dftest.copy()
-                # for z in zrange:
-                #     if z == zrange[0]:
-                #         dftest['z'] = z 
-                #     else:
-                #         dfnew['z'] = z
-                #         dftest = dftest.append(dfnew, ignore_index = True)									
+            if len(dftest) > 0:							
                 ysel = dftest.y.values
                 xsel = dftest.x.values
                 zsel = dftest.z.values
-                #zz, yy = np.meshgrid(zrange, ysel)
-                #zz, xx = np.meshgrid(zrange, xsel)
-                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
                 points3D_pred = np.asarray([zsel, ysel, xsel]).T		
                 # Calculate mean function for prediction
 
@@ -325,7 +309,6 @@ def model_blocks(settings):
                     ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
                 else:
                     ypred_block, ystd_block = averagestats(ypred, covar)
-
 
                 # Save results in block array
                 mu_block[j] = ypred_block
@@ -394,12 +377,12 @@ def model_points(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     """
 
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
@@ -411,7 +394,6 @@ def model_points(settings):
         mean_function = 'blr'
     if (settings.model_function == 'rf-gp') | (settings.model_function == 'rf'):
         mean_function = 'rf'
-
 
     # set conditional settings
     if calc_mean_only:
@@ -599,7 +581,7 @@ def model_points(settings):
                 ypred = y_pred_zmean
                 ystd = ynoise_pred
 
-            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
+            # Alternative: Combine noise of GP and mean functiojn for prediction (already in covariancce function):
             #ystd = np.sqrt(ystd**2 + ynoise_pred**2)	
         
             # Save results in 3D array
@@ -617,13 +599,7 @@ def model_points(settings):
 
 
         # Save all data for the depth or temporal layer
-
         print("saving data and generating plots...")
-        # map coordinate array to image
-        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = 'nearest')
-        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = 'nearest')
-
-        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
 
         # Calculate nearest neighbor
         coord_xy = np.asarray([coord_x, coord_y]).T
@@ -675,7 +651,6 @@ def model_points(settings):
         print('Saving results as geo tif...')
         tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
         tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
-
 
     # Clip stddev for images
     mu_3d_mean = mu_3d.mean(axis = 2).T
@@ -748,13 +723,8 @@ def model_polygons(settings):
 
     Parameters
     ----------
-    settings : settings namespace
-
-    Return
-    ------
-    None
+        settings : settings namespace
     """
-
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
         # only mean function model
         calc_mean_only = True
@@ -810,7 +780,6 @@ def model_polygons(settings):
         name_features = settings.name_features_grid, grid_crs = settings.project_crs,
         grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
 
-
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != 'x':
         dfgrid.rename(columns={settings.colname_xcoord: 'x'}, inplace = True)
@@ -818,7 +787,6 @@ def model_polygons(settings):
         dfgrid.rename(columns={settings.colname_ycoord: 'y'}, inplace = True)
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -829,7 +797,6 @@ def model_polygons(settings):
     dfgrid['x'] = dfgrid.x - bound_xmin
     dfgrid['y'] = dfgrid.y - bound_ymin
 
-	
     # Define grid coordinates:
     points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
 
@@ -886,7 +853,6 @@ def model_polygons(settings):
     dfout_poly =  dfgrid[['ibatch']].copy()
     dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
         
-
     ixrange_batch = dfgrid['ibatch'].unique()
     nbatch = len(ixrange_batch)
     print("Number of mini-batches per depth or time slice: ", nbatch)
@@ -961,7 +927,6 @@ def model_polygons(settings):
             dfout_poly.loc[dfout_poly['ibatch'] == j, 'Mean'] = ypred_poly
             dfout_poly.loc[dfout_poly['ibatch'] == j, 'Std'] = ystd_poly
 
-
         # Save all data for the slice
         dfpoly_z = dfpoly.merge(dfout_poly, how = 'left', on = 'ibatch')
         # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
@@ -985,8 +950,7 @@ def model_polygons(settings):
         plt.close('all')
 
 
-
-######################### Main Script ############################
+######################### Main Function ############################
 def main(fname_settings):	
     """
     Main function for running the script.
@@ -994,7 +958,6 @@ def main(fname_settings):
     Input:
         fname_settings: path and filename to settings file
     """
-
     # Process settings
     settings = preprocess_settings(fname_settings)
 

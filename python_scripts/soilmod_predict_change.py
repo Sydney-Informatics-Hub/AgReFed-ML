@@ -14,10 +14,6 @@ Alternatively, the settings file can be specified as a command line argument wit
 (e.g. python featureimportance.py -s settings_featureimportance.yaml).
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
 """
 
 import numpy as np
@@ -28,7 +24,6 @@ import sys
 from scipy.special import erf
 from scipy.interpolate import interp1d, griddata
 import matplotlib.pyplot as plt
-#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
 import subprocess
 from sklearn.model_selection import train_test_split 
 # Save and load trained models and scalers:
@@ -39,7 +34,7 @@ import argparse
 from types import SimpleNamespace  
 from tqdm import tqdm
 
-# Custom local libraries:
+# AgReFed modules:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats, calc_change
 from preprocessing import gen_kfold
@@ -74,12 +69,12 @@ def model_change(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: prediction maps for two dates
-    std_3d: standard deviation maps for two dates
+        mu_3d: prediction maps for two dates
+        std_3d: standard deviation maps for two dates
     """
     if (settings.model_function == 'blr') | (settings.model_function == 'rf'):
         # only mean function model
@@ -152,7 +147,6 @@ def model_change(settings):
     if settings.colname_zcoord != 'z':
         dfgrid.rename(columns={settings.colname_zcoord: 'z'}, inplace = True)
     settings.name_features.append('z')
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -254,9 +248,6 @@ def model_change(settings):
             ysel = dftest.y.values
             xsel = dftest.x.values
             zsel = dftest.z.values
-            #zz, yy = np.meshgrid(zrange, ysel)
-            #zz, xx = np.meshgrid(zrange, xsel)
-            #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
             points3D_pred = np.asarray([zsel, ysel, xsel]).T	# shape (nsamples, 3))	shape[:,0] = z
             # Calculate mean function for prediction
 
@@ -279,8 +270,6 @@ def model_change(settings):
                     ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
                         Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True) 
                     gp_train_flag = False
-                    # ypred.shape = (nsample,); nsample 0:nsamepl/2 = t1, nsample/2:nsample = t2
-                    # covar.shape = (nsample, nsample)
                 else:
                     ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, 
                         out_covar = True)
@@ -411,8 +400,7 @@ def model_change(settings):
 
 
 
-
-######################### Main Script ############################
+######################### Main Function ############################
 def main(fname_settings):	
     """
     Main function for running the script.
@@ -420,7 +408,6 @@ def main(fname_settings):
     Input:
         fname_settings: path and filename to settings file
     """
-
     # Load settings from yaml file
     with open(fname_settings, 'r') as f:
         settings = yaml.load(f, Loader=yaml.FullLoader)

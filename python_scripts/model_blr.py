@@ -2,11 +2,6 @@
 Bayesian Linear Regression with uncertainty estimates and feature importance.
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
-
 """
 import warnings
 warnings.filterwarnings('ignore') 
@@ -32,14 +27,16 @@ def scale_data(X, y, scaler = 'power'):
 	https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html
 
 	INPUT
+	-----
 	X: input data matrix with shape (npoints,nfeatures)
 	y: target variable with shape (npoints)
 	scaler: 'power' , 'standard', or 'robust'. Default is Powertransform
 
 	Return:
-	Xs
-	ys
-	fitparams: 
+	-------
+	Xs: scaled X
+	ys: scaled y
+	fitparams: fit parameters of scaler
 	"""
 	if scaler == 'power':
 		scaler_x = PowerTransformer(copy=True, method='yeo-johnson', standardize=True)
@@ -58,7 +55,6 @@ def scale_data(X, y, scaler = 'power'):
 		scaler_y = StandardScaler()
 	elif scaler == 'robust':
 		scaler_y = RobustScaler()
-	#scaler_y = MinMaxScaler(feature_range=(0.01,1.01))
 	scaler_y = scaler_y.fit(y.reshape(-1, 1)) # use .ravel() instead?
 	ys = scaler_y.transform(y.reshape(-1, 1)).flatten() # use .ravel() instead?
 
@@ -70,13 +66,15 @@ def invscale_data(X, y, scale_param):
 	Inverse Scaling data with standard scaler and multiplication of y
 
 	INPUT
+	-----
 	X: input data matrix with shape (npoints,nfeatures)
 	y: target variable with shape (npoints)
 	scale_param: (scaler_x, scaler_y)
 
 	Return:
-	Xinv
-	yinv 
+	-------
+	Xinv: inverse scaled X
+	yinv: inverse scaled y
 	"""
 	scaler_x, scaler_y = scale_param
 
@@ -90,13 +88,14 @@ def blr_train(X_train, y_train, logspace = False):
 	Trains Bayesian Linear Regresssion model 
 
 	INPUT
+	-----
 	X: input data matrix with shape (npoints,nfeatures)
 	y: target varable with shape (npoints)
 	logspace: if True, models regression in logspace
 
 	Return
+	------
 	regression model
-
 	"""
 	if logspace:
 		x = np.log(X_train)
@@ -134,9 +133,7 @@ def blr_train(X_train, y_train, logspace = False):
 	coef[sel] = coefnew 
 	reg.coef_ = coef
 
-	#blr_model = (reg.intercept_, reg.coef_)
-
-	return reg #blr_model
+	return reg
 	
 
 
@@ -145,6 +142,7 @@ def blr_predict(X_test, blr_reg, y_test = None, outpath = None, logspace = False
 	Returns Prediction for BL regression model
 
 	INPUT
+	-----
 	X_text: input datpoints in shape (ndata,n_feature). The number of features has to be the same as for the training data
 	xg_model: pre-trained XGboost regression model
 	y_test: if not None, uses true y data for normalized RMSE calculation
@@ -152,18 +150,17 @@ def blr_predict(X_test, blr_reg, y_test = None, outpath = None, logspace = False
 	logspace: if True, models regression in logspace
 
 	Return
-	ypred
-	ypred_std
-	rmse
+	------
+	ypred: predicted y values
+	ypred_std: predicted y values standard deviation
+	rmse: RMSE
 	"""
-	#intercept, coef = blr_reg
 	if logspace:
 		x = np.log(X_test)
 	else:
 		x = X_test
 	if x.shape[1] == 1:
 		x = x.reshape(-1,1)
-	#y = intercept + np.sum(x * coef, axis = 1)
 	y, ystd = blr_reg.predict(x, return_std=True)
 	if logspace:
 		ypred  = np.exp(y).flatten()
@@ -193,6 +190,7 @@ def blr_train_predict(X_train, y_train, X_test, y_test = None, outpath = None, l
 	Trains and predicts BLR model
 
 	INPUT:
+	-----
 	X_train: input data matrix with shape (npoints,nfeatures)
 	y_train: target varable with shape (npoints)
 	X_test: input data matrix with shape (npoints,nfeatures)
@@ -201,9 +199,10 @@ def blr_train_predict(X_train, y_train, X_test, y_test = None, outpath = None, l
 	logspace: if True, models regression in logspace
 
 	Return:
-	ypred
-	ypred_std
-	rmse
+	------
+	ypred: predicted y values
+	ypred_std: predicted y values standard deviation
+	rmse: RMSE
 	"""
 	Xs_train, ys_train, scale_param = scale_data(X_train, y_train)
 	scaler_x, scaler_y = scale_param
@@ -228,7 +227,6 @@ def blr_train_predict(X_train, y_train, X_test, y_test = None, outpath = None, l
 	y_pred = y_pred.flatten()
 	y_pred = ypred
 
-
 	# calculate square errors
 	if y_test is not None:
 		residual = y_pred - y_test
@@ -243,13 +241,13 @@ def test_blr(logspace = True, nsamples = 600, nfeatures = 14, ninformative = 12,
 	Test BLR model on synthetic data
 
 	INPUT:
+	-----
 	logspace: if True, models regression in logspace
 	nsamples: number of samples for training
 	nfeatures: number of features
 	ninformative: number of informative features
 	noise: noise level
 	outpath: path to save plots
-
 	"""
 	# Create simulated data
 	from sklearn.datasets import make_regression

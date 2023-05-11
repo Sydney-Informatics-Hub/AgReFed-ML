@@ -5,7 +5,6 @@ Current models implemented:
 - Gaussian Process with bayesian linear regression (BLR) as mean function and sparse spatial covariance function
 - Gaussian Process with random forest (RF) regression as mean function and sparse spatial covariance function
 
-
 Core functions:
 - train baseline models (mean functions): BLR and RF
 - hyperparameter optimisation of GP model
@@ -14,20 +13,15 @@ Core functions:
 - residual plots and analysis
 - ranking of best models
 
-See documentation for more details.
-
 User settings, such as input/output paths and all other options, are set in the settings file 
 (Default filename: settings_soilmodel_xval.yaml) 
 Alternatively, the settings file can be specified as a command line argument with: 
 '-s', or '--settings' followed by PATH-TO-FILE/FILENAME.yaml 
 (e.g. python featureimportance.py -s settings_featureimportance.yaml).
 
+See README.md for more information.
+
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
-
 """
 
 import numpy as np
@@ -60,15 +54,15 @@ def runmodel(dfsel, model_function, settings):
 
     Input:
     ------
-    dfsel: dataframe with data for training and testing (nfold column required to split data)
-    model_function: str, function to train model (supported: 'blr', 'rf', 'blr-gp', 'rf-gp', 'gp-only')
-    settings: settings for model function
+        dfsel: dataframe with data for training and testing (nfold column required to split data)
+        model_function: str, function to train model (supported: 'blr', 'rf', 'blr-gp', 'rf-gp', 'gp-only')
+        settings: settings for model function
 
     Returns:
     --------
-    dfsum: dataframe with summary results
-    stats_summary: list of summary statistics
-    outpath: path to output files
+        dfsum: dataframe with summary results
+        stats_summary: list of summary statistics
+        outpath: path to output files
     """
     outpath_root = settings.outpath
 
@@ -102,10 +96,6 @@ def runmodel(dfsel, model_function, settings):
     nrmedse_nfold = []
     meansspe_nfold = []
     r2_nfold = []
-    #rmse_fmean_nfold = []
-    #nrmse_fmean_nfold = []
-    #rmedse_fmean_nfold = []
-    #nrmedse_fmean_nfold = []
     histresidual = []
     histsspe = []
     # dataframe to hold all predictions:
@@ -118,7 +108,6 @@ def runmodel(dfsel, model_function, settings):
         # update outpath with iteration of cross-validation
         outpath_nfold = os.path.join(outpath, 'nfold_' + str(ix) + '/')
         os.makedirs(outpath_nfold, exist_ok = True)
-        # Normalize all data
 
         # split into train and test data
         dftrain = dfsel[dfsel[settings.name_ixval] != ix].copy()
@@ -140,8 +129,6 @@ def runmodel(dfsel, model_function, settings):
         else:
             Xdelta_train = np.asarray([0 * dftrain.z.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
             Xdelta_test = np.asarray([0 * dftest.z.values, dftest.y.values * 0, dftest.x.values * 0.]).T
-
-
 
         if mean_function == 'rf':
             # Estimate GP mean function with Random Forest Regressor
@@ -249,7 +236,6 @@ def runmodel(dfsel, model_function, settings):
 
             # Calculate predicted mean values
             points3D_pred = points3D_test.copy()	
-
             print('Computing GP predictions for test set nfold ', ix)
             ypred, ypred_std, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
             ypred_train, ypred_std_train, _ , _ = gp.train_predict_3D(points3D_train, points3D_train, y_train, ynoise_train, params_gp, Ynoise_pred = ynoise_train, Xdelta = Xdelta_train)
@@ -348,10 +334,6 @@ def runmodel(dfsel, model_function, settings):
         nrmedse_nfold.append(rmedse_norm)
         meansspe_nfold.append(np.mean(sspe))
         r2_nfold.append(r2)
-        #rmse_fmean_nfold.append(rmse_fmean)
-        #nrmse_fmean_nfold.append(rmse_norm_fmean)
-        #rmedse_fmean_nfold.append(rmedse_fmean)
-        #nrmedse_fmean_nfold.append(rmedse_norm_fmean)
         histsspe.append(sspe)
         histresidual.append(residual_test)
 
@@ -380,19 +362,12 @@ def runmodel(dfsel, model_function, settings):
     nrmedse_nfold = np.asarray(nrmedse_nfold)
     meansspe_nfold = np.asarray(meansspe_nfold)
     r2_nfold = np.asarray(r2_nfold)
-    #rmse_fmean_nfold = np.asarray(rmse_fmean_nfold)
-    #nrmse_fmean_nfold = np.asarray(nrmse_fmean_nfold)
-    #rmedse_fmean_nfold = np.asarray(rmedse_fmean_nfold)
-    #nrmedse_fmean_nfold = np.asarray(nrmedse_fmean_nfold)
-    #dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'Theta': meansspe_nfold, 'RMSE_fmean': rmse_fmean_nfold, 'nRMSE_fmean': nrmse_fmean_nfold, 'RMEDIANSE_fmean': rmedse_fmean_nfold, 'nRMEDIANSE_fmean': nrmedse_fmean_nfold})
     dfsum = pd.DataFrame({'nfold': range_nfold, 'RMSE': rmse_nfold, 'nRMSE': nrmse_nfold, 'RMEDIANSE': rmedse_nfold, 'nRMEDIANSE': nrmedse_nfold, 'R2': r2_nfold, 'Theta': meansspe_nfold})
     dfsum.to_csv(os.path.join(outpath, settings.name_target + 'nfold_summary_stats.csv'), index = False)
 
     print("---- X-validation Summary -----")
     print("Mean normalized RMSE: " + str(np.round(np.mean(nrmse_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_nfold),3)))
-    #print("Mean normalized RMSE of Meanfunction: " + str(np.round(np.mean(nrmse_fmean_nfold),3)) + " +/- " + str(np.round(np.std(nrmse_fmean_nfold),3)))
     print("Median normalized RMSE: " + str(np.round(np.median(nrmedse_nfold),3)))
-    #print("Median normalized RMSE of Meanfunction: " + str(np.round(np.median(nrmedse_fmean_nfold),3)))
     print("Mean R^2: " + str(np.round(np.mean(r2_nfold),3)))
     print("Mean Theta: " + str(np.round(np.mean(meansspe_nfold),3)) + " +/- " + str(np.round(np.std(meansspe_nfold),3)))
 
@@ -417,7 +392,7 @@ def runmodel(dfsel, model_function, settings):
     return dfsum, stats_summary, outpath
 
 
-######################### Main Script ############################
+######################### Main Function ############################
 
 def main(fname_settings):
     """
@@ -507,7 +482,6 @@ def main(fname_settings):
         r2_meanfunction.append(stats_summary[4])
         r2_meanfunction_std.append(stats_summary[5])
 
-
     #End of xval loop over all models
     #Print best models sorted with nRMSE
     ix_meanfunction_sorted = [nrmse_meanfunction.index(x) for x in sorted(nrmse_meanfunction)]
@@ -517,7 +491,6 @@ def main(fname_settings):
     print('')
     for ix in ix_meanfunction_sorted:
         print(f'{settings.model_functions[ix]}: Mean nRMSE = {nrmse_meanfunction[ix]} +/- {nrmse_meanfunction_std[ix]}, Mean R2= {r2_meanfunction[ix]} +/- {r2_meanfunction_std[ix]}, Theta = {theta_meanfunction[ix]} +/- {theta_meanfunction_std[ix]}')
-
 
 
 if __name__ == '__main__':

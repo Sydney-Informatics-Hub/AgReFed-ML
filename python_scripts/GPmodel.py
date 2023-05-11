@@ -12,9 +12,7 @@ to be both positive semi-definite and informative.
 For more information on sparse covariances in GPs, see the following paper: 
 "A Sparse Covariance Function for Exact Gaussian Process Inference in Large Datasets" (2009, Melkumyan and Ramos)
 
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
+Author: Sebastian Haan
 """
 from scipy import reshape, sqrt, identity
 from scipy.linalg import pinv, solve, cholesky, solve_triangular
@@ -33,7 +31,7 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
     Optimize GP hyperparmenters  of amplitude, noise, and lengthscales
     Using Global optimisation shgo with sobol sampling.
 
-    INPUT
+    INPUT:
         points3d_train: Array with training point coordinates for (z,y,x)
         Y_train: Training Data Vector
         Ynoise_train: Noise of Training data
@@ -45,7 +43,6 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
         Optimised Hyperparameters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
         Marginal Log Likelihood of best solution
     """
-
     def calc_nlogl3D(gp_params, *args):
         # Calculate marginal loglikelihood
         gp_amp = gp_params[0]
@@ -53,10 +50,8 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
         gp_length = np.asarray([gp_params[2], gp_params[3], gp_params[3]])	
         D2, Y, Ynoise, Delta = args
         if Delta is not None:
-            #kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
             kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise + np.diag(Ynoise**2)
         else:
-            #kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
             kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise
         try:
             k_chol = cholesky(kcov, lower=True)
@@ -89,7 +84,6 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
     #             sampling_method='sobol',
     #             args = (Dtrain, Y, Ynoise, Delta_00))
 
-    # Local optimisation
     """
     Some common local optimiser choices
     'BFGS': Broyden-Fletcher-Goldfarb-Shanno algorithm
@@ -110,7 +104,6 @@ def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=No
         print2(f'Optimized Hyperparameters (amplitude, y_noise_fac, lengthscale_z, lengths_xy): {res.x}')
         print('Marginal Log Likelihood: ', -res.fun)
     return res.x, -res.fun
-
 
 
 def train_predict_3D(
@@ -140,10 +133,10 @@ def train_predict_3D(
                 can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).
 
     RETURN:
-        predicted mean
-        predicted uncertainty stddev
-        marginal log likelihood
-        gp_train
+        ypred: predicted mean
+        ystd: predicted standard deviation
+        logl:  marginal log likelihood
+        gp_train: list of arrays (incl cholesky factors) that can be reused for any other prediction based on same training data
     """
     Ntrain = len(points3D_train)
 
@@ -242,9 +235,9 @@ def predict_3D(
         Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
         Xdelta: Uncertainty in X coordinates, same shape as points3d_train
 
-    RETURN:
-        predicted mean
-        predicted uncertainty stddev
+    RETURN
+        ypred: predicted mean
+        ystd: predicted uncertainty stddev
     """
     k_chol, Ky, ymean, ystd = gp_train
 
