@@ -1,0 +1,33 @@
+name: Generate and publish API docs
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9 
+
+    - name: Install dependencies
+      run: |
+        pip install pdoc3
+
+    - name: Generate API docs
+      run: |
+        pdoc --html --output-dir ./docs/APIdocs python_scripts
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/APIdocs
