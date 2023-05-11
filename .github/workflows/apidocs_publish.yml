@@ -23,6 +23,10 @@ jobs:
         pip install pdoc3
         pip install -r requirements.txt
 
+    - name: Add modules to Python path
+      run: |
+        echo "PYTHONPATH=$PYTHONPATH:$(pwd)/python_scripts" >> $GITHUB_ENV
+
     - name: Generate API docs
       run: |
         pdoc --html --output-dir ./docs/APIdocs python_scripts
