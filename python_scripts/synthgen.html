@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>python_scripts.synthgen API documentation</title>
+<meta name="description" content="Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>python_scripts.synthgen</code></h1>
+</header>
+<section id="section-intro">
+<p>Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations. </p>
+<p>The genaretd models are regression models and can be either linear, quadratic or cubic.
+Options for spatial correlations are defined by spatial correlation lengthscale and amplitude
+and implemented by using a squared exponential kernel (currently only option).</p>
+<p>User settings, such as output paths and synthetic data options, are set in the settings file
+(Default filename: settings_synthgen.yaml)
+Alternatively, the settings file can be specified as a command line argument with:
+'-s', or '&ndash;settings' followed by PATH-TO-FILE/FILENAME.yaml
+(e.g. python featureimportance.py -s settings_featureimportance.yaml).</p>
+<p>Requirements:
+- python&gt;=3.9
+- matplotlib&gt;=3.5.1
+- numpy&gt;=1.22.0
+- pandas&gt;=1.3.5
+- PyYAML&gt;=6.0
+- scikit_learn&gt;=1.0.2
+- scipy&gt;=1.7.3</p>
+<h2 id="todo">Todo</h2>
+<ul>
+<li>enable/disable return of dataframe with simulated features in function gen_synthetic()</li>
+<li>generate geopackage including coordinates and features</li>
+</ul>
+<p>Possible future add-ons:
+- add spatial correllation with different lengthscales for each dimension
+(currently implementation had one lengthscale for spatial distance in x,y plane)
+- mix of regression and categorical features (current implementation has only regression features)
+- add options for third dimension (currently only 2D)
+- add temporal features
+- add multiple kernel functions for spatial correlations (currently only squared exponential implemented)</p>
+<p>This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).</p>
+<p>Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
+<p>This open-source software is released under the AGPL-3.0 License.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Toolset for generating geospatial synthetic data-sets with multiple features, noise and spatial correlations. 
+
+The genaretd models are regression models and can be either linear, quadratic or cubic.
+Options for spatial correlations are defined by spatial correlation lengthscale and amplitude
+and implemented by using a squared exponential kernel (currently only option).
+
+User settings, such as output paths and synthetic data options, are set in the settings file 
+(Default filename: settings_synthgen.yaml) 
+Alternatively, the settings file can be specified as a command line argument with: 
+&#39;-s&#39;, or &#39;--settings&#39; followed by PATH-TO-FILE/FILENAME.yaml 
+(e.g. python featureimportance.py -s settings_featureimportance.yaml).
+
+Requirements:
+- python&gt;=3.9
+- matplotlib&gt;=3.5.1
+- numpy&gt;=1.22.0
+- pandas&gt;=1.3.5
+- PyYAML&gt;=6.0
+- scikit_learn&gt;=1.0.2
+- scipy&gt;=1.7.3
+
+
+ToDo:
+    - enable/disable return of dataframe with simulated features in function gen_synthetic()
+    - generate geopackage including coordinates and features
+
+Possible future add-ons:
+    - add spatial correllation with different lengthscales for each dimension 
+    (currently implementation had one lengthscale for spatial distance in x,y plane)
+    - mix of regression and categorical features (current implementation has only regression features)
+    - add options for third dimension (currently only 2D)
+    - add temporal features
+    - add multiple kernel functions for spatial correlations (currently only squared exponential implemented)
+
+
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
+
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
+
+This open-source software is released under the AGPL-3.0 License.
+&#34;&#34;&#34;
+
+import os
+import itertools
+import sys
+import yaml
+import shutil
+import argparse
+from types import SimpleNamespace  
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import datetime
+from sklearn.datasets import make_regression
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
+from sklearn.linear_model import BayesianRidge
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.inspection import permutation_importance
+from scipy.stats import spearmanr
+from scipy.cluster import hierarchy
+from sklearn.metrics import pairwise_distances
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+# Settings yaml file
+_fname_settings = &#39;settings_synthgen.yaml&#39;
+
+
+def create_kernel_expsquared(D, gamma):
+    &#34;&#34;&#34;
+    Create exponential squared kernel
+
+    Input: 
+        X: distance matrix
+        gamma: length scale parameter
+
+    Return:
+        kernel: kernel buffer
+    &#34;&#34;&#34;
+    return np.exp(-D**2 / (2*gamma**2))
+
+
+def gen_synthetic(n_features, n_informative_features = 10, 
+                n_samples = 200,  outpath = None, 
+                model_order = &#39;quadratic&#39;, correlated = False, 
+                noise= 0.1, corr_length = 10, corr_amp = 0.2, 
+                spatialsize = 100, center = [140,-35],  crs = &#39;EPSG:4326&#39;, grid = False):
+        &#34;&#34;&#34;
+        Generate synthetic datasets
+
+        Input:
+                n_features: number of features
+        n_informative_features: number of important features
+                n_samples: number of samples (if grid = True then n_samples corresponds to the number of points along each axis)
+        outpath: path to save simulated data    
+                model_order: order of the model, either &#39;linear&#39;, &#39;quadratic&#39;, or &#39;cubic&#39;
+                correlated: if True, the features are correlated
+                noise: random noise level [range: 0-1] that is added to the synthetic data
+        corr_length: spatial correlation length [Gaussian FWHM in meters]
+        corr_amp: spatial correlation amplitude
+        spatialsize: size in x and y direction [in meters]
+        center: [x,y] coordinates of the center of the data in meter (Easting, Northings)
+        crs: coordinate reference system [Default: &#39;EPSG:8059&#39;]
+                grid: if True, the synthetic data is generated on a regular grid, if not, it is generated on a random distribution
+
+        Return:
+                dfsim: dataframe with simulated features
+                coefsim: simulated coefficients
+                feature_names: list of feature names
+        &#34;&#34;&#34;
+        # Initiate Random generator
+        random_state = 42
+        np.random.seed(random_state)
+        if correlated:
+                n_rank = int(n_features/2)
+        else:
+                n_rank = None
+        if grid:
+                n_samples = n_samples**2
+        if crs == &#39;EPSG:4326&#39;:
+                # convert form arcsec to degrees
+                spatialsize = spatialsize/3600
+    # Generate regression features:
+        Xsim, ysim, coefsim = make_regression(n_samples=n_samples, n_features = n_features, n_informative=n_informative_features, n_targets=1, 
+                bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)    
+        # Name features:
+        feature_names = [&#34;Feature_&#34; + str(i+1) for i in range(n_features)]
+
+    # Scale features to the range [0,1]
+        coefsim /= 100
+        scaler = MinMaxScaler()
+        scaler.fit(Xsim)
+        Xsim = scaler.transform(Xsim)
+        
+    # Make model
+        if model_order == &#39;linear&#39;:
+        # make first-order model
+                ysim_new = np.dot(Xsim, coefsim)
+        elif model_order == &#39;quadratic&#39;:
+                # make quadratic model
+                Xcomb = []
+                for i, j in itertools.combinations(Xsim.T, 2):
+                        Xcomb.append(i * j) 
+                Xcomb = np.asarray(Xcomb).T
+                Xcomb = np.hstack((Xsim, Xcomb, Xsim**2))
+                coefcomb = []
+                for i, j in itertools.combinations(coefsim, 2):
+                        coefcomb.append(i * j) 
+                coefcomb = np.asarray(coefcomb)
+                coefcomb = np.hstack((coefsim, coefcomb, coefsim**2))
+                ysim_new = np.dot(Xcomb, coefcomb)
+        elif model_order == &#39;quadratic_pairwise&#39;:
+                # make quadratic model
+                Xcomb = []
+                for i, j in itertools.combinations(Xsim.T, 2):
+                        Xcomb.append(i * j) 
+                Xcomb = np.asarray(Xcomb).T
+                Xcomb = np.hstack((Xsim, Xcomb))
+                coefcomb = []
+                for i, j in itertools.combinations(coefsim, 2):
+                        coefcomb.append(i * j) 
+                coefcomb = np.asarray(coefcomb)
+                coefcomb = np.hstack((coefsim, coefcomb))
+                ysim_new = np.dot(Xcomb, coefcomb)
+    
+        # add randomly distributed cartesian points:
+        if grid:
+                x, y = np.meshgrid(np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))), np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))))
+                x = x.flatten()
+                y = y.flatten()
+        else:
+                x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_samples))
+
+        # Add spatial correlation function:
+        if (corr_amp &gt; 0) &amp; (corr_length &gt; 0):
+                dist = pairwise_distances(np.asarray([x,y]).T, metric=&#39;euclidean&#39;)
+                # Add spatial correlation with 2-dimensional distance kernel function
+                kernel = create_kernel_expsquared(dist, corr_length)
+                ycorr = np.dot(kernel, ysim_new)
+                # Normalize to unit variance
+                fscale = ycorr.mean()/ysim_new.mean()
+                ycorr = corr_amp * ycorr /fscale
+                ysim_new += ycorr - ycorr.mean()
+
+        # Add coordinate center to x,y
+        x += center[0]
+        y += center[1]
+
+        # Add random noise as normal distribution
+        ysim_new += np.random.normal(scale=noise, size = n_samples)
+        #Save data as dataframe and coefficients on file
+        if crs == &#39;EPSG:4326&#39;:
+                header = np.hstack((feature_names, &#39;Ytarget&#39;, &#39;Longitude&#39;, &#39;Latitude&#39;))
+        else:
+                header = np.hstack((feature_names, &#39;Ytarget&#39;, &#39;Easting&#39;, &#39;Northing&#39;))
+        data = np.hstack((Xsim, ysim_new.reshape(-1,1), x.reshape(-1,1), y.reshape(-1,1)))
+        df = pd.DataFrame(data, columns = header)
+        if outpath is not None:
+                os.makedirs(outpath, exist_ok=True)
+                if grid:
+                        gridname = &#39;_grid&#39;
+                else:
+                        gridname = &#39;&#39;
+                # Add datetime now to filename
+                date = datetime.datetime.now().strftime(&#34;%Y-%m-%d&#34;)
+                outfname = os.path.join(outpath, f&#39;SyntheticData_{model_order}_{n_features}nfeatures_{date}{gridname}.csv&#39;)
+                df.to_csv(outfname, index = False)
+                # Now save coefficients and other parameters in extra file:
+                df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
+                # Add columns with spatial correlation function
+                if (corr_amp &gt; 0) &amp; (corr_length &gt; 0):
+                        df_coef[&#39;corr_amp&#39;] = corr_amp
+                        df_coef[&#39;corr_length&#39;] = corr_length
+                # Add column with noise level
+                df_coef[&#39;noise&#39;] = noise
+                outfname_coef = os.path.join(outpath, f&#39;SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}{gridname}.csv&#39;)
+                df_coef.to_csv(outfname_coef, index = False)
+        return df, coefsim, feature_names, outfname
+
+
+def sample_fromgrid(fname_grid, nsample):
+        &#34;&#34;&#34;
+        Sample random points from grid of synthetic data
+
+        Parameters
+        ----------
+        fname_grid : str
+                Name of grid file
+        nsample : int
+                Number of samples to be drawn from grid
+
+        Returns
+        -------
+        filename of output file
+        &#34;&#34;&#34;
+        df_grid = pd.read_csv(fname_grid)
+        df_grid = df_grid.sample(n = nsample, random_state = 42)
+        outfname = os.path.join(Path(fname_grid).parent,f&#39;{Path(fname_grid).stem}_{nsample}sample.csv&#39;)
+        df_grid.to_csv(outfname, index = False)
+        return outfname
+
+
+def main(fname_settings):
+        &#34;&#34;&#34;
+        Main function for generating synthetic data.
+
+        Input:
+                fname_settings: path and filename to settings file
+        &#34;&#34;&#34;
+    # Load settings from yaml file
+        with open(fname_settings, &#39;r&#39;) as f:
+                settings = yaml.load(f, Loader=yaml.FullLoader)
+        # Parse settings dictionary as namespace (settings are available as 
+        # settings.variable_name rather than settings[&#39;variable_name&#39;])
+        settings = SimpleNamespace(**settings)
+
+        # Verify output directory and make it if it does not exist
+        os.makedirs(settings.outpath, exist_ok = True)
+
+    # Generate synthetic data
+        df, coefsim, feature_names, outfname = gen_synthetic(n_features = settings.n_features, 
+        n_informative_features = settings.n_informative_features, 
+        n_samples = settings.n_samples , outpath = settings.outpath, 
+        model_order = settings.model_order, correlated = settings.correlated, 
+        noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+        spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs, grid = settings.grid)
+
+        # Draw random samples from grid of synthetic data (if grid is used)
+        if settings.grid &amp; (settings.nsample_from_grid &gt; 0):
+                outfname_samples = sample_fromgrid(outfname, settings.nsample_from_grid)
+                print(f&#39;Samples from grid saved to {outfname_samples}&#39;)
+
+
+if __name__ == &#39;__main__&#39;:
+        # Parse command line arguments
+        parser = argparse.ArgumentParser(description=&#39;Calculating feature importance.&#39;)
+        parser.add_argument(&#39;-s&#39;, &#39;--settings&#39;, type=str, required=False,
+                                                help=&#39;Path and filename of settings file.&#39;,
+                                                default = _fname_settings)
+        args = parser.parse_args()
+
+        # Run main function
+        main(args.settings)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="python_scripts.synthgen.create_kernel_expsquared"><code class="name flex">
+<span>def <span class="ident">create_kernel_expsquared</span></span>(<span>D, gamma)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create exponential squared kernel</p>
+<p>Input:
+X: distance matrix
+gamma: length scale parameter</p>
+<h2 id="return">Return</h2>
+<p>kernel: kernel buffer</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_kernel_expsquared(D, gamma):
+    &#34;&#34;&#34;
+    Create exponential squared kernel
+
+    Input: 
+        X: distance matrix
+        gamma: length scale parameter
+
+    Return:
+        kernel: kernel buffer
+    &#34;&#34;&#34;
+    return np.exp(-D**2 / (2*gamma**2))</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.synthgen.gen_synthetic"><code class="name flex">
+<span>def <span class="ident">gen_synthetic</span></span>(<span>n_features, n_informative_features=10, n_samples=200, outpath=None, model_order='quadratic', correlated=False, noise=0.1, corr_length=10, corr_amp=0.2, spatialsize=100, center=[140, -35], crs='EPSG:4326', grid=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate synthetic datasets</p>
+<h2 id="input">Input</h2>
+<p>n_features: number of features
+n_informative_features: number of important features
+n_samples: number of samples (if grid = True then n_samples corresponds to the number of points along each axis)
+outpath: path to save simulated data
+<br>
+model_order: order of the model, either 'linear', 'quadratic', or 'cubic'
+correlated: if True, the features are correlated
+noise: random noise level [range: 0-1] that is added to the synthetic data
+corr_length: spatial correlation length [Gaussian FWHM in meters]
+corr_amp: spatial correlation amplitude
+spatialsize: size in x and y direction [in meters]
+center: [x,y] coordinates of the center of the data in meter (Easting, Northings)
+crs: coordinate reference system [Default: 'EPSG:8059']
+grid: if True, the synthetic data is generated on a regular grid, if not, it is generated on a random distribution</p>
+<h2 id="return">Return</h2>
+<p>dfsim: dataframe with simulated features
+coefsim: simulated coefficients
+feature_names: list of feature names</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gen_synthetic(n_features, n_informative_features = 10, 
+                n_samples = 200,  outpath = None, 
+                model_order = &#39;quadratic&#39;, correlated = False, 
+                noise= 0.1, corr_length = 10, corr_amp = 0.2, 
+                spatialsize = 100, center = [140,-35],  crs = &#39;EPSG:4326&#39;, grid = False):
+        &#34;&#34;&#34;
+        Generate synthetic datasets
+
+        Input:
+                n_features: number of features
+        n_informative_features: number of important features
+                n_samples: number of samples (if grid = True then n_samples corresponds to the number of points along each axis)
+        outpath: path to save simulated data    
+                model_order: order of the model, either &#39;linear&#39;, &#39;quadratic&#39;, or &#39;cubic&#39;
+                correlated: if True, the features are correlated
+                noise: random noise level [range: 0-1] that is added to the synthetic data
+        corr_length: spatial correlation length [Gaussian FWHM in meters]
+        corr_amp: spatial correlation amplitude
+        spatialsize: size in x and y direction [in meters]
+        center: [x,y] coordinates of the center of the data in meter (Easting, Northings)
+        crs: coordinate reference system [Default: &#39;EPSG:8059&#39;]
+                grid: if True, the synthetic data is generated on a regular grid, if not, it is generated on a random distribution
+
+        Return:
+                dfsim: dataframe with simulated features
+                coefsim: simulated coefficients
+                feature_names: list of feature names
+        &#34;&#34;&#34;
+        # Initiate Random generator
+        random_state = 42
+        np.random.seed(random_state)
+        if correlated:
+                n_rank = int(n_features/2)
+        else:
+                n_rank = None
+        if grid:
+                n_samples = n_samples**2
+        if crs == &#39;EPSG:4326&#39;:
+                # convert form arcsec to degrees
+                spatialsize = spatialsize/3600
+    # Generate regression features:
+        Xsim, ysim, coefsim = make_regression(n_samples=n_samples, n_features = n_features, n_informative=n_informative_features, n_targets=1, 
+                bias=0.5, noise=noise, shuffle=False, coef=True, random_state=random_state, effective_rank = n_rank)    
+        # Name features:
+        feature_names = [&#34;Feature_&#34; + str(i+1) for i in range(n_features)]
+
+    # Scale features to the range [0,1]
+        coefsim /= 100
+        scaler = MinMaxScaler()
+        scaler.fit(Xsim)
+        Xsim = scaler.transform(Xsim)
+        
+    # Make model
+        if model_order == &#39;linear&#39;:
+        # make first-order model
+                ysim_new = np.dot(Xsim, coefsim)
+        elif model_order == &#39;quadratic&#39;:
+                # make quadratic model
+                Xcomb = []
+                for i, j in itertools.combinations(Xsim.T, 2):
+                        Xcomb.append(i * j) 
+                Xcomb = np.asarray(Xcomb).T
+                Xcomb = np.hstack((Xsim, Xcomb, Xsim**2))
+                coefcomb = []
+                for i, j in itertools.combinations(coefsim, 2):
+                        coefcomb.append(i * j) 
+                coefcomb = np.asarray(coefcomb)
+                coefcomb = np.hstack((coefsim, coefcomb, coefsim**2))
+                ysim_new = np.dot(Xcomb, coefcomb)
+        elif model_order == &#39;quadratic_pairwise&#39;:
+                # make quadratic model
+                Xcomb = []
+                for i, j in itertools.combinations(Xsim.T, 2):
+                        Xcomb.append(i * j) 
+                Xcomb = np.asarray(Xcomb).T
+                Xcomb = np.hstack((Xsim, Xcomb))
+                coefcomb = []
+                for i, j in itertools.combinations(coefsim, 2):
+                        coefcomb.append(i * j) 
+                coefcomb = np.asarray(coefcomb)
+                coefcomb = np.hstack((coefsim, coefcomb))
+                ysim_new = np.dot(Xcomb, coefcomb)
+    
+        # add randomly distributed cartesian points:
+        if grid:
+                x, y = np.meshgrid(np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))), np.linspace(-spatialsize/2, spatialsize/2, int(np.sqrt(n_samples))))
+                x = x.flatten()
+                y = y.flatten()
+        else:
+                x, y = np.random.uniform(- 0.5 * spatialsize, + 0.5 * spatialsize, (2, n_samples))
+
+        # Add spatial correlation function:
+        if (corr_amp &gt; 0) &amp; (corr_length &gt; 0):
+                dist = pairwise_distances(np.asarray([x,y]).T, metric=&#39;euclidean&#39;)
+                # Add spatial correlation with 2-dimensional distance kernel function
+                kernel = create_kernel_expsquared(dist, corr_length)
+                ycorr = np.dot(kernel, ysim_new)
+                # Normalize to unit variance
+                fscale = ycorr.mean()/ysim_new.mean()
+                ycorr = corr_amp * ycorr /fscale
+                ysim_new += ycorr - ycorr.mean()
+
+        # Add coordinate center to x,y
+        x += center[0]
+        y += center[1]
+
+        # Add random noise as normal distribution
+        ysim_new += np.random.normal(scale=noise, size = n_samples)
+        #Save data as dataframe and coefficients on file
+        if crs == &#39;EPSG:4326&#39;:
+                header = np.hstack((feature_names, &#39;Ytarget&#39;, &#39;Longitude&#39;, &#39;Latitude&#39;))
+        else:
+                header = np.hstack((feature_names, &#39;Ytarget&#39;, &#39;Easting&#39;, &#39;Northing&#39;))
+        data = np.hstack((Xsim, ysim_new.reshape(-1,1), x.reshape(-1,1), y.reshape(-1,1)))
+        df = pd.DataFrame(data, columns = header)
+        if outpath is not None:
+                os.makedirs(outpath, exist_ok=True)
+                if grid:
+                        gridname = &#39;_grid&#39;
+                else:
+                        gridname = &#39;&#39;
+                # Add datetime now to filename
+                date = datetime.datetime.now().strftime(&#34;%Y-%m-%d&#34;)
+                outfname = os.path.join(outpath, f&#39;SyntheticData_{model_order}_{n_features}nfeatures_{date}{gridname}.csv&#39;)
+                df.to_csv(outfname, index = False)
+                # Now save coefficients and other parameters in extra file:
+                df_coef = pd.DataFrame(coefsim.reshape(-1,1).T, columns = feature_names)
+                # Add columns with spatial correlation function
+                if (corr_amp &gt; 0) &amp; (corr_length &gt; 0):
+                        df_coef[&#39;corr_amp&#39;] = corr_amp
+                        df_coef[&#39;corr_length&#39;] = corr_length
+                # Add column with noise level
+                df_coef[&#39;noise&#39;] = noise
+                outfname_coef = os.path.join(outpath, f&#39;SyntheticData_coefficients_{model_order}_{n_features}nfeatures_{date}{gridname}.csv&#39;)
+                df_coef.to_csv(outfname_coef, index = False)
+        return df, coefsim, feature_names, outfname</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.synthgen.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>fname_settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Main function for generating synthetic data.</p>
+<h2 id="input">Input</h2>
+<p>fname_settings: path and filename to settings file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(fname_settings):
+        &#34;&#34;&#34;
+        Main function for generating synthetic data.
+
+        Input:
+                fname_settings: path and filename to settings file
+        &#34;&#34;&#34;
+    # Load settings from yaml file
+        with open(fname_settings, &#39;r&#39;) as f:
+                settings = yaml.load(f, Loader=yaml.FullLoader)
+        # Parse settings dictionary as namespace (settings are available as 
+        # settings.variable_name rather than settings[&#39;variable_name&#39;])
+        settings = SimpleNamespace(**settings)
+
+        # Verify output directory and make it if it does not exist
+        os.makedirs(settings.outpath, exist_ok = True)
+
+    # Generate synthetic data
+        df, coefsim, feature_names, outfname = gen_synthetic(n_features = settings.n_features, 
+        n_informative_features = settings.n_informative_features, 
+        n_samples = settings.n_samples , outpath = settings.outpath, 
+        model_order = settings.model_order, correlated = settings.correlated, 
+        noise=settings.noise, corr_length = settings.corr_length, corr_amp = settings.corr_amp, 
+        spatialsize = settings.spatialsize, center = settings.center,  crs = settings.crs, grid = settings.grid)
+
+        # Draw random samples from grid of synthetic data (if grid is used)
+        if settings.grid &amp; (settings.nsample_from_grid &gt; 0):
+                outfname_samples = sample_fromgrid(outfname, settings.nsample_from_grid)
+                print(f&#39;Samples from grid saved to {outfname_samples}&#39;)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.synthgen.sample_fromgrid"><code class="name flex">
+<span>def <span class="ident">sample_fromgrid</span></span>(<span>fname_grid, nsample)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sample random points from grid of synthetic data</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>fname_grid</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of grid file</dd>
+<dt><strong><code>nsample</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of samples to be drawn from grid</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>filename</code> of <code>output file</code></dt>
+<dd>&nbsp;</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sample_fromgrid(fname_grid, nsample):
+        &#34;&#34;&#34;
+        Sample random points from grid of synthetic data
+
+        Parameters
+        ----------
+        fname_grid : str
+                Name of grid file
+        nsample : int
+                Number of samples to be drawn from grid
+
+        Returns
+        -------
+        filename of output file
+        &#34;&#34;&#34;
+        df_grid = pd.read_csv(fname_grid)
+        df_grid = df_grid.sample(n = nsample, random_state = 42)
+        outfname = os.path.join(Path(fname_grid).parent,f&#39;{Path(fname_grid).stem}_{nsample}sample.csv&#39;)
+        df_grid.to_csv(outfname, index = False)
+        return outfname</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="python_scripts" href="index.html">python_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="python_scripts.synthgen.create_kernel_expsquared" href="#python_scripts.synthgen.create_kernel_expsquared">create_kernel_expsquared</a></code></li>
+<li><code><a title="python_scripts.synthgen.gen_synthetic" href="#python_scripts.synthgen.gen_synthetic">gen_synthetic</a></code></li>
+<li><code><a title="python_scripts.synthgen.main" href="#python_scripts.synthgen.main">main</a></code></li>
+<li><code><a title="python_scripts.synthgen.sample_fromgrid" href="#python_scripts.synthgen.sample_fromgrid">sample_fromgrid</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

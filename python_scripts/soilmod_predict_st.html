@@ -1,0 +1,2135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>python_scripts.soilmod_predict_st API documentation</title>
+<meta name="description" content="Machine Learning model for spatial-temporal soil mapping using Gaussian Process Priors with mean functions …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>python_scripts.soilmod_predict_st</code></h1>
+</header>
+<section id="section-intro">
+<p>Machine Learning model for spatial-temporal soil mapping using Gaussian Process Priors with mean functions. </p>
+<p>Current models implemented:
+- Bayesian linear regression (BLR)
+- Random forest (RF)
+- Gaussian Process with bayesian linear regression (BLR) as mean function and sparse spatial covariance function
+- Gaussian Process with random forest (RF) regression as mean function and sparse spatial covariance function</p>
+<p>Core functionality:
+- Training of model and GP, including hyperparameter optimization
+- generating soil property predictions and uncertainties for multiple depths or time steps
+- taking into account measurement errors and uncertainties in measurement locations
+- spatial support for predictions: points, volume blocks, polygons
+- spatial uncertainty integration takes into account spatial covariances between points</p>
+<p>See documentation for more details.</p>
+<p>User settings, such as input/output paths and all other options, are set in the settings file
+(Default filename: settings_soilmodel_predict.yaml)
+Alternatively, the settings file can be specified as a command line argument with:
+'-s', or '&ndash;settings' followed by PATH-TO-FILE/FILENAME.yaml
+(e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).</p>
+<p>This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).</p>
+<p>Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
+<p>This open-source software is released under the LGPL-3.0 License.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Machine Learning model for spatial-temporal soil mapping using Gaussian Process Priors with mean functions. 
+
+Current models implemented:
+- Bayesian linear regression (BLR) 
+- Random forest (RF)
+- Gaussian Process with bayesian linear regression (BLR) as mean function and sparse spatial covariance function
+- Gaussian Process with random forest (RF) regression as mean function and sparse spatial covariance function
+
+Core functionality:
+- Training of model and GP, including hyperparameter optimization
+- generating soil property predictions and uncertainties for multiple depths or time steps
+- taking into account measurement errors and uncertainties in measurement locations
+- spatial support for predictions: points, volume blocks, polygons
+- spatial uncertainty integration takes into account spatial covariances between points
+
+See documentation for more details.
+
+User settings, such as input/output paths and all other options, are set in the settings file 
+(Default filename: settings_soilmodel_predict.yaml) 
+Alternatively, the settings file can be specified as a command line argument with: 
+&#39;-s&#39;, or &#39;--settings&#39; followed by PATH-TO-FILE/FILENAME.yaml 
+(e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).
+
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
+
+Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
+
+This open-source software is released under the LGPL-3.0 License.
+&#34;&#34;&#34;
+
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import os
+import sys
+from scipy.special import erf
+from scipy.interpolate import interp1d, griddata
+import matplotlib.pyplot as plt
+#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
+import subprocess
+from sklearn.model_selection import train_test_split 
+# Save and load trained models and scalers:
+import pickle
+import json
+import yaml
+import argparse
+from types import SimpleNamespace  
+from tqdm import tqdm
+
+# Custom local libraries:
+from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
+from sigmastats import averagestats
+from preprocessing import gen_kfold, preprocess_grid_poly
+import GPmodel as gp # GP model plus kernel functions and distance matrix calculation
+import model_blr as blr
+import model_rf as rf
+
+# Settings yaml file
+_fname_settings = &#39;settings_soilmod_predict.yaml&#39;
+
+# flag to show plot figures interactively or not (True/False)
+_show = False
+
+### Some colormap settings (Default settings)
+# Choose colormap, default Matplotlib colormaps:
+# add ending &#39;_r&#39; at end for inverse of standard color 
+# For prediction maps (default &#39;viridis&#39;):
+colormap_pred = &#39;viridis&#39; 
+# For uncertainity prediction maps (default &#39;viridis&#39;)
+colormap_pred_std =  &#39;viridis&#39;
+# For probability exceeding treshold maps (default &#39;coolwarm&#39;)
+colormap_prob = &#39;coolwarm&#39;
+# Or use seaborn colormaps 
+
+
+def preprocess_settings(fname_settings):
+    &#34;&#34;&#34;
+    Preprocess settings.
+
+    Input:
+        fname_settings: path and filename to settings file
+
+    Returns:
+        settings: settings Namespace object
+
+    &#34;&#34;&#34;
+    # Load settings from yaml file
+    with open(fname_settings, &#39;r&#39;) as f:
+        settings = yaml.load(f, Loader=yaml.FullLoader)
+    # Parse settings dictinary as namespace (settings are available as 
+    # settings.variable_name rather than settings[&#39;variable_name&#39;])
+    settings = SimpleNamespace(**settings)
+
+    # Assume covariate grid file has same covariate names as training data
+    settings.name_features_grid = settings.name_features.copy()
+
+    settings.colname_zcoord = settings.colname_tcoord
+    settings.zmin = settings.tmin
+    settings.zmax =  settings.tmax
+    settings.list_z_pred = settings.list_t_pred 
+    settings.zblocksize = settings.tblocksize
+
+    return settings
+
+
+######### Volume Block prediction #########
+def model_blocks(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for block sizes.
+    The predicted uncertainty takes into account spatial covariance within each block
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
+    &#34;&#34;&#34;
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # set blocksizes
+    settings.xblocksize = settings.yblocksize = settings.xyblocksize
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    Nvoxel_per_block = settings.xblocksize * settings.yblocksize * settings.zblocksize / (settings.xvoxsize * settings.yvoxsize * settings.zvoxsize)
+    print(&#34;Number of evaluation points per block: &#34;, Nvoxel_per_block)
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Volume&#39;)
+    print2(f&#39;x,y,z blocksize: {settings.xyblocksize,settings.xyblocksize, settings.zblocksize}&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # read in covariate grid:
+    dfgrid = pd.read_csv(os.path.join(settings.inpath, settings.gridname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+        
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or temporal slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    xblock = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xblocksize) + 0.5 * settings.xblocksize
+    yblock = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yblocksize) + 0.5 * settings.yblocksize
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zblock = np.asarray(settings.list_z_pred)
+    else:
+        zblock = np.arange(0.5 * settings.zblocksize, settings.zmax + 0.5 * settings.zblocksize, settings.zblocksize)
+    block_x, block_y = np.meshgrid(xblock, yblock)
+    block_shape = block_x.shape
+    block_x = block_x.flatten()
+    block_y = block_y.flatten()
+    mu_3d = np.zeros((len(xblock), len(yblock), len(zblock)))
+    std_3d = np.zeros((len(xblock), len(yblock), len(zblock)))
+    mu_block = np.zeros_like(block_x)
+    std_block = np.zeros_like(block_x)
+    # Set initial optimisation of hyperparamter to True
+    gp_train_flag = True
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+
+    for i in range(len(zblock)):
+        # predict for each temporal slice
+        print(&#39;Computing slice at date: &#39; + str(np.round(zblock[i])))
+        #zrange = np.arange(zblock[i] - 0.5 * settings.zblocksize, zblock[i] + 0.5 * settings.zblocksize + settings.zvoxsize, settings.zvoxsize)
+        ix_start = 0
+        # Progressbar
+        for j in tqdm(range(len(block_x.flatten()))):
+            dftest = dfgrid[(dfgrid.x &gt;= block_x[j] - 0.5 * settings.xblocksize) &amp; (dfgrid.x &lt;= block_x[j] + 0.5 * settings.xblocksize) &amp;
+                (dfgrid.y &gt;= block_y[j] - 0.5 * settings.yblocksize) &amp; (dfgrid.y &lt;= block_y[j] + 0.5 * settings.yblocksize) &amp;
+                (dfgrid.z &gt;= zblock[i] - 0.5 * settings.zblocksize) &amp; (dfgrid.z &lt;= zblock[i] + 0.5 * settings.zblocksize)].copy()
+            if len(dftest) &gt; 0:
+                # dfnew = dftest.copy()
+                # for z in zrange:
+                #     if z == zrange[0]:
+                #         dftest[&#39;z&#39;] = z 
+                #     else:
+                #         dfnew[&#39;z&#39;] = z
+                #         dftest = dftest.append(dfnew, ignore_index = True)                                                                    
+                ysel = dftest.y.values
+                xsel = dftest.x.values
+                zsel = dftest.z.values
+                #zz, yy = np.meshgrid(zrange, ysel)
+                #zz, xx = np.meshgrid(zrange, xsel)
+                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
+                points3D_pred = np.asarray([zsel, ysel, xsel]).T                
+                # Calculate mean function for prediction
+
+                if mean_function == &#39;rf&#39;:
+                    X_test = dftest[settings.name_features].values
+                    ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                    y_pred_zmean = ypred_rf
+                elif mean_function == &#39;blr&#39;:
+                    X_test = dftest[settings.name_features].values
+                    Xs_test = scaler_x.transform(X_test)
+                    ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                    ypred_blr = ypred_blr.flatten()
+                    y_pred_zmean = ypred_blr
+                    ynoise_pred = ypred_std_blr
+
+                # GP Prediction:
+                if not calc_mean_only:
+                    if gp_train_flag:
+                        # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                        ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                            Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True) 
+                        gp_train_flag = False
+                    else:
+                        ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, 
+                            out_covar = True)
+                else:
+                    ypred = y_pred_zmean
+                    ystd = ynoise_pred
+
+                #### Need to calculate weighted average from covar and ypred
+                if not calc_mean_only:
+                    ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
+                else:
+                    ypred_block, ystd_block = averagestats(ypred, covar)
+
+
+                # Save results in block array
+                mu_block[j] = ypred_block
+                std_block[j] = ystd_block
+
+            # Set blocks where there is no data to nan
+            else:
+                mu_block[j] = np.nan
+                std_block[j] = np.nan
+
+        # map coordinate array to image and save in 3D
+        mu_img = mu_block.reshape(block_shape)
+        std_img = std_block.reshape(block_shape)
+
+        np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.txt&#39;), np.round(mu_img.flatten(),3), delimiter=&#39;,&#39;)
+        np.savetxt(os.path.join(outpath_fig, &#39;Pred_Stddev_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.txt&#39;), np.round(std_img.flatten(),3), delimiter=&#39;,&#39;)
+        if i == 0:
+            # Create coordinate array of x and y
+            np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_coord_x.txt&#39;), block_x, delimiter=&#39;,&#39;)
+            np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_coord_y.txt&#39;), block_y, delimiter=&#39;,&#39;)
+
+        mu_3d[:,:,i] = mu_img.T
+        std_3d[:,:,i] = std_img.T
+
+        # Create Result Plots
+        mu_3d_trim = mu_3d[:,:,i].copy()
+        mu_3d_trim_max = np.percentile(mu_3d_trim[~np.isnan(mu_3d_trim)], 99.5)
+        mu_3d_trim[mu_3d_trim &gt; mu_3d_trim_max] = mu_3d_trim_max
+        mu_3d_trim[mu_3d_trim &lt; 0] = 0
+        plt.figure(figsize = (8,8))
+        plt.subplot(2, 1, 1)
+        plt.imshow(mu_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+        plt.title(settings.name_target + &#39; Date &#39; + str(np.round(zblock[i])))
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.colorbar()
+        plt.subplot(2, 1, 2)
+        std_3d_trim = std_3d[:,:,i].copy()
+        std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
+        std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+        plt.imshow(std_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+        plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Date &#39; + str(np.round(zblock[i])))
+        plt.colorbar()
+        plt.xlabel(&#39;Easting [meters]&#39;)
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()
+        plt.close(&#39;all&#39;)   
+
+        #Save also as geotiff
+        outfname_tif = os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.tif&#39;)
+        outfname_tif_std = os.path.join(outpath_fig, &#39;Std_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.tif&#39;)
+        #print(&#39;Saving results as geo tif...&#39;)
+        tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif, settings.project_crs)
+        tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif_std, settings.project_crs)
+
+    return mu_3d, std_3d
+
+
+######### Point prediction #########
+def model_points(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for raster points.
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
+    &#34;&#34;&#34;
+
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Point&#39;)
+    print2(f&#39;x,y,z voxsize: {settings.xyvoxsize,settings.xyvoxsize, settings.zvoxsize}&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+ 
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # read in covariate grid:
+    dfgrid = pd.read_csv(os.path.join(settings.inpath, settings.gridname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+    bound_zmin = dfgrid.z.min() - 0.5* settings.zvoxsize
+    bound_zmax = dfgrid.z.max() + 0.5* settings.zvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+    #dfgrid[&#39;z&#39;] = dfgrid.z - bound_zmin
+
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0, bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or temporal slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    # Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
+    batchsize = 500
+
+    dfgrid = dfgrid.reset_index()
+
+    xspace = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xvoxsize)
+    yspace = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yvoxsize)
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zspace = np.asarray(settings.list_z_pred)
+    else:
+        zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
+        print(&#39;Calculating for time slices at: &#39;, zspace)
+    grid_x, grid_y = np.meshgrid(xspace, yspace)
+    xgridflat = grid_x.flatten()
+    ygridflat = grid_y.flatten()
+    xygridflat = np.asarray([xgridflat, ygridflat]).T
+    mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+    std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+    gp_train_flag = 0 # need to be computed only first time
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+    for i in range(len(zspace)):
+        # predict for each depth  or temporal slice
+        print(&#39;Computing slices at time: &#39; + str(np.round(zspace[i])))
+        dfsel = dfgrid[dfgrid.z == zspace[i]].copy()
+        dfsel = dfsel.reset_index()
+
+        dfsel[&#39;ibatch&#39;] = dfsel.index // batchsize
+        #nbatch = dfgrid[&#39;ibatch&#39;].max()
+        ixrange_batch = dfsel[&#39;ibatch&#39;].unique()
+        nbatch = len(ixrange_batch)
+        print(&#34;Number of mini-batches per slice: &#34;, nbatch)
+        mu_res = np.zeros(len(dfsel))
+        std_res = np.zeros(len(dfsel))
+        coord_x = np.zeros(len(dfsel))
+        coord_y = np.zeros(len(dfsel))
+        ix = np.arange(len(dfsel))
+
+        ix_start = 0
+        for j in tqdm(ixrange_batch):
+            dftest = dfsel[dfsel.ibatch == j].copy()
+            #print(f&#39;length dftest of batch {j}:  {len(dftest)}&#39;)
+            ysel = dftest.y.values
+            xsel = dftest.x.values
+            zsel = dftest.z.values
+            points3D_pred = np.asarray([zsel, ysel, xsel]).T
+            
+            # Calculate mean function for prediction
+            if mean_function == &#39;rf&#39;:
+                X_test = dftest[settings.name_features].values
+                ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                y_pred_zmean = ypred_rf
+            elif mean_function == &#39;blr&#39;:
+                X_test = dftest[settings.name_features].values
+                Xs_test = scaler_x.transform(X_test)
+                ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                y_pred_zmean = ypred_blr
+                ynoise_pred = ypred_std_blr
+
+            # GP Prediction:
+            if not calc_mean_only:
+                if gp_train_flag == 0:
+                    # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                    ypred, ystd, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                        Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                    gp_train_flag = 1
+                else:
+                    ypred, ystd = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+            else:
+                ypred = y_pred_zmean
+                ystd = ynoise_pred
+
+            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
+            #ystd = np.sqrt(ystd**2 + ynoise_pred**2)   
+        
+            # Save results in 3D array
+            ix_end = ix_start + len(ypred)
+            if not calc_mean_only:
+                mu_res[ix_start : ix_end] = ypred + y_pred_zmean #.reshape(len(xspace), len(yspace))
+                std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+            else: 
+                mu_res[ix_start : ix_end] = ypred #.reshape(len(xspace), len(yspace))
+                std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+            #if i ==0:
+            coord_x[ix_start : ix_end] = np.round(dftest.x.values,2)
+            coord_y[ix_start : ix_end] = np.round(dftest.y.values,2)
+            ix_start = ix_end
+
+
+        # Save all data for the depth or temporal layer
+
+        print(&#34;saving data and generating plots...&#34;)
+        # map coordinate array to image
+        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = &#39;nearest&#39;)
+        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = &#39;nearest&#39;)
+
+        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
+
+        # Calculate nearest neighbor
+        coord_xy = np.asarray([coord_x, coord_y]).T
+        mu_img, std_img = align_nearest_neighbor(xygridflat, coord_xy, [mu_res, std_res], max_dist = 0.5 * settings.xvoxsize)
+
+        mu_img = mu_img.reshape(grid_x.shape)
+        std_img = std_img.reshape(grid_x.shape)
+
+        mu_3d[:,:,i] = mu_img.T
+        std_3d[:,:,i] = std_img.T
+
+        # Create Result Plots
+        print(&#34;Creating plots...&#34;)
+        mu_3d_trim = mu_3d[:,:,i].copy()
+        mu_3d_trim_max = np.percentile(mu_3d_trim[~np.isnan(mu_3d_trim)], 99.5)
+        mu_3d_trim[mu_3d_trim &gt; mu_3d_trim_max] = mu_3d_trim_max
+        mu_3d_trim[mu_3d_trim &lt; 0] = 0
+        plt.figure(figsize = (8,8))
+        plt.subplot(2, 1, 1)
+        #print(&#39;Shape mu_3d_trim.T: &#39;, mu_3d_trim.T.shape)
+        plt.imshow(mu_3d_trim.T, origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+        #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+        plt.title(settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.colorbar()
+        plt.subplot(2, 1, 2)
+        std_3d_trim = std_3d[:,:,i].copy()
+        std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
+        std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+        std_3d_trim[std_3d_trim &lt; 0] = 0
+        plt.imshow(std_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+        #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+        plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        plt.colorbar()
+        plt.xlabel(&#39;Easting [meters]&#39;)
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()
+        plt.close(&#39;all&#39;)
+
+        #Save also as geotiff
+        outfname_tif = os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.tif&#39;)
+        outfname_tif_std = os.path.join(outpath_fig, &#39;Std_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.tif&#39;)
+
+        print(&#39;Saving results as geo tif...&#39;)
+        tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
+        tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
+
+
+    # Clip stddev for images
+    mu_3d_mean = mu_3d.mean(axis = 2).T
+    mu_3d_mean_max = np.percentile(mu_3d_mean,99.5)
+    mu_3d_mean_trim = mu_3d_mean.copy()
+    mu_3d_mean_trim[mu_3d_mean &gt; mu_3d_mean_max] = mu_3d_mean_max
+    mu_3d_mean_trim[mu_3d_mean &lt; 0] = 0
+    std_3d_trim = std_3d.copy()
+    std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)],99.5)
+    std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+    std_3d_trim[std_3d_trim &lt; 0] = 0
+
+    # Create Result Plot of mean with locations
+    plt.figure(figsize = (8,8))
+    plt.subplot(2, 1, 1)
+    plt.imshow(mu_3d_mean_trim,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(settings.name_target + &#39; Mean&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+
+    plt.subplot(2, 1, 2)
+    plt.imshow(std_3d_trim.mean(axis = 2).T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Mean&#39;)
+    plt.xlabel(&#39;Easting [meters]&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_mean.png&#39;), dpi=300)
+    if _show:
+        plt.show()
+    plt.close(&#39;all&#39;)
+
+    # Create Result Plot with data colors
+    plt.figure(figsize = (8,8))
+    plt.subplot(2, 1, 1)
+    plt.imshow(mu_3d_mean_trim,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], c = dftrain[settings.name_target].values, alpha =0.3, edgecolors = &#39;k&#39;)
+
+    plt.title(settings.name_target + &#39; Time Mean&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.subplot(2, 1, 2)
+    plt.imshow(std_3d_trim.mean(axis = 2).T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+    #plt.imshow(np.sqrt((std_3d.mean(axis = 2).T)**2 + params_gp[1]**2 *  ytrain.std()**2),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Mean&#39;)
+    plt.xlabel(&#39;Easting [meters]&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_mean2.png&#39;), dpi=300)
+    if _show:
+        plt.show()
+    plt.close(&#39;all&#39;)
+
+    return mu_3d, std_3d
+
+
+######### Polygon prediction #########
+def model_polygons(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for location points.
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    None
+    &#34;&#34;&#34;
+
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Polygon&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+    
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # Read in polygon data:
+    dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
+        name_features = settings.name_features_grid, grid_crs = settings.project_crs,
+        grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
+
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+
+        
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    if &#39;z_diff&#39; in list(dftrain):
+        Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+    else:
+        Xdelta_train = np.asarray([0 * dftrain.z.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or time slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions/&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    dfout_poly =  dfgrid[[&#39;ibatch&#39;]].copy()
+    dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
+        
+
+    ixrange_batch = dfgrid[&#39;ibatch&#39;].unique()
+    nbatch = len(ixrange_batch)
+    print(&#34;Number of mini-batches per depth or time slice: &#34;, nbatch)
+    mu_res = np.zeros(len(dfgrid))
+    std_res = np.zeros(len(dfgrid))
+    coord_x = np.zeros(len(dfgrid))
+    coord_y = np.zeros(len(dfgrid))
+    ix = np.arange(len(dfgrid))
+
+    xspace = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xvoxsize)
+    yspace = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yvoxsize)
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zspace = np.asarray(settings.list_z_pred)
+    else:
+        zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
+        print(&#39;Calculating for time slices at: &#39;, zspace)
+    grid_x, grid_y = np.meshgrid(xspace, yspace)
+    gp_train_flag = 0 # need to be computed only first time
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+    for i in range(len(zspace)):
+        # predict for each depth  or time slice
+        print(&#39;Computing slices at time: &#39; + str(np.round(zspace[i])))
+        ix_start = 0
+        dfout_poly[&#39;Mean&#39;] = np.nan
+        dfout_poly[&#39;Std&#39;] = np.nan
+        for j in tqdm(ixrange_batch):
+            dftest = dfgrid[dfgrid.ibatch == j].copy()
+            #Set maximum number of evaluation points to 500 
+            while len(dftest) &gt; 500:
+                # if larger than 500, select only subset of sample points that are regular spaced
+                # select only every second value, this reduces size to 1/2
+                dftest = dftest.sort_values([&#39;y&#39;, &#39;x&#39;], ascending = [True, True])
+                dftest = dftest.iloc[::2, :]
+            dftest[&#39;z&#39;] = zspace[i]
+            ysel = dftest.y.values
+            xsel = dftest.x.values
+            zsel = dftest.z.values
+            points3D_pred = np.asarray([zsel, ysel, xsel]).T
+            
+            # Calculate mean function for prediction
+            if mean_function == &#39;rf&#39;:
+                X_test = dftest[settings.name_features].values
+                ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                y_pred_zmean = ypred_rf
+            elif mean_function == &#39;blr&#39;:
+                X_test = dftest[settings.name_features].values
+                Xs_test = scaler_x.transform(X_test)
+                ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                y_pred_zmean = ypred_blr
+                ynoise_pred = ypred_std_blr
+
+            # GP Prediction:
+            if not calc_mean_only:
+                if gp_train_flag == 0:
+                    # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                    ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                        Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True)
+                    gp_train_flag = 1
+                else:
+                    ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
+                        Xdelta = Xdelta_train, out_covar = True)
+            else:
+                ypred = y_pred_zmean
+                ystd = ynoise_pred
+
+            # Now calculate mean and standard deviation for polygon area
+            # Need to calculate weighted average from covar and ypred
+            if not calc_mean_only:
+                ypred_poly, ystd_poly = averagestats(ypred + y_pred_zmean, covar)
+            else:
+                ypred_poly, ystd_poly = averagestats(ypred, covar)
+            dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Mean&#39;] = ypred_poly
+            dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Std&#39;] = ystd_poly
+
+
+        # Save all data for the slice
+        dfpoly_z = dfpoly.merge(dfout_poly, how = &#39;left&#39;, on = &#39;ibatch&#39;)
+        # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
+        dfpoly_z.to_file(os.path.join(outpath_fig, &#39;Prediction_poly_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.gpkg&#39;), driver=&#39;GPKG&#39;)
+        # make some plots with geopandas
+        print(&#34;Plotting polygon map ...&#34;)
+        fig, (ax1, ax2) = plt.subplots(ncols = 1, nrows=2, sharex=True, sharey=True, figsize = (10,10))
+        dfpoly_z.plot(column=&#39;Mean&#39;, legend=True, ax = ax1, cmap = colormap_pred)#, legend_kwds={&#39;label&#39;: &#34;&#34;,&#39;orientation&#39;: &#34;vertical&#34;}))
+        ax1.title.set_text(&#39;Mean &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        ax1.set_ylabel(&#39;Northing [meters]&#39;)
+        #plt.xlabel(&#39;Easting [meters]&#39;)
+        #plt.savefig(os.path.join(outpath_fig, &#39;Pred_Mean_Poly_&#39; + name_target + &#39;_z&#39; + str(&#34;{:03d}&#34;.format(int(np.round(100 * zspace[i])))) + &#39;cm.png&#39;), dpi=300)
+        dfpoly_z.plot(column=&#39;Std&#39;, legend=True,  ax = ax2, cmap = colormap_pred_std)#, legend_kwds={&#39;label&#39;: &#34;&#34;,&#39;orientation&#39;: &#34;vertical&#34;}))
+        ax2.title.set_text(&#39;Std Dev &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        ax2.set_xlabel(&#39;Easting [meters]&#39;)
+        ax2.set_ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_Poly_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()  
+        plt.close(&#39;all&#39;)
+
+
+
+######################### Main Script ############################
+def main(fname_settings):       
+    &#34;&#34;&#34;
+    Main function for running the script.
+
+    Input:
+        fname_settings: path and filename to settings file
+    &#34;&#34;&#34;
+
+    # Process settings
+    settings = preprocess_settings(fname_settings)
+
+    if settings.integrate_polygon:
+        model_polygons(settings)
+    else:
+        if settings.integrate_block:
+            mu_3d, std_3d = model_blocks(settings)
+        else:
+            mu_3d, std_3d = model_points(settings)
+        print(&#34;Prediction Mean, Median, Std, 25Perc, 75Perc:&#34;, np.round([np.nanmean(mu_3d), np.median(mu_3d[~np.isnan(mu_3d)]), 
+            np.nanstd(mu_3d), np.percentile(mu_3d[~np.isnan(mu_3d)],25), np.percentile(mu_3d[~np.isnan(mu_3d)],75)] 
+            ,3))
+        print(&#34;Uncertainty Mean, Median, Std, 25Perc, 75Perc:&#34;, np.round([np.nanmean(std_3d), np.median(std_3d[~np.isnan(std_3d)]),
+            np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
+    print(&#39;&#39;)
+    print(&#39;Prediction finished&#39;)
+    print(f&#39;All results are saved in output directory {settings.outpath}&#39;)
+
+
+if __name__ == &#39;__main__&#39;:
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description=&#39;Prediction model for machine learning on soil data.&#39;)
+    parser.add_argument(&#39;-s&#39;, &#39;--settings&#39;, type=str, required=False,
+                        help=&#39;Path and filename of settings file.&#39;,
+                        default = _fname_settings)
+    args = parser.parse_args()
+
+    # Run main function
+    main(args.settings)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="python_scripts.soilmod_predict_st.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>fname_settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Main function for running the script.</p>
+<h2 id="input">Input</h2>
+<p>fname_settings: path and filename to settings file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(fname_settings):       
+    &#34;&#34;&#34;
+    Main function for running the script.
+
+    Input:
+        fname_settings: path and filename to settings file
+    &#34;&#34;&#34;
+
+    # Process settings
+    settings = preprocess_settings(fname_settings)
+
+    if settings.integrate_polygon:
+        model_polygons(settings)
+    else:
+        if settings.integrate_block:
+            mu_3d, std_3d = model_blocks(settings)
+        else:
+            mu_3d, std_3d = model_points(settings)
+        print(&#34;Prediction Mean, Median, Std, 25Perc, 75Perc:&#34;, np.round([np.nanmean(mu_3d), np.median(mu_3d[~np.isnan(mu_3d)]), 
+            np.nanstd(mu_3d), np.percentile(mu_3d[~np.isnan(mu_3d)],25), np.percentile(mu_3d[~np.isnan(mu_3d)],75)] 
+            ,3))
+        print(&#34;Uncertainty Mean, Median, Std, 25Perc, 75Perc:&#34;, np.round([np.nanmean(std_3d), np.median(std_3d[~np.isnan(std_3d)]),
+            np.nanstd(std_3d), np.percentile(std_3d[~np.isnan(std_3d)],25), np.percentile(std_3d[~np.isnan(std_3d)],75)],3))
+    print(&#39;&#39;)
+    print(&#39;Prediction finished&#39;)
+    print(f&#39;All results are saved in output directory {settings.outpath}&#39;)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.soilmod_predict_st.model_blocks"><code class="name flex">
+<span>def <span class="ident">model_blocks</span></span>(<span>settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Predict soil properties and uncertainties for block sizes.
+The predicted uncertainty takes into account spatial covariance within each block
+All output is saved in output directory as specified in settings.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>mu_3d: 3D stack of prediction rasters
+std_3d:3D stack of prediction uncertainty rasters</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def model_blocks(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for block sizes.
+    The predicted uncertainty takes into account spatial covariance within each block
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
+    &#34;&#34;&#34;
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # set blocksizes
+    settings.xblocksize = settings.yblocksize = settings.xyblocksize
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    Nvoxel_per_block = settings.xblocksize * settings.yblocksize * settings.zblocksize / (settings.xvoxsize * settings.yvoxsize * settings.zvoxsize)
+    print(&#34;Number of evaluation points per block: &#34;, Nvoxel_per_block)
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Volume&#39;)
+    print2(f&#39;x,y,z blocksize: {settings.xyblocksize,settings.xyblocksize, settings.zblocksize}&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # read in covariate grid:
+    dfgrid = pd.read_csv(os.path.join(settings.inpath, settings.gridname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+        
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or temporal slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    xblock = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xblocksize) + 0.5 * settings.xblocksize
+    yblock = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yblocksize) + 0.5 * settings.yblocksize
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zblock = np.asarray(settings.list_z_pred)
+    else:
+        zblock = np.arange(0.5 * settings.zblocksize, settings.zmax + 0.5 * settings.zblocksize, settings.zblocksize)
+    block_x, block_y = np.meshgrid(xblock, yblock)
+    block_shape = block_x.shape
+    block_x = block_x.flatten()
+    block_y = block_y.flatten()
+    mu_3d = np.zeros((len(xblock), len(yblock), len(zblock)))
+    std_3d = np.zeros((len(xblock), len(yblock), len(zblock)))
+    mu_block = np.zeros_like(block_x)
+    std_block = np.zeros_like(block_x)
+    # Set initial optimisation of hyperparamter to True
+    gp_train_flag = True
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+
+    for i in range(len(zblock)):
+        # predict for each temporal slice
+        print(&#39;Computing slice at date: &#39; + str(np.round(zblock[i])))
+        #zrange = np.arange(zblock[i] - 0.5 * settings.zblocksize, zblock[i] + 0.5 * settings.zblocksize + settings.zvoxsize, settings.zvoxsize)
+        ix_start = 0
+        # Progressbar
+        for j in tqdm(range(len(block_x.flatten()))):
+            dftest = dfgrid[(dfgrid.x &gt;= block_x[j] - 0.5 * settings.xblocksize) &amp; (dfgrid.x &lt;= block_x[j] + 0.5 * settings.xblocksize) &amp;
+                (dfgrid.y &gt;= block_y[j] - 0.5 * settings.yblocksize) &amp; (dfgrid.y &lt;= block_y[j] + 0.5 * settings.yblocksize) &amp;
+                (dfgrid.z &gt;= zblock[i] - 0.5 * settings.zblocksize) &amp; (dfgrid.z &lt;= zblock[i] + 0.5 * settings.zblocksize)].copy()
+            if len(dftest) &gt; 0:
+                # dfnew = dftest.copy()
+                # for z in zrange:
+                #     if z == zrange[0]:
+                #         dftest[&#39;z&#39;] = z 
+                #     else:
+                #         dfnew[&#39;z&#39;] = z
+                #         dftest = dftest.append(dfnew, ignore_index = True)                                                                    
+                ysel = dftest.y.values
+                xsel = dftest.x.values
+                zsel = dftest.z.values
+                #zz, yy = np.meshgrid(zrange, ysel)
+                #zz, xx = np.meshgrid(zrange, xsel)
+                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
+                points3D_pred = np.asarray([zsel, ysel, xsel]).T                
+                # Calculate mean function for prediction
+
+                if mean_function == &#39;rf&#39;:
+                    X_test = dftest[settings.name_features].values
+                    ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                    y_pred_zmean = ypred_rf
+                elif mean_function == &#39;blr&#39;:
+                    X_test = dftest[settings.name_features].values
+                    Xs_test = scaler_x.transform(X_test)
+                    ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                    ypred_blr = ypred_blr.flatten()
+                    y_pred_zmean = ypred_blr
+                    ynoise_pred = ypred_std_blr
+
+                # GP Prediction:
+                if not calc_mean_only:
+                    if gp_train_flag:
+                        # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                        ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                            Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True) 
+                        gp_train_flag = False
+                    else:
+                        ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, 
+                            out_covar = True)
+                else:
+                    ypred = y_pred_zmean
+                    ystd = ynoise_pred
+
+                #### Need to calculate weighted average from covar and ypred
+                if not calc_mean_only:
+                    ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
+                else:
+                    ypred_block, ystd_block = averagestats(ypred, covar)
+
+
+                # Save results in block array
+                mu_block[j] = ypred_block
+                std_block[j] = ystd_block
+
+            # Set blocks where there is no data to nan
+            else:
+                mu_block[j] = np.nan
+                std_block[j] = np.nan
+
+        # map coordinate array to image and save in 3D
+        mu_img = mu_block.reshape(block_shape)
+        std_img = std_block.reshape(block_shape)
+
+        np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.txt&#39;), np.round(mu_img.flatten(),3), delimiter=&#39;,&#39;)
+        np.savetxt(os.path.join(outpath_fig, &#39;Pred_Stddev_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.txt&#39;), np.round(std_img.flatten(),3), delimiter=&#39;,&#39;)
+        if i == 0:
+            # Create coordinate array of x and y
+            np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_coord_x.txt&#39;), block_x, delimiter=&#39;,&#39;)
+            np.savetxt(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_coord_y.txt&#39;), block_y, delimiter=&#39;,&#39;)
+
+        mu_3d[:,:,i] = mu_img.T
+        std_3d[:,:,i] = std_img.T
+
+        # Create Result Plots
+        mu_3d_trim = mu_3d[:,:,i].copy()
+        mu_3d_trim_max = np.percentile(mu_3d_trim[~np.isnan(mu_3d_trim)], 99.5)
+        mu_3d_trim[mu_3d_trim &gt; mu_3d_trim_max] = mu_3d_trim_max
+        mu_3d_trim[mu_3d_trim &lt; 0] = 0
+        plt.figure(figsize = (8,8))
+        plt.subplot(2, 1, 1)
+        plt.imshow(mu_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+        plt.title(settings.name_target + &#39; Date &#39; + str(np.round(zblock[i])))
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.colorbar()
+        plt.subplot(2, 1, 2)
+        std_3d_trim = std_3d[:,:,i].copy()
+        std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
+        std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+        plt.imshow(std_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+        plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Date &#39; + str(np.round(zblock[i])))
+        plt.colorbar()
+        plt.xlabel(&#39;Easting [meters]&#39;)
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()
+        plt.close(&#39;all&#39;)   
+
+        #Save also as geotiff
+        outfname_tif = os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.tif&#39;)
+        outfname_tif_std = os.path.join(outpath_fig, &#39;Std_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zblock[i])))) + &#39;.tif&#39;)
+        #print(&#39;Saving results as geo tif...&#39;)
+        tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif, settings.project_crs)
+        tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xblocksize,bound_ymin + 0.5 * settings.yblocksize], [settings.xblocksize,settings.yblocksize], outfname_tif_std, settings.project_crs)
+
+    return mu_3d, std_3d</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.soilmod_predict_st.model_points"><code class="name flex">
+<span>def <span class="ident">model_points</span></span>(<span>settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Predict soil properties and uncertainties for raster points.
+All output is saved in output directory as specified in settings.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>mu_3d: 3D stack of prediction rasters
+std_3d:3D stack of prediction uncertainty rasters</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def model_points(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for raster points.
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    mu_3d: 3D stack of prediction rasters
+    std_3d:3D stack of prediction uncertainty rasters
+    &#34;&#34;&#34;
+
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Point&#39;)
+    print2(f&#39;x,y,z voxsize: {settings.xyvoxsize,settings.xyvoxsize, settings.zvoxsize}&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+ 
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # read in covariate grid:
+    dfgrid = pd.read_csv(os.path.join(settings.inpath, settings.gridname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+    bound_zmin = dfgrid.z.min() - 0.5* settings.zvoxsize
+    bound_zmax = dfgrid.z.max() + 0.5* settings.zvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+    #dfgrid[&#39;z&#39;] = dfgrid.z - bound_zmin
+
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0, bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or temporal slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    # Need to make predictions in mini-batches and then map results with coordinates to grid with ndimage.map_coordinates
+    batchsize = 500
+
+    dfgrid = dfgrid.reset_index()
+
+    xspace = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xvoxsize)
+    yspace = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yvoxsize)
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zspace = np.asarray(settings.list_z_pred)
+    else:
+        zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
+        print(&#39;Calculating for time slices at: &#39;, zspace)
+    grid_x, grid_y = np.meshgrid(xspace, yspace)
+    xgridflat = grid_x.flatten()
+    ygridflat = grid_y.flatten()
+    xygridflat = np.asarray([xgridflat, ygridflat]).T
+    mu_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+    std_3d = np.zeros((len(xspace), len(yspace), len(zspace)))
+    gp_train_flag = 0 # need to be computed only first time
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+    for i in range(len(zspace)):
+        # predict for each depth  or temporal slice
+        print(&#39;Computing slices at time: &#39; + str(np.round(zspace[i])))
+        dfsel = dfgrid[dfgrid.z == zspace[i]].copy()
+        dfsel = dfsel.reset_index()
+
+        dfsel[&#39;ibatch&#39;] = dfsel.index // batchsize
+        #nbatch = dfgrid[&#39;ibatch&#39;].max()
+        ixrange_batch = dfsel[&#39;ibatch&#39;].unique()
+        nbatch = len(ixrange_batch)
+        print(&#34;Number of mini-batches per slice: &#34;, nbatch)
+        mu_res = np.zeros(len(dfsel))
+        std_res = np.zeros(len(dfsel))
+        coord_x = np.zeros(len(dfsel))
+        coord_y = np.zeros(len(dfsel))
+        ix = np.arange(len(dfsel))
+
+        ix_start = 0
+        for j in tqdm(ixrange_batch):
+            dftest = dfsel[dfsel.ibatch == j].copy()
+            #print(f&#39;length dftest of batch {j}:  {len(dftest)}&#39;)
+            ysel = dftest.y.values
+            xsel = dftest.x.values
+            zsel = dftest.z.values
+            points3D_pred = np.asarray([zsel, ysel, xsel]).T
+            
+            # Calculate mean function for prediction
+            if mean_function == &#39;rf&#39;:
+                X_test = dftest[settings.name_features].values
+                ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                y_pred_zmean = ypred_rf
+            elif mean_function == &#39;blr&#39;:
+                X_test = dftest[settings.name_features].values
+                Xs_test = scaler_x.transform(X_test)
+                ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                y_pred_zmean = ypred_blr
+                ynoise_pred = ypred_std_blr
+
+            # GP Prediction:
+            if not calc_mean_only:
+                if gp_train_flag == 0:
+                    # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                    ypred, ystd, logl, gp_train = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                        Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+                    gp_train_flag = 1
+                else:
+                    ypred, ystd = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train)
+            else:
+                ypred = y_pred_zmean
+                ystd = ynoise_pred
+
+            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
+            #ystd = np.sqrt(ystd**2 + ynoise_pred**2)   
+        
+            # Save results in 3D array
+            ix_end = ix_start + len(ypred)
+            if not calc_mean_only:
+                mu_res[ix_start : ix_end] = ypred + y_pred_zmean #.reshape(len(xspace), len(yspace))
+                std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+            else: 
+                mu_res[ix_start : ix_end] = ypred #.reshape(len(xspace), len(yspace))
+                std_res[ix_start : ix_end] = ystd #.reshape(len(xspace), len(yspace))
+            #if i ==0:
+            coord_x[ix_start : ix_end] = np.round(dftest.x.values,2)
+            coord_y[ix_start : ix_end] = np.round(dftest.y.values,2)
+            ix_start = ix_end
+
+
+        # Save all data for the depth or temporal layer
+
+        print(&#34;saving data and generating plots...&#34;)
+        # map coordinate array to image
+        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = &#39;nearest&#39;)
+        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = &#39;nearest&#39;)
+
+        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
+
+        # Calculate nearest neighbor
+        coord_xy = np.asarray([coord_x, coord_y]).T
+        mu_img, std_img = align_nearest_neighbor(xygridflat, coord_xy, [mu_res, std_res], max_dist = 0.5 * settings.xvoxsize)
+
+        mu_img = mu_img.reshape(grid_x.shape)
+        std_img = std_img.reshape(grid_x.shape)
+
+        mu_3d[:,:,i] = mu_img.T
+        std_3d[:,:,i] = std_img.T
+
+        # Create Result Plots
+        print(&#34;Creating plots...&#34;)
+        mu_3d_trim = mu_3d[:,:,i].copy()
+        mu_3d_trim_max = np.percentile(mu_3d_trim[~np.isnan(mu_3d_trim)], 99.5)
+        mu_3d_trim[mu_3d_trim &gt; mu_3d_trim_max] = mu_3d_trim_max
+        mu_3d_trim[mu_3d_trim &lt; 0] = 0
+        plt.figure(figsize = (8,8))
+        plt.subplot(2, 1, 1)
+        #print(&#39;Shape mu_3d_trim.T: &#39;, mu_3d_trim.T.shape)
+        plt.imshow(mu_3d_trim.T, origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+        #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+        plt.title(settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.colorbar()
+        plt.subplot(2, 1, 2)
+        std_3d_trim = std_3d[:,:,i].copy()
+        std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)], 99.5)
+        std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+        std_3d_trim[std_3d_trim &lt; 0] = 0
+        plt.imshow(std_3d_trim.T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+        #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+        #plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+        plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        plt.colorbar()
+        plt.xlabel(&#39;Easting [meters]&#39;)
+        plt.ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()
+        plt.close(&#39;all&#39;)
+
+        #Save also as geotiff
+        outfname_tif = os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.tif&#39;)
+        outfname_tif_std = os.path.join(outpath_fig, &#39;Std_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.tif&#39;)
+
+        print(&#39;Saving results as geo tif...&#39;)
+        tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
+        tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
+
+
+    # Clip stddev for images
+    mu_3d_mean = mu_3d.mean(axis = 2).T
+    mu_3d_mean_max = np.percentile(mu_3d_mean,99.5)
+    mu_3d_mean_trim = mu_3d_mean.copy()
+    mu_3d_mean_trim[mu_3d_mean &gt; mu_3d_mean_max] = mu_3d_mean_max
+    mu_3d_mean_trim[mu_3d_mean &lt; 0] = 0
+    std_3d_trim = std_3d.copy()
+    std_3d_trim_max = np.percentile(std_3d_trim[~np.isnan(std_3d_trim)],99.5)
+    std_3d_trim[std_3d_trim &gt; std_3d_trim_max] = std_3d_trim_max
+    std_3d_trim[std_3d_trim &lt; 0] = 0
+
+    # Create Result Plot of mean with locations
+    plt.figure(figsize = (8,8))
+    plt.subplot(2, 1, 1)
+    plt.imshow(mu_3d_mean_trim,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(settings.name_target + &#39; Mean&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+
+    plt.subplot(2, 1, 2)
+    plt.imshow(std_3d_trim.mean(axis = 2).T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Mean&#39;)
+    plt.xlabel(&#39;Easting [meters]&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_mean.png&#39;), dpi=300)
+    if _show:
+        plt.show()
+    plt.close(&#39;all&#39;)
+
+    # Create Result Plot with data colors
+    plt.figure(figsize = (8,8))
+    plt.subplot(2, 1, 1)
+    plt.imshow(mu_3d_mean_trim,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], c = dftrain[settings.name_target].values, alpha =0.3, edgecolors = &#39;k&#39;)
+
+    plt.title(settings.name_target + &#39; Time Mean&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.subplot(2, 1, 2)
+    plt.imshow(std_3d_trim.mean(axis = 2).T,origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent, cmap = colormap_pred_std)
+    #plt.imshow(np.sqrt((std_3d.mean(axis = 2).T)**2 + params_gp[1]**2 *  ytrain.std()**2),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent)
+    plt.colorbar()
+    #plt.imshow(ystd.reshape(len(yspace),len(xspace)),origin=&#39;lower&#39;, aspect = &#39;equal&#39;, extent = extent) 
+    plt.scatter(points3D_train[:,2],points3D_train[:,1], edgecolors = &#39;k&#39;,facecolors=&#39;none&#39;)
+    plt.title(&#39;Std Dev &#39; + settings.name_target + &#39; Mean&#39;)
+    plt.xlabel(&#39;Easting [meters]&#39;)
+    plt.ylabel(&#39;Northing [meters]&#39;)
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath_fig, &#39;Pred_&#39; + settings.name_target + &#39;_mean2.png&#39;), dpi=300)
+    if _show:
+        plt.show()
+    plt.close(&#39;all&#39;)
+
+    return mu_3d, std_3d</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.soilmod_predict_st.model_polygons"><code class="name flex">
+<span>def <span class="ident">model_polygons</span></span>(<span>settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Predict soil properties and uncertainties for location points.
+All output is saved in output directory as specified in settings.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def model_polygons(settings):
+    &#34;&#34;&#34;
+    Predict soil properties and uncertainties for location points.
+    All output is saved in output directory as specified in settings.
+
+    Parameters
+    ----------
+    settings : settings namespace
+
+    Return
+    ------
+    None
+    &#34;&#34;&#34;
+
+    if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
+        # only mean function model
+        calc_mean_only = True
+    else:
+        calc_mean_only = False
+    if (settings.model_function == &#39;blr-gp&#39;) | (settings.model_function == &#39;blr&#39;):
+        mean_function = &#39;blr&#39;
+    if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
+        mean_function = &#39;rf&#39;
+
+    # set conditional settings
+    if calc_mean_only:
+        settings.optimize_GP = False
+
+    # currently assuming resolution is the same in x and y direction
+    settings.xvoxsize = settings.yvoxsize = settings.xyvoxsize
+
+    # check if outpath exists, if not create direcory
+    os.makedirs(settings.outpath, exist_ok = True)
+
+    # Intialise output info file:
+    print2(&#39;init&#39;)
+    print2(f&#39;--- Parameter Settings ---&#39;)
+    print2(f&#39;Model Function: {settings.model_function}&#39;)
+    print2(f&#39;Target Name: {settings.name_target}&#39;)
+    print2(f&#39;Prediction geometry: Polygon&#39;)
+    print2(f&#39;--------------------------&#39;)
+
+    print(&#39;Reading in data...&#39;)
+    # Read in data for model training:
+    dftrain = pd.read_csv(os.path.join(settings.inpath, settings.infname))
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dftrain.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dftrain.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dftrain.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+    settings.name_features.append(&#39;z&#39;)
+
+    # Select data between zmin and zmax
+    dftrain = dftrain[(dftrain[&#39;z&#39;] &gt;= settings.zmin) &amp; (dftrain[&#39;z&#39;] &lt;= settings.zmax)]
+
+    name_features = settings.name_features
+    
+    # check if z_diff is in dftrain
+    if &#39;z_diff&#39; not in dftrain.columns:
+        dftrain[&#39;z_diff&#39;] = 0.0
+
+    # Read in polygon data:
+    dfgrid, dfpoly, name_features_grid2 = preprocess_grid_poly(settings.inpath, settings.gridname, settings.polyname, 
+        name_features = settings.name_features_grid, grid_crs = settings.project_crs,
+        grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
+
+
+    # Rename x and y coordinates of input data
+    if settings.colname_xcoord != &#39;x&#39;:
+        dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
+    if settings.colname_ycoord != &#39;y&#39;:
+        dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
+    if settings.colname_zcoord != &#39;z&#39;:
+        dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
+
+
+    ## Get coordinates for training data and set coord origin to (0,0)  
+    bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
+    bound_xmax = dfgrid.x.max() + 0.5* settings.xvoxsize
+    bound_ymin = dfgrid.y.min() - 0.5* settings.yvoxsize
+    bound_ymax = dfgrid.y.max() + 0.5* settings.yvoxsize
+
+    dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
+    dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
+
+        
+    # Define grid coordinates:
+    points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
+
+    # Define y target
+    y_train = dftrain[settings.name_target].values
+
+    # spatial uncertainty of coordinates:
+    if &#39;z_diff&#39; in list(dftrain):
+        Xdelta_train = np.asarray([0.5 * dftrain.z_diff.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+    else:
+        Xdelta_train = np.asarray([0 * dftrain.z.values, dftrain.y.values * 0, dftrain.x.values * 0.]).T
+
+    # Calculate predicted mean values of training data
+    X_train = dftrain[settings.name_features].values
+    y_train = dftrain[settings.name_target].values
+    if mean_function == &#39;rf&#39;:
+        # Estimate GP mean function with Random Forest
+        rf_model = rf.rf_train(X_train, y_train)
+        ypred_rf_train, ynoise_train, nrmse_rf_train = rf.rf_predict(X_train, rf_model, y_test = y_train)
+        y_train_fmean = ypred_rf_train
+    elif mean_function == &#39;blr&#39;:
+        # Scale data
+        Xs_train, ys_train, scale_params = blr.scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_params
+        # Train BLR
+        blr_model = blr.blr_train(Xs_train, y_train)
+        # Predict for X_test
+        ypred_blr_train, ypred_std_blr_train, nrmse_blr_train = blr.blr_predict(Xs_train, blr_model, y_test = y_train)
+        ypred_blr_train = ypred_blr_train.flatten()
+        y_train_fmean = ypred_blr_train
+        ynoise_train = ypred_std_blr_train
+
+    # Subtract mean function from training data 
+    y_train -= y_train_fmean
+
+    if not calc_mean_only:
+        # optimise GP hyperparameters 
+        # Use mean of X uncertainity for optimizing since otherwise too many local minima
+        print(&#39;Optimizing GP hyperparameters...&#39;)
+        Xdelta_mean = Xdelta_train * 0 + np.nanmean(Xdelta_train,axis=0)
+        opt_params, opt_logl = gp.optimize_gp_3D(points3D_train, y_train, ynoise_train, 
+            xymin = settings.xyvoxsize, 
+            zmin = settings.zvoxsize,  
+            Xdelta = Xdelta_mean)
+        params_gp = opt_params
+
+    # Set extent of prediction grid
+    extent = (0,bound_xmax - bound_xmin, 0, bound_ymax - bound_ymin)
+
+    # Set output path for figures for each depth or time slice
+    outpath_fig = os.path.join(settings.outpath, &#39;Predictions/&#39;)
+    os.makedirs(outpath_fig, exist_ok = True)   
+
+    dfout_poly =  dfgrid[[&#39;ibatch&#39;]].copy()
+    dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
+        
+
+    ixrange_batch = dfgrid[&#39;ibatch&#39;].unique()
+    nbatch = len(ixrange_batch)
+    print(&#34;Number of mini-batches per depth or time slice: &#34;, nbatch)
+    mu_res = np.zeros(len(dfgrid))
+    std_res = np.zeros(len(dfgrid))
+    coord_x = np.zeros(len(dfgrid))
+    coord_y = np.zeros(len(dfgrid))
+    ix = np.arange(len(dfgrid))
+
+    xspace = np.arange(dfgrid[&#39;x&#39;].min(), dfgrid[&#39;x&#39;].max(), settings.xvoxsize)
+    yspace = np.arange(dfgrid[&#39;y&#39;].min(), dfgrid[&#39;y&#39;].max(), settings.yvoxsize)
+    if (len(settings.list_z_pred) &gt; 0) &amp; (settings.list_z_pred is not None) &amp;  (settings.list_z_pred != &#39;None&#39;):
+        zspace = np.asarray(settings.list_z_pred)
+    else:
+        zspace = np.arange(settings.zvoxsize, settings.zmax + settings.zvoxsize, settings.zvoxsize)
+        print(&#39;Calculating for time slices at: &#39;, zspace)
+    grid_x, grid_y = np.meshgrid(xspace, yspace)
+    gp_train_flag = 0 # need to be computed only first time
+    # Slice in blocks for prediction calculating per 30 km x 1cm
+    for i in range(len(zspace)):
+        # predict for each depth  or time slice
+        print(&#39;Computing slices at time: &#39; + str(np.round(zspace[i])))
+        ix_start = 0
+        dfout_poly[&#39;Mean&#39;] = np.nan
+        dfout_poly[&#39;Std&#39;] = np.nan
+        for j in tqdm(ixrange_batch):
+            dftest = dfgrid[dfgrid.ibatch == j].copy()
+            #Set maximum number of evaluation points to 500 
+            while len(dftest) &gt; 500:
+                # if larger than 500, select only subset of sample points that are regular spaced
+                # select only every second value, this reduces size to 1/2
+                dftest = dftest.sort_values([&#39;y&#39;, &#39;x&#39;], ascending = [True, True])
+                dftest = dftest.iloc[::2, :]
+            dftest[&#39;z&#39;] = zspace[i]
+            ysel = dftest.y.values
+            xsel = dftest.x.values
+            zsel = dftest.z.values
+            points3D_pred = np.asarray([zsel, ysel, xsel]).T
+            
+            # Calculate mean function for prediction
+            if mean_function == &#39;rf&#39;:
+                X_test = dftest[settings.name_features].values
+                ypred_rf, ynoise_pred, _ = rf.rf_predict(X_test, rf_model)
+                y_pred_zmean = ypred_rf
+            elif mean_function == &#39;blr&#39;:
+                X_test = dftest[settings.name_features].values
+                Xs_test = scaler_x.transform(X_test)
+                ypred_blr, ypred_std_blr, _ = blr.blr_predict(Xs_test, blr_model)
+                y_pred_zmean = ypred_blr
+                ynoise_pred = ypred_std_blr
+
+            # GP Prediction:
+            if not calc_mean_only:
+                if gp_train_flag == 0:
+                    # Need to calculate matrix gp_train only once, then used subsequently for all other predictions
+                    ypred, ystd, logl, gp_train, covar = gp.train_predict_3D(points3D_train, points3D_pred, y_train, ynoise_train, params_gp, 
+                        Ynoise_pred = ynoise_pred, Xdelta = Xdelta_train, out_covar = True)
+                    gp_train_flag = 1
+                else:
+                    ypred, ystd, covar = gp.predict_3D(points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred = ynoise_pred, 
+                        Xdelta = Xdelta_train, out_covar = True)
+            else:
+                ypred = y_pred_zmean
+                ystd = ynoise_pred
+
+            # Now calculate mean and standard deviation for polygon area
+            # Need to calculate weighted average from covar and ypred
+            if not calc_mean_only:
+                ypred_poly, ystd_poly = averagestats(ypred + y_pred_zmean, covar)
+            else:
+                ypred_poly, ystd_poly = averagestats(ypred, covar)
+            dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Mean&#39;] = ypred_poly
+            dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Std&#39;] = ystd_poly
+
+
+        # Save all data for the slice
+        dfpoly_z = dfpoly.merge(dfout_poly, how = &#39;left&#39;, on = &#39;ibatch&#39;)
+        # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
+        dfpoly_z.to_file(os.path.join(outpath_fig, &#39;Prediction_poly_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.gpkg&#39;), driver=&#39;GPKG&#39;)
+        # make some plots with geopandas
+        print(&#34;Plotting polygon map ...&#34;)
+        fig, (ax1, ax2) = plt.subplots(ncols = 1, nrows=2, sharex=True, sharey=True, figsize = (10,10))
+        dfpoly_z.plot(column=&#39;Mean&#39;, legend=True, ax = ax1, cmap = colormap_pred)#, legend_kwds={&#39;label&#39;: &#34;&#34;,&#39;orientation&#39;: &#34;vertical&#34;}))
+        ax1.title.set_text(&#39;Mean &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        ax1.set_ylabel(&#39;Northing [meters]&#39;)
+        #plt.xlabel(&#39;Easting [meters]&#39;)
+        #plt.savefig(os.path.join(outpath_fig, &#39;Pred_Mean_Poly_&#39; + name_target + &#39;_z&#39; + str(&#34;{:03d}&#34;.format(int(np.round(100 * zspace[i])))) + &#39;cm.png&#39;), dpi=300)
+        dfpoly_z.plot(column=&#39;Std&#39;, legend=True,  ax = ax2, cmap = colormap_pred_std)#, legend_kwds={&#39;label&#39;: &#34;&#34;,&#39;orientation&#39;: &#34;vertical&#34;}))
+        ax2.title.set_text(&#39;Std Dev &#39; + settings.name_target + &#39; Time &#39; + str(np.round(zspace[i])))
+        ax2.set_xlabel(&#39;Easting [meters]&#39;)
+        ax2.set_ylabel(&#39;Northing [meters]&#39;)
+        plt.tight_layout()
+        plt.savefig(os.path.join(outpath_fig, &#39;Pred_Poly_&#39; + settings.name_target + &#39;_t&#39; + str(&#34;{:03d}&#34;.format(int(np.round(zspace[i])))) + &#39;.png&#39;), dpi=300)
+        if _show:
+            plt.show()  
+        plt.close(&#39;all&#39;)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.soilmod_predict_st.preprocess_settings"><code class="name flex">
+<span>def <span class="ident">preprocess_settings</span></span>(<span>fname_settings)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Preprocess settings.</p>
+<h2 id="input">Input</h2>
+<p>fname_settings: path and filename to settings file</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>settings</code></dt>
+<dd>settings Namespace object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def preprocess_settings(fname_settings):
+    &#34;&#34;&#34;
+    Preprocess settings.
+
+    Input:
+        fname_settings: path and filename to settings file
+
+    Returns:
+        settings: settings Namespace object
+
+    &#34;&#34;&#34;
+    # Load settings from yaml file
+    with open(fname_settings, &#39;r&#39;) as f:
+        settings = yaml.load(f, Loader=yaml.FullLoader)
+    # Parse settings dictinary as namespace (settings are available as 
+    # settings.variable_name rather than settings[&#39;variable_name&#39;])
+    settings = SimpleNamespace(**settings)
+
+    # Assume covariate grid file has same covariate names as training data
+    settings.name_features_grid = settings.name_features.copy()
+
+    settings.colname_zcoord = settings.colname_tcoord
+    settings.zmin = settings.tmin
+    settings.zmax =  settings.tmax
+    settings.list_z_pred = settings.list_t_pred 
+    settings.zblocksize = settings.tblocksize
+
+    return settings</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="python_scripts" href="index.html">python_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="python_scripts.soilmod_predict_st.main" href="#python_scripts.soilmod_predict_st.main">main</a></code></li>
+<li><code><a title="python_scripts.soilmod_predict_st.model_blocks" href="#python_scripts.soilmod_predict_st.model_blocks">model_blocks</a></code></li>
+<li><code><a title="python_scripts.soilmod_predict_st.model_points" href="#python_scripts.soilmod_predict_st.model_points">model_points</a></code></li>
+<li><code><a title="python_scripts.soilmod_predict_st.model_polygons" href="#python_scripts.soilmod_predict_st.model_polygons">model_polygons</a></code></li>
+<li><code><a title="python_scripts.soilmod_predict_st.preprocess_settings" href="#python_scripts.soilmod_predict_st.preprocess_settings">preprocess_settings</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>python_scripts.GPmodel API documentation</title>
+<meta name="description" content="Custom kernel library for Gaussian Processes including sparse kernels and cross-covariance terms …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>python_scripts.GPmodel</code></h1>
+</header>
+<section id="section-intro">
+<p>Custom kernel library for Gaussian Processes including sparse kernels and cross-covariance terms</p>
+<p>The choice for an appropriate covariance function is important,
+as the GP's output directly depends on it. These parameters of the covariance function are
+referred to as the hyperparameters of the GP, which can be either given by a fixed covariance scale
+and noise, or learned from data by optimising the marginal likelihood. To handle the computational problem
+of inverting a large covariance matrix, sparse covariance function are included here as well.
+One important requirement for constructing covariance kernels is that they must be defined
+to be both positive semi-definite and informative. </p>
+<p>For more information on sparse covariances in GPs, see the following paper:
+"A Sparse Covariance Function for Exact Gaussian Process Inference in Large Datasets" (2009, Melkumyan and Ramos)</p>
+<p>Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
+<p>This open-source software is released under the LGPL-3.0 License.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Custom kernel library for Gaussian Processes including sparse kernels and cross-covariance terms
+
+The choice for an appropriate covariance function is important, 
+as the GP&#39;s output directly depends on it. These parameters of the covariance function are 
+referred to as the hyperparameters of the GP, which can be either given by a fixed covariance scale 
+and noise, or learned from data by optimising the marginal likelihood. To handle the computational problem 
+of inverting a large covariance matrix, sparse covariance function are included here as well.
+One important requirement for constructing covariance kernels is that they must be defined 
+to be both positive semi-definite and informative. 
+
+For more information on sparse covariances in GPs, see the following paper: 
+&#34;A Sparse Covariance Function for Exact Gaussian Process Inference in Large Datasets&#34; (2009, Melkumyan and Ramos)
+
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
+
+This open-source software is released under the LGPL-3.0 License.
+&#34;&#34;&#34;
+from scipy import reshape, sqrt, identity
+from scipy.linalg import pinv, solve, cholesky, solve_triangular
+from scipy.optimize import minimize, shgo
+from scipy.special import erf
+import numpy as np
+
+# import local functions
+from utils import print2
+# Speed up computation with numba 
+from numba import jit
+
+
+def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None):
+    &#34;&#34;&#34;
+    Optimize GP hyperparmenters  of amplitude, noise, and lengthscales
+    Using Global optimisation shgo with sobol sampling.
+
+    INPUT
+        points3d_train: Array with training point coordinates for (z,y,x)
+        Y_train: Training Data Vector
+        Ynoise_train: Noise of Training data
+        xymin: minimum GP lengthscale in x and y direction
+        zmin: minimum GP lengthscale in vertical (z) direction
+        Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train
+
+    RETURN:
+        Optimised Hyperparameters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
+        Marginal Log Likelihood of best solution
+    &#34;&#34;&#34;
+
+    def calc_nlogl3D(gp_params, *args):
+        # Calculate marginal loglikelihood
+        gp_amp = gp_params[0]
+        gp_noise = gp_params[1]
+        gp_length = np.asarray([gp_params[2], gp_params[3], gp_params[3]])      
+        D2, Y, Ynoise, Delta = args
+        if Delta is not None:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise + np.diag(Ynoise**2)
+        else:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise
+        try:
+            k_chol = cholesky(kcov, lower=True)
+            Ky = solve_triangular(k_chol, Y, lower=True).flatten()
+            log_det_k= 2 * np.log(np.diag(k_chol)).sum()
+            n_log_2pi = Ntrain * np.log(2 * np.pi)
+            logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+        except:
+            logl = -np.nan
+        return -logl
+
+    Dtrain = calcDistanceMatrix_multidim(points3d_train)
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+    else:
+        Delta_00 = None
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    print(&#39;Mean Input Noise: &#39;, np.mean(Ynoise))
+    Ntrain = len(points3d_train)
+
+    # Optimize hyperparameters with SHGO (slower and latest scipy update made it unstable)
+    # Global optimisation
+    # TBD: test dual_annealing with scipy.optimize.dual_annealing?
+    # res = shgo(calc_nlogl3D, n=20, iters =20,
+    #             #bounds=[(0.001, 1000), (ynoise_min, 1), (zmin, zmin*1000), (xymin, xymin*1000)],
+    #             bounds=[(0.01, 10), (0.01, 2.0), (zmin, zmin*2000), (xymin, xymin*4000)],
+    #             sampling_method=&#39;sobol&#39;,
+    #             args = (Dtrain, Y, Ynoise, Delta_00))
+
+    # Local optimisation
+    &#34;&#34;&#34;
+    Some common local optimiser choices
+    &#39;BFGS&#39;: Broyden-Fletcher-Goldfarb-Shanno algorithm
+    &#39;SLSQP&#39;: Sequential Least Squares Programming
+    &#39;COBYLA&#39;: Constrained Optimization BY Linear Approximation
+    &#39;L-BFGS-B&#39;: Limited memory BFGS
+    &#39;Powell&#39;: Powell&#39;s conjugate direction method
+    &#34;&#34;&#34;
+    optimiser = &#39;Powell&#39;
+    res = minimize(calc_nlogl3D, x0 = [1, 0.1, 10*zmin, 10*xymin],
+                bounds=[(0.01, 10), (0.0001, 1.0), (zmin, zmin*1000), (xymin, xymin*1000)],
+                method=optimiser,
+                args = (Dtrain, Y, Ynoise, Delta_00))         
+    if not res.success:
+        # Don&#39;t update parameters
+        print(&#39;WARNING: &#39; + res.message) 
+    else:
+        print2(f&#39;Optimized Hyperparameters (amplitude, y_noise_fac, lengthscale_z, lengths_xy): {res.x}&#39;)
+        print(&#39;Marginal Log Likelihood: &#39;, -res.fun)
+    return res.x, -res.fun
+
+
+
+def train_predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    Y_train,
+    Ynoise_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None,  
+    calclogl = True, 
+    save_gptrain = True, 
+    out_covar = False):
+    &#34;&#34;&#34;
+    Train and predict mean and covariance of GP model.
+
+    INPUT:
+        points3d_train: Array with training point coordinates for (z,y,x)
+        points3d_pred: Array with point coordinates to be predicted in form (z,y,x)
+        Y_train: vector of training data with same length as points3d_train
+        Ynoise_train: noise data with same length as points3d_train
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean function for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+        calclogl: If True (default), calculates and returns the marginal log-likelihood of GP
+        save_gptrain: if True (default), returns list of arrays (gp_train) such as cholesky factors that 
+                can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).
+
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+        marginal log likelihood
+        gp_train
+    &#34;&#34;&#34;
+    Ntrain = len(points3D_train)
+
+    # Standardize data:
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    #Y = Y.reshape(-1,1)
+
+    # Calculate Distance Matrixes: 
+    D2_00 = calcDistanceMatrix_multidim(points3D_train)
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
+
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
+
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
+
+    # if with noise in position
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise + np.diag(Ynoise**2)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01)    
+    else:
+        kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise 
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+
+    try:
+        k_chol = cholesky(kcov00, lower=True)
+    except:
+        print(&#34;Cholesky decompostion failed, kov matrix is likely not positive semitive.&#34;)
+        print(&#34;Change GP parameter settings&#34;)
+        sys.exit(1)
+    Ky = solve_triangular(k_chol, Y, lower=True).flatten() #shape(2*Nsensor)
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    ## optional regularisation (not enabled)
+    # if (Ynoise_pred is not None) &amp; (gp_amp &lt; 1):
+    #     #Calculate diaginal elements as amplitude weighted average of  noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Calculate marginal log likelihood
+    if calclogl:
+        log_det_k=  2 * np.sum(np.log(np.diag(k_chol)))
+        n_log_2pi = Ntrain * np.log(2 * np.pi)
+        logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+    else:
+        logl = 0.
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    yvar = np.diag(covar) * ystd**2
+    print(&#39;Logl: &#39;, logl)
+    # Save matrix decomposition of training data for subsequent prediction (so cholesky etc don&#39;t need to be computed again)
+    if save_gptrain:
+        gp_train = (k_chol, Ky, ymean, ystd)
+    else:
+        gp_train = 0
+    if out_covar:
+        return ypred, np.sqrt(yvar), logl, gp_train, covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar), logl, gp_train
+
+@jit
+def predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    gp_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None, 
+    out_covar = False):
+    &#34;&#34;&#34;
+    Predict mean and covariance based on trained GP. 
+    This caluclation saves time as cholesky decompsoition  is already pre-computed. 
+
+    INPUT
+        points3d_train: Array with trainig point coodinates for (z,y,x)
+        points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
+        gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+    &#34;&#34;&#34;
+    k_chol, Ky, ymean, ystd = gp_train
+
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
+
+    # Calculate Distance Matrixes: 
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
+
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
+    # Calculate Covariance Functions
+    # if with noise
+    if Xdelta is not None:
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01)    
+    else:
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    # if (Ynoise_pred is not None) &amp; (gp_amp &lt; 1):
+    #     #Caluluate diaginal elements as amplitude weighted average of noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    #yvar = np.diag(covar) * ystd**2
+    yvar = np.diag(covar) * ystd**2
+    if out_covar:
+        return ypred, np.sqrt(yvar), covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar)
+
+
+@jit
+def calcGridPoints3D(Lpix, pixscale):
+    &#34;&#34;&#34;
+    returns grid points for distance matrix calculation.
+
+    INPUT
+        Lpix: number of pixels in each dimension as array (xLpix, yLpix, zLpix)
+        pixscale: pixelscale in each dimension as array (xpixscale, ypixscale, zpixscale)
+
+    RETURN
+        gridpoints: array with grid points in form (z,y,x)
+    &#34;&#34;&#34;
+    Lpix = np.asarray(Lpix)
+    pixscale = np.asarray(pixscale)
+    xLpix, yLpix, zLpix = Lpix[0], Lpix[1], Lpix[2]
+    xpixscale, ypixscale, zpixscale = pixscale[0], pixscale[1], pixscale[2]
+    xrange = np.arange(1, xLpix+1) * xpixscale
+    yrange = np.arange(1, yLpix+1) * ypixscale
+    zrange = np.arange(1, zLpix+1) * zpixscale
+    _xg, _yg, _zg = np.meshgrid(xrange, yrange, zrange)
+    xr, yr, zr = _xg.ravel(), _yg.ravel(), _zg.ravel()
+    return np.asarray([xr, yr, zr]).T
+
+@jit
+def calcDistanceMatrix(nDimPoints, 
+                       distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
+    &#34;&#34;&#34; Returns the matrix of squared distances between coordinates in nDimPoints.
+    
+    INPUT
+        nDimPoints: list of n-dim tuples
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = data - np.reshape(data,(len(data),1)) # computes all possible combinations
+
+    dist = distFunc(delta)
+    #dist = dist + np.identity(len(data))*dist.max() # eliminate self matching
+    # returns  squared distance:
+    return dist 
+
+@jit
+def calcDistance2Matrix(nDimPoints0, nDimPoints1,
+                       distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
+    &#34;&#34;&#34; Returns the matrix of squared distances between two cooridnate sets.
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = data0 - np.reshape(data1,(len(data1),1)) # computes all possible combinations
+    dist = distFunc(delta)
+    #dist = dist + np.identity(len(data))*dist.max() # eliminate self matching
+    # returns  squared distance:
+    return dist 
+
+@jit
+def calcDistanceMatrix_multidim(nDimPoints):
+    &#34;&#34;&#34; Returns the matrix of squared distances between points in multiple dimensions. 
+
+    INPUT
+        nDimPoints: list of n-dim tuples
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = abs(data - np.reshape(data,(len(data),1))) # computes all possible combinations
+    return np.asarray(delta) 
+
+@jit
+def calcDistance2Matrix_multidim(nDimPoints0, nDimPoints1):
+    &#34;&#34;&#34; Returns the matrix of squared distances between to corrdinate sets in multiple dimensions.
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = abs(data0 - np.reshape(data1,(len(data1),1))) # computes all possible combinations
+    return np.asarray(delta)
+
+@jit
+def calcDeltaMatrix_multidim(nDimPoints):
+    &#34;&#34;&#34; Returns the matrix of the sum of data points from one coordinate to any other
+
+    INPUT
+        nDimPoints: list of n-dim tuples
+
+    RETURN
+        deltaMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = abs(data + np.reshape(data,(len(data),1))) # computes all possible combinations
+    return np.asarray(delta) 
+
+@jit
+def calcDelta2Matrix_multidim(nDimPoints0, nDimPoints1):
+    &#34;&#34;&#34; Returns the matrix of the sum of data points between two coordinate sets    
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+
+    RETURN
+        deltaMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = abs(data0 + np.reshape(data1,(len(data1),1))) # computes all possible combinations
+    return np.asarray(delta)
+
+@jit
+def calc_square_distances2D(Lpix, pixscale):
+    &#34;&#34;&#34;
+    Initialize (squared) distance matrix for stationary kernel.
+
+    INPUT
+        Lpix: number of pixels in each dimension
+        pixscale: pixel scale in arcsec/pixel
+
+    RETURN
+        dist: squared distance matrix
+    &#34;&#34;&#34;
+    Lpix = np.asarray(Lpix)
+    pixscale = np.asarray(pixscale)
+    xLpix, yLpix = Lpix[0], Lpix[1]
+    xpixscale, ypixscale = pixscale[0], pixscale[1]
+    xrange = (np.arange(0, xLpix) - xLpix/2.0) * xpixscale
+    yrange = (np.arange(0, yLpix) - xLpix/2.0) * ypixscale
+    _xg, _yg = np.meshgrid(xrange, yrange)
+    xr, yr = _xg.ravel(), _yg.ravel()
+    Dx = xr[:, np.newaxis] - xr[np.newaxis,:]
+    Dy = yr[:, np.newaxis] - yr[np.newaxis,:]
+    return Dx**2 + Dy**2
+
+
+@jit
+def gpkernel_sparse_multidim_noise(Delta, gamma, sigma_delta = None):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+        delta: uncertainty in pairwise distance, same shape as delta
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    if sigma_delta is not None:
+        sigma_delta = np.asarray(sigma_delta)
+    else:
+        sigma_delta = np.zeros_like(Delta)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    kres = np.ones(ndata)
+    for d in range(dim):
+        res = np.zeros(ndata)
+        Di = Delta[d]
+        l = gamma[d] + sigma_delta[d]
+        rat = sigma_delta[d]/gamma[d]
+        res[Di &lt; l] = ((2 + np.cos(2*np.pi * Di[Di &lt; l] /l[Di &lt; l]))/3.*(1-Di[Di &lt; l] /l[Di &lt; l]) + 1/(2.*np.pi) * np.sin(2*np.pi*Di[Di &lt; l] /l[Di &lt; l]))/(1+rat[Di &lt; l])
+        # Remove floating errors
+        res[res &lt; 0.] = 0.
+        kres *= res
+    return kres
+
+@jit
+def gpkernel_sparse_multidim(Delta, gamma):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    kres = np.ones(ndata)
+    for d in range(dim):
+        res = np.zeros(ndata)
+        Di = Delta[d]
+        l = gamma[d]
+        res[Di &lt; l] = (2 + np.cos(2*np.pi * Di[Di &lt; l] /l))/3.*(1-Di[Di &lt; l] /l) + 1/(2.*np.pi) * np.sin(2*np.pi*Di[Di &lt; l] /l)
+        # Remove floating errors
+        res[res &lt; 0.] = 0.
+        kres *= res
+    return kres
+
+@jit
+def gpkernel_sparse_multidim2(Delta, gamma):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 13, 20
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    r2 = np.zeros(ndata)
+    res = np.zeros(ndata)
+    for d in range(dim):
+        r2 += (Delta[d] / gamma[d])**2  
+    r = np.sqrt(r2)
+    res[r &lt; 1] = (2 + np.cos(2*np.pi * r[r &lt; 1]))/3.*(1-r[r &lt; 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r &lt; 1])
+    return res
+
+@jit
+def gpkernel_sparse_multidim2_noise(Delta, gamma, sigma_delta = None):
+    &#34;&#34;&#34;
+    Modified Multi-dimensional RBF kernel with X unicertainity, 
+    original defined in Melkumyan and Ramos 2009, following Eq 13, 20
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT   
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+        delta: uncertainty in pairwise distance, same shape as delta    
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    if sigma_delta is not None:
+        sigma_delta = np.asarray(sigma_delta)
+    else:
+        sigma_delta = np.zeros_like(Delta)
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    r2 = np.zeros(ndata)
+    res = np.zeros(ndata)
+    for d in range(dim):
+        r2 += (Delta[d] / (gamma[d] + sigma_delta[d]))**2  
+    r = np.sqrt(r2)
+    res[r &lt; 1] = (2 + np.cos(2*np.pi * r[r &lt; 1]))/3.*(1-r[r &lt; 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r &lt; 1])
+    return res
+
+@jit
+def gpkernel_sparse(D2, gamma):
+    &#34;&#34;&#34;
+    2-D rsparse RBF kernel with , defined in Melkumyan and Ramos, 2009, Eq 13 
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+    
+    INPUT
+        D2: pairwise square distances
+        gamma: kernel length scale
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    D2 = np.sqrt(D2)
+    res = np.zeros_like(D2)
+    res[D2 &lt; gamma] = (2 + np.cos(2*np.pi * D2[D2 &lt; gamma] /gamma))/3.*(1-D2[D2 &lt; gamma] /gamma) + 1/(2.*np.pi) * np.sin(2*np.pi*D2[D2 &lt; gamma] /gamma)
+    # Remove floating errors
+    res[res&lt;0.] = 0.
+    return res</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="python_scripts.GPmodel.calcDelta2Matrix_multidim"><code class="name flex">
+<span>def <span class="ident">calcDelta2Matrix_multidim</span></span>(<span>nDimPoints0, nDimPoints1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of the sum of data points between two coordinate sets
+</p>
+<p>INPUT
+nDimPoints0: list of n-dim tuples
+nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1</p>
+<p>RETURN
+deltaMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDelta2Matrix_multidim(nDimPoints0, nDimPoints1):
+    &#34;&#34;&#34; Returns the matrix of the sum of data points between two coordinate sets    
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+
+    RETURN
+        deltaMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = abs(data0 + np.reshape(data1,(len(data1),1))) # computes all possible combinations
+    return np.asarray(delta)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcDeltaMatrix_multidim"><code class="name flex">
+<span>def <span class="ident">calcDeltaMatrix_multidim</span></span>(<span>nDimPoints)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of the sum of data points from one coordinate to any other</p>
+<p>INPUT
+nDimPoints: list of n-dim tuples</p>
+<p>RETURN
+deltaMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDeltaMatrix_multidim(nDimPoints):
+    &#34;&#34;&#34; Returns the matrix of the sum of data points from one coordinate to any other
+
+    INPUT
+        nDimPoints: list of n-dim tuples
+
+    RETURN
+        deltaMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = abs(data + np.reshape(data,(len(data),1))) # computes all possible combinations
+    return np.asarray(delta) </code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcDistance2Matrix"><code class="name flex">
+<span>def <span class="ident">calcDistance2Matrix</span></span>(<span>nDimPoints0, nDimPoints1, distFunc=&lt;function &lt;lambda&gt;&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of squared distances between two cooridnate sets.</p>
+<p>INPUT
+nDimPoints0: list of n-dim tuples
+nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+distFunc: calculates the distance based on the differences</p>
+<p>RETURN
+distanceMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDistance2Matrix(nDimPoints0, nDimPoints1,
+                       distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
+    &#34;&#34;&#34; Returns the matrix of squared distances between two cooridnate sets.
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = data0 - np.reshape(data1,(len(data1),1)) # computes all possible combinations
+    dist = distFunc(delta)
+    #dist = dist + np.identity(len(data))*dist.max() # eliminate self matching
+    # returns  squared distance:
+    return dist </code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcDistance2Matrix_multidim"><code class="name flex">
+<span>def <span class="ident">calcDistance2Matrix_multidim</span></span>(<span>nDimPoints0, nDimPoints1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of squared distances between to corrdinate sets in multiple dimensions.</p>
+<p>INPUT
+nDimPoints0: list of n-dim tuples
+nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+distFunc: calculates the distance based on the differences</p>
+<p>RETURN
+distanceMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDistance2Matrix_multidim(nDimPoints0, nDimPoints1):
+    &#34;&#34;&#34; Returns the matrix of squared distances between to corrdinate sets in multiple dimensions.
+
+    INPUT
+        nDimPoints0: list of n-dim tuples
+        nDimPoints1: list of n-dim tuples with same dimension as nDimPoints1
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints0 = np.array(nDimPoints0)
+    nDimPoints1 = np.array(nDimPoints1)
+    dim = len(nDimPoints0[0])
+    assert len(nDimPoints1[0]) == dim
+    delta = [None]*dim
+    for d in range(dim):
+        data0 = nDimPoints0[:,d]
+        data1 = nDimPoints1[:,d]
+        delta[d] = abs(data0 - np.reshape(data1,(len(data1),1))) # computes all possible combinations
+    return np.asarray(delta)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcDistanceMatrix"><code class="name flex">
+<span>def <span class="ident">calcDistanceMatrix</span></span>(<span>nDimPoints, distFunc=&lt;function &lt;lambda&gt;&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of squared distances between coordinates in nDimPoints.</p>
+<p>INPUT
+nDimPoints: list of n-dim tuples
+distFunc: calculates the distance based on the differences</p>
+<p>RETURN
+distanceMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDistanceMatrix(nDimPoints, 
+                       distFunc=lambda deltaPoint: sum(deltaPoint[d]**2 for d in range(len(deltaPoint)))):
+    &#34;&#34;&#34; Returns the matrix of squared distances between coordinates in nDimPoints.
+    
+    INPUT
+        nDimPoints: list of n-dim tuples
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = data - np.reshape(data,(len(data),1)) # computes all possible combinations
+
+    dist = distFunc(delta)
+    #dist = dist + np.identity(len(data))*dist.max() # eliminate self matching
+    # returns  squared distance:
+    return dist </code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcDistanceMatrix_multidim"><code class="name flex">
+<span>def <span class="ident">calcDistanceMatrix_multidim</span></span>(<span>nDimPoints)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the matrix of squared distances between points in multiple dimensions. </p>
+<p>INPUT
+nDimPoints: list of n-dim tuples
+distFunc: calculates the distance based on the differences</p>
+<p>RETURN
+distanceMatrix: n x n matrix of squared distances</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcDistanceMatrix_multidim(nDimPoints):
+    &#34;&#34;&#34; Returns the matrix of squared distances between points in multiple dimensions. 
+
+    INPUT
+        nDimPoints: list of n-dim tuples
+        distFunc: calculates the distance based on the differences
+
+    RETURN
+        distanceMatrix: n x n matrix of squared distances
+    &#34;&#34;&#34;
+    nDimPoints = np.array(nDimPoints)
+    dim = len(nDimPoints[0])
+    delta = [None]*dim
+    for d in range(dim):
+        data = nDimPoints[:,d]
+        delta[d] = abs(data - np.reshape(data,(len(data),1))) # computes all possible combinations
+    return np.asarray(delta) </code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calcGridPoints3D"><code class="name flex">
+<span>def <span class="ident">calcGridPoints3D</span></span>(<span>Lpix, pixscale)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>returns grid points for distance matrix calculation.</p>
+<p>INPUT
+Lpix: number of pixels in each dimension as array (xLpix, yLpix, zLpix)
+pixscale: pixelscale in each dimension as array (xpixscale, ypixscale, zpixscale)</p>
+<p>RETURN
+gridpoints: array with grid points in form (z,y,x)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calcGridPoints3D(Lpix, pixscale):
+    &#34;&#34;&#34;
+    returns grid points for distance matrix calculation.
+
+    INPUT
+        Lpix: number of pixels in each dimension as array (xLpix, yLpix, zLpix)
+        pixscale: pixelscale in each dimension as array (xpixscale, ypixscale, zpixscale)
+
+    RETURN
+        gridpoints: array with grid points in form (z,y,x)
+    &#34;&#34;&#34;
+    Lpix = np.asarray(Lpix)
+    pixscale = np.asarray(pixscale)
+    xLpix, yLpix, zLpix = Lpix[0], Lpix[1], Lpix[2]
+    xpixscale, ypixscale, zpixscale = pixscale[0], pixscale[1], pixscale[2]
+    xrange = np.arange(1, xLpix+1) * xpixscale
+    yrange = np.arange(1, yLpix+1) * ypixscale
+    zrange = np.arange(1, zLpix+1) * zpixscale
+    _xg, _yg, _zg = np.meshgrid(xrange, yrange, zrange)
+    xr, yr, zr = _xg.ravel(), _yg.ravel(), _zg.ravel()
+    return np.asarray([xr, yr, zr]).T</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.calc_square_distances2D"><code class="name flex">
+<span>def <span class="ident">calc_square_distances2D</span></span>(<span>Lpix, pixscale)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initialize (squared) distance matrix for stationary kernel.</p>
+<p>INPUT
+Lpix: number of pixels in each dimension
+pixscale: pixel scale in arcsec/pixel</p>
+<p>RETURN
+dist: squared distance matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def calc_square_distances2D(Lpix, pixscale):
+    &#34;&#34;&#34;
+    Initialize (squared) distance matrix for stationary kernel.
+
+    INPUT
+        Lpix: number of pixels in each dimension
+        pixscale: pixel scale in arcsec/pixel
+
+    RETURN
+        dist: squared distance matrix
+    &#34;&#34;&#34;
+    Lpix = np.asarray(Lpix)
+    pixscale = np.asarray(pixscale)
+    xLpix, yLpix = Lpix[0], Lpix[1]
+    xpixscale, ypixscale = pixscale[0], pixscale[1]
+    xrange = (np.arange(0, xLpix) - xLpix/2.0) * xpixscale
+    yrange = (np.arange(0, yLpix) - xLpix/2.0) * ypixscale
+    _xg, _yg = np.meshgrid(xrange, yrange)
+    xr, yr = _xg.ravel(), _yg.ravel()
+    Dx = xr[:, np.newaxis] - xr[np.newaxis,:]
+    Dy = yr[:, np.newaxis] - yr[np.newaxis,:]
+    return Dx**2 + Dy**2</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.gpkernel_sparse"><code class="name flex">
+<span>def <span class="ident">gpkernel_sparse</span></span>(<span>D2, gamma)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>2-D rsparse RBF kernel with , defined in Melkumyan and Ramos, 2009, Eq 13
+lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential</p>
+<p>INPUT
+D2: pairwise square distances
+gamma: kernel length scale</p>
+<p>RETURN
+K: kernel matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def gpkernel_sparse(D2, gamma):
+    &#34;&#34;&#34;
+    2-D rsparse RBF kernel with , defined in Melkumyan and Ramos, 2009, Eq 13 
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+    
+    INPUT
+        D2: pairwise square distances
+        gamma: kernel length scale
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    D2 = np.sqrt(D2)
+    res = np.zeros_like(D2)
+    res[D2 &lt; gamma] = (2 + np.cos(2*np.pi * D2[D2 &lt; gamma] /gamma))/3.*(1-D2[D2 &lt; gamma] /gamma) + 1/(2.*np.pi) * np.sin(2*np.pi*D2[D2 &lt; gamma] /gamma)
+    # Remove floating errors
+    res[res&lt;0.] = 0.
+    return res</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.gpkernel_sparse_multidim"><code class="name flex">
+<span>def <span class="ident">gpkernel_sparse_multidim</span></span>(<span>Delta, gamma)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential</p>
+<p>INPUT
+Delta: pairwise square distances for each dimension
+gamma: kernel length scale for each dimension</p>
+<p>RETURN
+K: kernel matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def gpkernel_sparse_multidim(Delta, gamma):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    kres = np.ones(ndata)
+    for d in range(dim):
+        res = np.zeros(ndata)
+        Di = Delta[d]
+        l = gamma[d]
+        res[Di &lt; l] = (2 + np.cos(2*np.pi * Di[Di &lt; l] /l))/3.*(1-Di[Di &lt; l] /l) + 1/(2.*np.pi) * np.sin(2*np.pi*Di[Di &lt; l] /l)
+        # Remove floating errors
+        res[res &lt; 0.] = 0.
+        kres *= res
+    return kres</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.gpkernel_sparse_multidim2"><code class="name flex">
+<span>def <span class="ident">gpkernel_sparse_multidim2</span></span>(<span>Delta, gamma)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 13, 20
+lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential</p>
+<p>INPUT
+Delta: pairwise square distances for each dimension
+gamma: kernel length scale for each dimension</p>
+<p>RETURN
+K: kernel matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def gpkernel_sparse_multidim2(Delta, gamma):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 13, 20
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    r2 = np.zeros(ndata)
+    res = np.zeros(ndata)
+    for d in range(dim):
+        r2 += (Delta[d] / gamma[d])**2  
+    r = np.sqrt(r2)
+    res[r &lt; 1] = (2 + np.cos(2*np.pi * r[r &lt; 1]))/3.*(1-r[r &lt; 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r &lt; 1])
+    return res</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.gpkernel_sparse_multidim2_noise"><code class="name flex">
+<span>def <span class="ident">gpkernel_sparse_multidim2_noise</span></span>(<span>Delta, gamma, sigma_delta=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Modified Multi-dimensional RBF kernel with X unicertainity,
+original defined in Melkumyan and Ramos 2009, following Eq 13, 20
+lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential</p>
+<p>INPUT <br>
+Delta: pairwise square distances for each dimension
+gamma: kernel length scale for each dimension
+delta: uncertainty in pairwise distance, same shape as delta
+</p>
+<p>RETURN
+K: kernel matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def gpkernel_sparse_multidim2_noise(Delta, gamma, sigma_delta = None):
+    &#34;&#34;&#34;
+    Modified Multi-dimensional RBF kernel with X unicertainity, 
+    original defined in Melkumyan and Ramos 2009, following Eq 13, 20
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT   
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+        delta: uncertainty in pairwise distance, same shape as delta    
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    ndata = Delta[0].shape
+    if sigma_delta is not None:
+        sigma_delta = np.asarray(sigma_delta)
+    else:
+        sigma_delta = np.zeros_like(Delta)
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    r2 = np.zeros(ndata)
+    res = np.zeros(ndata)
+    for d in range(dim):
+        r2 += (Delta[d] / (gamma[d] + sigma_delta[d]))**2  
+    r = np.sqrt(r2)
+    res[r &lt; 1] = (2 + np.cos(2*np.pi * r[r &lt; 1]))/3.*(1-r[r &lt; 1]) + 1/(2.*np.pi) * np.sin(2*np.pi*r[r &lt; 1])
+    return res</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.gpkernel_sparse_multidim_noise"><code class="name flex">
+<span>def <span class="ident">gpkernel_sparse_multidim_noise</span></span>(<span>Delta, gamma, sigma_delta=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential</p>
+<p>INPUT
+Delta: pairwise square distances for each dimension
+gamma: kernel length scale for each dimension
+delta: uncertainty in pairwise distance, same shape as delta</p>
+<p>RETURN
+K: kernel matrix</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def gpkernel_sparse_multidim_noise(Delta, gamma, sigma_delta = None):
+    &#34;&#34;&#34;
+    Multi-dimensional RBF kernel, defined in Melkumyan and Ramos, following Eq 9, 12
+    lengthscale is roughly equivalent to 4 times the lengthcale of squared exponential
+
+    INPUT
+        Delta: pairwise square distances for each dimension
+        gamma: kernel length scale for each dimension
+        delta: uncertainty in pairwise distance, same shape as delta
+
+    RETURN
+        K: kernel matrix
+    &#34;&#34;&#34;
+    Delta = np.asarray(Delta)
+    gamma = np.asarray(gamma)
+    if sigma_delta is not None:
+        sigma_delta = np.asarray(sigma_delta)
+    else:
+        sigma_delta = np.zeros_like(Delta)
+    ndata = Delta[0].shape
+    dim = Delta.shape[0]
+    assert len(gamma) == dim
+    kres = np.ones(ndata)
+    for d in range(dim):
+        res = np.zeros(ndata)
+        Di = Delta[d]
+        l = gamma[d] + sigma_delta[d]
+        rat = sigma_delta[d]/gamma[d]
+        res[Di &lt; l] = ((2 + np.cos(2*np.pi * Di[Di &lt; l] /l[Di &lt; l]))/3.*(1-Di[Di &lt; l] /l[Di &lt; l]) + 1/(2.*np.pi) * np.sin(2*np.pi*Di[Di &lt; l] /l[Di &lt; l]))/(1+rat[Di &lt; l])
+        # Remove floating errors
+        res[res &lt; 0.] = 0.
+        kres *= res
+    return kres</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.optimize_gp_3D"><code class="name flex">
+<span>def <span class="ident">optimize_gp_3D</span></span>(<span>points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Optimize GP hyperparmenters
+of amplitude, noise, and lengthscales
+Using Global optimisation shgo with sobol sampling.</p>
+<p>INPUT
+points3d_train: Array with training point coordinates for (z,y,x)
+Y_train: Training Data Vector
+Ynoise_train: Noise of Training data
+xymin: minimum GP lengthscale in x and y direction
+zmin: minimum GP lengthscale in vertical (z) direction
+Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train</p>
+<h2 id="return">Return</h2>
+<p>Optimised Hyperparameters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
+Marginal Log Likelihood of best solution</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimize_gp_3D(points3d_train, Y_train, Ynoise_train, xymin, zmin, Xdelta=None):
+    &#34;&#34;&#34;
+    Optimize GP hyperparmenters  of amplitude, noise, and lengthscales
+    Using Global optimisation shgo with sobol sampling.
+
+    INPUT
+        points3d_train: Array with training point coordinates for (z,y,x)
+        Y_train: Training Data Vector
+        Ynoise_train: Noise of Training data
+        xymin: minimum GP lengthscale in x and y direction
+        zmin: minimum GP lengthscale in vertical (z) direction
+        Xdelta: 3D array (x,y,z) with uncertainty in data positions, same shape as points3d_train
+
+    RETURN:
+        Optimised Hyperparameters of best solution: (amplitude, noise, z_lengthscale, xy_lengthscale)
+        Marginal Log Likelihood of best solution
+    &#34;&#34;&#34;
+
+    def calc_nlogl3D(gp_params, *args):
+        # Calculate marginal loglikelihood
+        gp_amp = gp_params[0]
+        gp_noise = gp_params[1]
+        gp_length = np.asarray([gp_params[2], gp_params[3], gp_params[3]])      
+        D2, Y, Ynoise, Delta = args
+        if Delta is not None:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2_noise(D2, gp_length, Delta)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim_noise(D2, gp_length, Delta) + gp_noise + np.diag(Ynoise**2)
+        else:
+            #kcov = gp_amp * (gpkernel_sparse_multidim2(D2, gp_length)) + np.eye(len(D2[0,0])) * noise**2
+            kcov = gp_amp * gpkernel_sparse_multidim(D2, gp_length) + gp_noise
+        try:
+            k_chol = cholesky(kcov, lower=True)
+            Ky = solve_triangular(k_chol, Y, lower=True).flatten()
+            log_det_k= 2 * np.log(np.diag(k_chol)).sum()
+            n_log_2pi = Ntrain * np.log(2 * np.pi)
+            logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+        except:
+            logl = -np.nan
+        return -logl
+
+    Dtrain = calcDistanceMatrix_multidim(points3d_train)
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+    else:
+        Delta_00 = None
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    print(&#39;Mean Input Noise: &#39;, np.mean(Ynoise))
+    Ntrain = len(points3d_train)
+
+    # Optimize hyperparameters with SHGO (slower and latest scipy update made it unstable)
+    # Global optimisation
+    # TBD: test dual_annealing with scipy.optimize.dual_annealing?
+    # res = shgo(calc_nlogl3D, n=20, iters =20,
+    #             #bounds=[(0.001, 1000), (ynoise_min, 1), (zmin, zmin*1000), (xymin, xymin*1000)],
+    #             bounds=[(0.01, 10), (0.01, 2.0), (zmin, zmin*2000), (xymin, xymin*4000)],
+    #             sampling_method=&#39;sobol&#39;,
+    #             args = (Dtrain, Y, Ynoise, Delta_00))
+
+    # Local optimisation
+    &#34;&#34;&#34;
+    Some common local optimiser choices
+    &#39;BFGS&#39;: Broyden-Fletcher-Goldfarb-Shanno algorithm
+    &#39;SLSQP&#39;: Sequential Least Squares Programming
+    &#39;COBYLA&#39;: Constrained Optimization BY Linear Approximation
+    &#39;L-BFGS-B&#39;: Limited memory BFGS
+    &#39;Powell&#39;: Powell&#39;s conjugate direction method
+    &#34;&#34;&#34;
+    optimiser = &#39;Powell&#39;
+    res = minimize(calc_nlogl3D, x0 = [1, 0.1, 10*zmin, 10*xymin],
+                bounds=[(0.01, 10), (0.0001, 1.0), (zmin, zmin*1000), (xymin, xymin*1000)],
+                method=optimiser,
+                args = (Dtrain, Y, Ynoise, Delta_00))         
+    if not res.success:
+        # Don&#39;t update parameters
+        print(&#39;WARNING: &#39; + res.message) 
+    else:
+        print2(f&#39;Optimized Hyperparameters (amplitude, y_noise_fac, lengthscale_z, lengths_xy): {res.x}&#39;)
+        print(&#39;Marginal Log Likelihood: &#39;, -res.fun)
+    return res.x, -res.fun</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.predict_3D"><code class="name flex">
+<span>def <span class="ident">predict_3D</span></span>(<span>points3D_train, points3D_pred, gp_train, params_gp, Ynoise_pred=None, Xdelta=None, out_covar=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Predict mean and covariance based on trained GP.
+This caluclation saves time as cholesky decompsoition
+is already pre-computed. </p>
+<p>INPUT
+points3d_train: Array with trainig point coodinates for (z,y,x)
+points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
+gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
+params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
+Xdelta: Uncertainty in X coordinates, same shape as points3d_train</p>
+<h2 id="return">Return</h2>
+<p>predicted mean
+predicted uncertainty stddev</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@jit
+def predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    gp_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None, 
+    out_covar = False):
+    &#34;&#34;&#34;
+    Predict mean and covariance based on trained GP. 
+    This caluclation saves time as cholesky decompsoition  is already pre-computed. 
+
+    INPUT
+        points3d_train: Array with trainig point coodinates for (z,y,x)
+        points3d_pred: Array with point coodinates to be predicted in form (z,y,x)
+        gp_train: list with precomputed GP (k_chol, Ky, ymean, ystd)
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean functio for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+    &#34;&#34;&#34;
+    k_chol, Ky, ymean, ystd = gp_train
+
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
+
+    # Calculate Distance Matrixes: 
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
+
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
+    # Calculate Covariance Functions
+    # if with noise
+    if Xdelta is not None:
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01)    
+    else:
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    # if (Ynoise_pred is not None) &amp; (gp_amp &lt; 1):
+    #     #Caluluate diaginal elements as amplitude weighted average of noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    #yvar = np.diag(covar) * ystd**2
+    yvar = np.diag(covar) * ystd**2
+    if out_covar:
+        return ypred, np.sqrt(yvar), covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.GPmodel.train_predict_3D"><code class="name flex">
+<span>def <span class="ident">train_predict_3D</span></span>(<span>points3D_train, points3D_pred, Y_train, Ynoise_train, params_gp, Ynoise_pred=None, Xdelta=None, calclogl=True, save_gptrain=True, out_covar=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Train and predict mean and covariance of GP model.</p>
+<h2 id="input">Input</h2>
+<p>points3d_train: Array with training point coordinates for (z,y,x)
+points3d_pred: Array with point coordinates to be predicted in form (z,y,x)
+Y_train: vector of training data with same length as points3d_train
+Ynoise_train: noise data with same length as points3d_train
+params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+Ynoise_pred: noise data of the mean function for predicted location, same length as points3d_pred
+Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+calclogl: If True (default), calculates and returns the marginal log-likelihood of GP
+save_gptrain: if True (default), returns list of arrays (gp_train) such as cholesky factors that
+can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).</p>
+<h2 id="return">Return</h2>
+<p>predicted mean
+predicted uncertainty stddev
+marginal log likelihood
+gp_train</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train_predict_3D(
+    points3D_train, 
+    points3D_pred, 
+    Y_train,
+    Ynoise_train, 
+    params_gp, 
+    Ynoise_pred = None, 
+    Xdelta = None,  
+    calclogl = True, 
+    save_gptrain = True, 
+    out_covar = False):
+    &#34;&#34;&#34;
+    Train and predict mean and covariance of GP model.
+
+    INPUT:
+        points3d_train: Array with training point coordinates for (z,y,x)
+        points3d_pred: Array with point coordinates to be predicted in form (z,y,x)
+        Y_train: vector of training data with same length as points3d_train
+        Ynoise_train: noise data with same length as points3d_train
+        params_gp: list of hyperparameters as (amplitude, noise_std, lengthscale_z, lengthscale_xy)
+        Ynoise_pred: noise data of the mean function for predicted location, same length as points3d_pred
+        Xdelta: Uncertainty in X coordinates, same shape as points3d_train
+        calclogl: If True (default), calculates and returns the marginal log-likelihood of GP
+        save_gptrain: if True (default), returns list of arrays (gp_train) such as cholesky factors that 
+                can be reused for any other prediction based on same training data (for instance to split-up prediction in blocks).
+
+    RETURN:
+        predicted mean
+        predicted uncertainty stddev
+        marginal log likelihood
+        gp_train
+    &#34;&#34;&#34;
+    Ntrain = len(points3D_train)
+
+    # Standardize data:
+    ystd = Y_train.std()
+    ymean = Y_train.mean()
+    Y = (Y_train - ymean) / ystd
+    Ynoise = Ynoise_train / ystd
+    #Y = Y.reshape(-1,1)
+
+    # Calculate Distance Matrixes: 
+    D2_00 = calcDistanceMatrix_multidim(points3D_train)
+    D2_01 = calcDistance2Matrix_multidim(points3D_pred, points3D_train)
+    D2_11 = calcDistanceMatrix_multidim(points3D_pred)
+
+    # Set GP hyperparameter
+    params_gp = np.asarray(params_gp)
+    gp_amp = params_gp[0]
+    gp_noise = params_gp[1]
+    gp_length = (params_gp[2], params_gp[3], params_gp[3])
+
+    # noise of mean function for prediction points
+    if Ynoise_pred is not None:
+        Ynoise2 = Ynoise_pred / ystd
+    else:
+        Ynoise2 = np.ones(len(points3D_pred))
+
+    # if with noise in position
+    if Xdelta is not None:
+        Delta_00 = calcDeltaMatrix_multidim(Xdelta)
+        Delta_01 = calcDelta2Matrix_multidim(np.zeros_like(points3D_pred), Xdelta)
+        kcov00 = gp_amp * gpkernel_sparse_multidim_noise(D2_00, gp_length, Delta_00) + gp_noise + np.diag(Ynoise**2)
+        kcov01 = gp_amp * gpkernel_sparse_multidim_noise(D2_01, gp_length, Delta_01)    
+    else:
+        kcov00 = gp_amp * gpkernel_sparse_multidim(D2_00, gp_length) + gp_noise 
+        kcov01 = gp_amp * gpkernel_sparse_multidim(D2_01, gp_length) 
+    # Add also predicted variances of mean function as diagonal elements
+    kcov11 = gp_amp * gpkernel_sparse_multidim(D2_11, gp_length) + np.diag(Ynoise2**2) 
+
+    try:
+        k_chol = cholesky(kcov00, lower=True)
+    except:
+        print(&#34;Cholesky decompostion failed, kov matrix is likely not positive semitive.&#34;)
+        print(&#34;Change GP parameter settings&#34;)
+        sys.exit(1)
+    Ky = solve_triangular(k_chol, Y, lower=True).flatten() #shape(2*Nsensor)
+    v = solve_triangular(k_chol, kcov01, lower=True)
+    # predicted mean
+    mu = np.dot(v.T, Ky)
+    # predicted covariance
+    covar = kcov11 - np.dot(v.T, v)
+    ## optional regularisation (not enabled)
+    # if (Ynoise_pred is not None) &amp; (gp_amp &lt; 1):
+    #     #Calculate diaginal elements as amplitude weighted average of  noise and GP noise
+    #     varcomb = gp_amp * np.diag(covar) + (1 - gp_amp) * Ynoise2**2 
+    #     np.fill_diagonal(covar, varcomb)
+    # Calculate marginal log likelihood
+    if calclogl:
+        log_det_k=  2 * np.sum(np.log(np.diag(k_chol)))
+        n_log_2pi = Ntrain * np.log(2 * np.pi)
+        logl = -0.5 * (np.dot(Ky, Ky) + log_det_k + n_log_2pi)
+    else:
+        logl = 0.
+    # Transform predicted data back to original range:
+    ypred =  mu * ystd + ymean  
+    yvar = np.diag(covar) * ystd**2
+    print(&#39;Logl: &#39;, logl)
+    # Save matrix decomposition of training data for subsequent prediction (so cholesky etc don&#39;t need to be computed again)
+    if save_gptrain:
+        gp_train = (k_chol, Ky, ymean, ystd)
+    else:
+        gp_train = 0
+    if out_covar:
+        return ypred, np.sqrt(yvar), logl, gp_train, covar * ystd**2
+    else:
+        return ypred, np.sqrt(yvar), logl, gp_train</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="python_scripts" href="index.html">python_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="python_scripts.GPmodel.calcDelta2Matrix_multidim" href="#python_scripts.GPmodel.calcDelta2Matrix_multidim">calcDelta2Matrix_multidim</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcDeltaMatrix_multidim" href="#python_scripts.GPmodel.calcDeltaMatrix_multidim">calcDeltaMatrix_multidim</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcDistance2Matrix" href="#python_scripts.GPmodel.calcDistance2Matrix">calcDistance2Matrix</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcDistance2Matrix_multidim" href="#python_scripts.GPmodel.calcDistance2Matrix_multidim">calcDistance2Matrix_multidim</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcDistanceMatrix" href="#python_scripts.GPmodel.calcDistanceMatrix">calcDistanceMatrix</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcDistanceMatrix_multidim" href="#python_scripts.GPmodel.calcDistanceMatrix_multidim">calcDistanceMatrix_multidim</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calcGridPoints3D" href="#python_scripts.GPmodel.calcGridPoints3D">calcGridPoints3D</a></code></li>
+<li><code><a title="python_scripts.GPmodel.calc_square_distances2D" href="#python_scripts.GPmodel.calc_square_distances2D">calc_square_distances2D</a></code></li>
+<li><code><a title="python_scripts.GPmodel.gpkernel_sparse" href="#python_scripts.GPmodel.gpkernel_sparse">gpkernel_sparse</a></code></li>
+<li><code><a title="python_scripts.GPmodel.gpkernel_sparse_multidim" href="#python_scripts.GPmodel.gpkernel_sparse_multidim">gpkernel_sparse_multidim</a></code></li>
+<li><code><a title="python_scripts.GPmodel.gpkernel_sparse_multidim2" href="#python_scripts.GPmodel.gpkernel_sparse_multidim2">gpkernel_sparse_multidim2</a></code></li>
+<li><code><a title="python_scripts.GPmodel.gpkernel_sparse_multidim2_noise" href="#python_scripts.GPmodel.gpkernel_sparse_multidim2_noise">gpkernel_sparse_multidim2_noise</a></code></li>
+<li><code><a title="python_scripts.GPmodel.gpkernel_sparse_multidim_noise" href="#python_scripts.GPmodel.gpkernel_sparse_multidim_noise">gpkernel_sparse_multidim_noise</a></code></li>
+<li><code><a title="python_scripts.GPmodel.optimize_gp_3D" href="#python_scripts.GPmodel.optimize_gp_3D">optimize_gp_3D</a></code></li>
+<li><code><a title="python_scripts.GPmodel.predict_3D" href="#python_scripts.GPmodel.predict_3D">predict_3D</a></code></li>
+<li><code><a title="python_scripts.GPmodel.train_predict_3D" href="#python_scripts.GPmodel.train_predict_3D">train_predict_3D</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>python_scripts.model_blr API documentation</title>
+<meta name="description" content="Bayesian Linear Regression with uncertainty estimates and feature importance …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>python_scripts.model_blr</code></h1>
+</header>
+<section id="section-intro">
+<p>Bayesian Linear Regression with uncertainty estimates and feature importance.</p>
+<p>This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).</p>
+<p>Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
+<p>This open-source software is released under the AGPL-3.0 License.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Bayesian Linear Regression with uncertainty estimates and feature importance.
+
+This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
+
+Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
+
+This open-source software is released under the AGPL-3.0 License.
+
+&#34;&#34;&#34;
+import warnings
+warnings.filterwarnings(&#39;ignore&#39;) 
+from sklearn.exceptions import DataConversionWarning
+warnings.filterwarnings(action=&#39;ignore&#39;, category=DataConversionWarning)
+
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import random
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, PowerTransformer, RobustScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import BayesianRidge
+
+print_info = False
+
+
+def scale_data(X, y, scaler = &#39;power&#39;):
+        &#34;&#34;&#34;
+        Scaling data with power scaler and multiplication of y
+        see also as introduction to different scalers:
+        https://www.analyticsvidhya.com/blog/2020/07/types-of-feature-transformation-and-scaling/
+        https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target variable with shape (npoints)
+        scaler: &#39;power&#39; , &#39;standard&#39;, or &#39;robust&#39;. Default is Powertransform
+
+        Return:
+        Xs
+        ys
+        fitparams: 
+        &#34;&#34;&#34;
+        if scaler == &#39;power&#39;:
+                scaler_x = PowerTransformer(copy=True, method=&#39;yeo-johnson&#39;, standardize=True)
+        elif scaler == &#39;standard&#39;:
+                scaler_x = StandardScaler()
+        elif scaler == &#39;robust&#39;:
+                scaler_x = RobustScaler()
+        #scaler_x = MinMaxScaler(feature_range=(0.01,1.01)) 
+        scaler_x = scaler_x.fit(X)
+        Xs = scaler_x.transform(X)
+
+        # Need all data larger than 0 for logspace conversion
+        if scaler == &#39;power&#39;:
+                scaler_y = PowerTransformer(copy=True, method=&#39;yeo-johnson&#39;, standardize=True)
+        elif scaler == &#39;standard&#39;:
+                scaler_y = StandardScaler()
+        elif scaler == &#39;robust&#39;:
+                scaler_y = RobustScaler()
+        #scaler_y = MinMaxScaler(feature_range=(0.01,1.01))
+        scaler_y = scaler_y.fit(y.reshape(-1, 1)) # use .ravel() instead?
+        ys = scaler_y.transform(y.reshape(-1, 1)).flatten() # use .ravel() instead?
+
+        return Xs, ys, (scaler_x, scaler_y)
+
+
+def invscale_data(X, y, scale_param):
+        &#34;&#34;&#34;
+        Inverse Scaling data with standard scaler and multiplication of y
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target variable with shape (npoints)
+        scale_param: (scaler_x, scaler_y)
+
+        Return:
+        Xinv
+        yinv 
+        &#34;&#34;&#34;
+        scaler_x, scaler_y = scale_param
+
+        Xinv = scaler_x.inverse_transform(X)
+        yinv =  scaler_y.inverse_transform(y.reshape(-1, 1))
+        return Xinv, yinv.flatten()
+
+
+def blr_train(X_train, y_train, logspace = False):
+        &#34;&#34;&#34;
+        Trains Bayesian Linear Regresssion model 
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target varable with shape (npoints)
+        logspace: if True, models regression in logspace
+
+        Return
+        regression model
+
+        &#34;&#34;&#34;
+        if logspace:
+                x = np.log(X_train)
+                y = np.log(y_train)
+        else:
+                x = X_train
+                y = y_train
+        #sel = np.where(np.isfinite(x) &amp; np.isfinite(y))
+        if x.shape[1] == 1:
+                x = x.reshape(-1,1)
+        y = y.reshape(-1,1)
+        reg = BayesianRidge(tol=1e-6, fit_intercept=True, compute_score=True)
+        reg.fit(x, y)
+
+        if print_info:
+                print(&#39;BLR regresssion coefficients:&#39;)
+                print(reg.coef_)
+                print(&#39;BLR regresssion coefficients uncertainity:&#39;)
+                print(np.diag(reg.sigma_))
+                print(&#39;BLR regresssion intercept:&#39;)
+                print(reg.intercept_)
+        # Set not significant coeffcients to zero
+        coef = reg.coef_.copy()
+        coef_sigma = np.diag(reg.sigma_).copy()
+        sel = np.where(abs(reg.coef_) &gt; 3 * coef_sigma)
+        if print_info:
+                for i in sel[0]:
+                        print(&#39;X&#39; + str(i), &#39; wcorr=&#39; + str(np.round(coef[i], 3)) + &#39; +/- &#39; + str(np.round(coef_sigma[i], 3)))
+                print(&#34;Number of insignificant features: &#34;, x.shape[1] - len(sel[0]))
+        xnew = x[:, sel[0]]
+        regnew = BayesianRidge(tol=1e-6, fit_intercept=True, compute_score=True)
+        regnew.fit(xnew, y)
+        coefnew = regnew.coef_.copy() 
+        coef *= 0
+        coef[sel] = coefnew 
+        reg.coef_ = coef
+
+        #blr_model = (reg.intercept_, reg.coef_)
+
+        return reg #blr_model
+        
+
+
+def blr_predict(X_test, blr_reg, y_test = None, outpath = None, logspace = False):
+        &#34;&#34;&#34;
+        Returns Prediction for BL regression model
+
+        INPUT
+        X_text: input datpoints in shape (ndata,n_feature). The number of features has to be the same as for the training data
+        xg_model: pre-trained XGboost regression model
+        y_test: if not None, uses true y data for normalized RMSE calculation
+        outpath: if not None, saves prediction to file
+        logspace: if True, models regression in logspace
+
+        Return
+        ypred
+        ypred_std
+        rmse
+        &#34;&#34;&#34;
+        #intercept, coef = blr_reg
+        if logspace:
+                x = np.log(X_test)
+        else:
+                x = X_test
+        if x.shape[1] == 1:
+                x = x.reshape(-1,1)
+        #y = intercept + np.sum(x * coef, axis = 1)
+        y, ystd = blr_reg.predict(x, return_std=True)
+        if logspace:
+                ypred  = np.exp(y).flatten()
+        else:
+                ypred = y.flatten()
+
+        if y_test is not None:
+                rmse_test = np.sqrt(np.mean((ypred - y_test)**2)) / y_test.std()
+                if print_info: print(&#34;BLR normalized RMSE Test: &#34;, np.round(rmse_test, 4))
+
+                if outpath is not None:
+                        plt.figure()  # inches
+                        plt.title(&#39;BLR Test Data&#39;)
+                        plt.scatter(y_test, ypred, c = &#39;b&#39;)
+                        plt.xlabel(&#39;y True&#39;)
+                        plt.ylabel(&#39;y Predict&#39;)
+                        plt.savefig(os.path.join(outpath,&#39;BLR_test_pred_vs_true.png&#39;), dpi = 300)
+                        plt.close(&#39;all&#39;)
+        else:
+                rmse_test = None
+
+        return ypred, ystd, rmse_test
+
+
+def blr_train_predict(X_train, y_train, X_test, y_test = None, outpath = None, logspace=False):
+        &#34;&#34;&#34;
+        Trains and predicts BLR model
+
+        INPUT:
+        X_train: input data matrix with shape (npoints,nfeatures)
+        y_train: target varable with shape (npoints)
+        X_test: input data matrix with shape (npoints,nfeatures)
+        y_test: target varable with shape (npoints)
+        outpath: path to save plots
+        logspace: if True, models regression in logspace
+
+        Return:
+        ypred
+        ypred_std
+        rmse
+        &#34;&#34;&#34;
+        Xs_train, ys_train, scale_param = scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_param
+        Xs_test = scaler_x.transform(X_test)
+        if y_test is not None:
+                ys_test = scaler_y.transform(y_test.reshape(-1, 1)) # use .ravel() instead?
+                ys_test = ys_test.flatten()
+        else:
+                ys_test = None
+        # Train BLR
+        Xs_test = X_test
+        Xs_train = X_train
+        ys_train= y_train
+        ys_test = y_test
+        blr_model = blr_train(Xs_train, ys_train, logspace = logspace)
+
+        # Predict for X_test
+        ypred, nrmse_test = blr_predict(Xs_test, blr_model, y_test = ys_test, outpath = outpath, logspace = logspace)
+
+        # Rescale data to original scale
+        y_pred =  scaler_y.inverse_transform(ypred.reshape(-1, 1)) # use .ravel() instead?
+        y_pred = y_pred.flatten()
+        y_pred = ypred
+
+
+        # calculate square errors
+        if y_test is not None:
+                residual = y_pred - y_test
+        else:
+                residual = np.zeros_like(y_test)
+
+        return y_pred, residual
+
+
+def test_blr(logspace = True, nsamples = 600, nfeatures = 14, ninformative = 12, noise = 0.1, outpath = None):
+        &#34;&#34;&#34;
+        Test BLR model on synthetic data
+
+        INPUT:
+        logspace: if True, models regression in logspace
+        nsamples: number of samples for training
+        nfeatures: number of features
+        ninformative: number of informative features
+        noise: noise level
+        outpath: path to save plots
+
+        &#34;&#34;&#34;
+        # Create simulated data
+        from sklearn.datasets import make_regression
+        Xorig, yorig, coeffs = make_regression(n_samples=nsamples, 
+                n_features=nfeatures, n_informative=ninformative, 
+                n_targets=1, bias=2.0, tail_strength=0.2, noise=noise, shuffle=True, coef=True, random_state=42)
+        if logspace:
+                Xorig = np.exp(Xorig)
+                yorig = np.exp(yorig/100)
+        
+        Xs, ys, params = scale_data(Xorig, yorig) 
+
+        if outpath is not None: 
+                os.makedirs(outpath, exist_ok = True)
+
+        X_train, X_test, y_train, y_test = train_test_split(Xs, ys, test_size=0.5, random_state=42)
+
+        # Run BNN
+        y_pred, residual = blr_train_predict(X_train, y_train, X_test, y_test = y_test, outpath = outpath, logspace = logspace)
+
+        # Calculate normalized RMSE:
+        nrmse = np.sqrt(np.nanmean(residual**2)) / y_test.std()
+        nrmedse = np.sqrt(np.median(residual**2)) / y_test.std()
+        if print_info:
+                print(&#39;Normalized RMSE for test data: &#39;, np.round(nrmse,3))
+                print(&#39;Normalized ROOT MEDIAM SE for test data: &#39;, np.round(nrmedse,3))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="python_scripts.model_blr.blr_predict"><code class="name flex">
+<span>def <span class="ident">blr_predict</span></span>(<span>X_test, blr_reg, y_test=None, outpath=None, logspace=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns Prediction for BL regression model</p>
+<p>INPUT
+X_text: input datpoints in shape (ndata,n_feature). The number of features has to be the same as for the training data
+xg_model: pre-trained XGboost regression model
+y_test: if not None, uses true y data for normalized RMSE calculation
+outpath: if not None, saves prediction to file
+logspace: if True, models regression in logspace</p>
+<p>Return
+ypred
+ypred_std
+rmse</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blr_predict(X_test, blr_reg, y_test = None, outpath = None, logspace = False):
+        &#34;&#34;&#34;
+        Returns Prediction for BL regression model
+
+        INPUT
+        X_text: input datpoints in shape (ndata,n_feature). The number of features has to be the same as for the training data
+        xg_model: pre-trained XGboost regression model
+        y_test: if not None, uses true y data for normalized RMSE calculation
+        outpath: if not None, saves prediction to file
+        logspace: if True, models regression in logspace
+
+        Return
+        ypred
+        ypred_std
+        rmse
+        &#34;&#34;&#34;
+        #intercept, coef = blr_reg
+        if logspace:
+                x = np.log(X_test)
+        else:
+                x = X_test
+        if x.shape[1] == 1:
+                x = x.reshape(-1,1)
+        #y = intercept + np.sum(x * coef, axis = 1)
+        y, ystd = blr_reg.predict(x, return_std=True)
+        if logspace:
+                ypred  = np.exp(y).flatten()
+        else:
+                ypred = y.flatten()
+
+        if y_test is not None:
+                rmse_test = np.sqrt(np.mean((ypred - y_test)**2)) / y_test.std()
+                if print_info: print(&#34;BLR normalized RMSE Test: &#34;, np.round(rmse_test, 4))
+
+                if outpath is not None:
+                        plt.figure()  # inches
+                        plt.title(&#39;BLR Test Data&#39;)
+                        plt.scatter(y_test, ypred, c = &#39;b&#39;)
+                        plt.xlabel(&#39;y True&#39;)
+                        plt.ylabel(&#39;y Predict&#39;)
+                        plt.savefig(os.path.join(outpath,&#39;BLR_test_pred_vs_true.png&#39;), dpi = 300)
+                        plt.close(&#39;all&#39;)
+        else:
+                rmse_test = None
+
+        return ypred, ystd, rmse_test</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.model_blr.blr_train"><code class="name flex">
+<span>def <span class="ident">blr_train</span></span>(<span>X_train, y_train, logspace=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trains Bayesian Linear Regresssion model </p>
+<p>INPUT
+X: input data matrix with shape (npoints,nfeatures)
+y: target varable with shape (npoints)
+logspace: if True, models regression in logspace</p>
+<p>Return
+regression model</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blr_train(X_train, y_train, logspace = False):
+        &#34;&#34;&#34;
+        Trains Bayesian Linear Regresssion model 
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target varable with shape (npoints)
+        logspace: if True, models regression in logspace
+
+        Return
+        regression model
+
+        &#34;&#34;&#34;
+        if logspace:
+                x = np.log(X_train)
+                y = np.log(y_train)
+        else:
+                x = X_train
+                y = y_train
+        #sel = np.where(np.isfinite(x) &amp; np.isfinite(y))
+        if x.shape[1] == 1:
+                x = x.reshape(-1,1)
+        y = y.reshape(-1,1)
+        reg = BayesianRidge(tol=1e-6, fit_intercept=True, compute_score=True)
+        reg.fit(x, y)
+
+        if print_info:
+                print(&#39;BLR regresssion coefficients:&#39;)
+                print(reg.coef_)
+                print(&#39;BLR regresssion coefficients uncertainity:&#39;)
+                print(np.diag(reg.sigma_))
+                print(&#39;BLR regresssion intercept:&#39;)
+                print(reg.intercept_)
+        # Set not significant coeffcients to zero
+        coef = reg.coef_.copy()
+        coef_sigma = np.diag(reg.sigma_).copy()
+        sel = np.where(abs(reg.coef_) &gt; 3 * coef_sigma)
+        if print_info:
+                for i in sel[0]:
+                        print(&#39;X&#39; + str(i), &#39; wcorr=&#39; + str(np.round(coef[i], 3)) + &#39; +/- &#39; + str(np.round(coef_sigma[i], 3)))
+                print(&#34;Number of insignificant features: &#34;, x.shape[1] - len(sel[0]))
+        xnew = x[:, sel[0]]
+        regnew = BayesianRidge(tol=1e-6, fit_intercept=True, compute_score=True)
+        regnew.fit(xnew, y)
+        coefnew = regnew.coef_.copy() 
+        coef *= 0
+        coef[sel] = coefnew 
+        reg.coef_ = coef
+
+        #blr_model = (reg.intercept_, reg.coef_)
+
+        return reg #blr_model</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.model_blr.blr_train_predict"><code class="name flex">
+<span>def <span class="ident">blr_train_predict</span></span>(<span>X_train, y_train, X_test, y_test=None, outpath=None, logspace=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trains and predicts BLR model</p>
+<p>INPUT:
+X_train: input data matrix with shape (npoints,nfeatures)
+y_train: target varable with shape (npoints)
+X_test: input data matrix with shape (npoints,nfeatures)
+y_test: target varable with shape (npoints)
+outpath: path to save plots
+logspace: if True, models regression in logspace</p>
+<p>Return:
+ypred
+ypred_std
+rmse</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def blr_train_predict(X_train, y_train, X_test, y_test = None, outpath = None, logspace=False):
+        &#34;&#34;&#34;
+        Trains and predicts BLR model
+
+        INPUT:
+        X_train: input data matrix with shape (npoints,nfeatures)
+        y_train: target varable with shape (npoints)
+        X_test: input data matrix with shape (npoints,nfeatures)
+        y_test: target varable with shape (npoints)
+        outpath: path to save plots
+        logspace: if True, models regression in logspace
+
+        Return:
+        ypred
+        ypred_std
+        rmse
+        &#34;&#34;&#34;
+        Xs_train, ys_train, scale_param = scale_data(X_train, y_train)
+        scaler_x, scaler_y = scale_param
+        Xs_test = scaler_x.transform(X_test)
+        if y_test is not None:
+                ys_test = scaler_y.transform(y_test.reshape(-1, 1)) # use .ravel() instead?
+                ys_test = ys_test.flatten()
+        else:
+                ys_test = None
+        # Train BLR
+        Xs_test = X_test
+        Xs_train = X_train
+        ys_train= y_train
+        ys_test = y_test
+        blr_model = blr_train(Xs_train, ys_train, logspace = logspace)
+
+        # Predict for X_test
+        ypred, nrmse_test = blr_predict(Xs_test, blr_model, y_test = ys_test, outpath = outpath, logspace = logspace)
+
+        # Rescale data to original scale
+        y_pred =  scaler_y.inverse_transform(ypred.reshape(-1, 1)) # use .ravel() instead?
+        y_pred = y_pred.flatten()
+        y_pred = ypred
+
+
+        # calculate square errors
+        if y_test is not None:
+                residual = y_pred - y_test
+        else:
+                residual = np.zeros_like(y_test)
+
+        return y_pred, residual</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.model_blr.invscale_data"><code class="name flex">
+<span>def <span class="ident">invscale_data</span></span>(<span>X, y, scale_param)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Inverse Scaling data with standard scaler and multiplication of y</p>
+<p>INPUT
+X: input data matrix with shape (npoints,nfeatures)
+y: target variable with shape (npoints)
+scale_param: (scaler_x, scaler_y)</p>
+<p>Return:
+Xinv
+yinv</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def invscale_data(X, y, scale_param):
+        &#34;&#34;&#34;
+        Inverse Scaling data with standard scaler and multiplication of y
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target variable with shape (npoints)
+        scale_param: (scaler_x, scaler_y)
+
+        Return:
+        Xinv
+        yinv 
+        &#34;&#34;&#34;
+        scaler_x, scaler_y = scale_param
+
+        Xinv = scaler_x.inverse_transform(X)
+        yinv =  scaler_y.inverse_transform(y.reshape(-1, 1))
+        return Xinv, yinv.flatten()</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.model_blr.scale_data"><code class="name flex">
+<span>def <span class="ident">scale_data</span></span>(<span>X, y, scaler='power')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Scaling data with power scaler and multiplication of y
+see also as introduction to different scalers:
+<a href="https://www.analyticsvidhya.com/blog/2020/07/types-of-feature-transformation-and-scaling/">https://www.analyticsvidhya.com/blog/2020/07/types-of-feature-transformation-and-scaling/</a>
+<a href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html">https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html</a></p>
+<p>INPUT
+X: input data matrix with shape (npoints,nfeatures)
+y: target variable with shape (npoints)
+scaler: 'power' , 'standard', or 'robust'. Default is Powertransform</p>
+<p>Return:
+Xs
+ys
+fitparams:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def scale_data(X, y, scaler = &#39;power&#39;):
+        &#34;&#34;&#34;
+        Scaling data with power scaler and multiplication of y
+        see also as introduction to different scalers:
+        https://www.analyticsvidhya.com/blog/2020/07/types-of-feature-transformation-and-scaling/
+        https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html
+
+        INPUT
+        X: input data matrix with shape (npoints,nfeatures)
+        y: target variable with shape (npoints)
+        scaler: &#39;power&#39; , &#39;standard&#39;, or &#39;robust&#39;. Default is Powertransform
+
+        Return:
+        Xs
+        ys
+        fitparams: 
+        &#34;&#34;&#34;
+        if scaler == &#39;power&#39;:
+                scaler_x = PowerTransformer(copy=True, method=&#39;yeo-johnson&#39;, standardize=True)
+        elif scaler == &#39;standard&#39;:
+                scaler_x = StandardScaler()
+        elif scaler == &#39;robust&#39;:
+                scaler_x = RobustScaler()
+        #scaler_x = MinMaxScaler(feature_range=(0.01,1.01)) 
+        scaler_x = scaler_x.fit(X)
+        Xs = scaler_x.transform(X)
+
+        # Need all data larger than 0 for logspace conversion
+        if scaler == &#39;power&#39;:
+                scaler_y = PowerTransformer(copy=True, method=&#39;yeo-johnson&#39;, standardize=True)
+        elif scaler == &#39;standard&#39;:
+                scaler_y = StandardScaler()
+        elif scaler == &#39;robust&#39;:
+                scaler_y = RobustScaler()
+        #scaler_y = MinMaxScaler(feature_range=(0.01,1.01))
+        scaler_y = scaler_y.fit(y.reshape(-1, 1)) # use .ravel() instead?
+        ys = scaler_y.transform(y.reshape(-1, 1)).flatten() # use .ravel() instead?
+
+        return Xs, ys, (scaler_x, scaler_y)</code></pre>
+</details>
+</dd>
+<dt id="python_scripts.model_blr.test_blr"><code class="name flex">
+<span>def <span class="ident">test_blr</span></span>(<span>logspace=True, nsamples=600, nfeatures=14, ninformative=12, noise=0.1, outpath=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test BLR model on synthetic data</p>
+<p>INPUT:
+logspace: if True, models regression in logspace
+nsamples: number of samples for training
+nfeatures: number of features
+ninformative: number of informative features
+noise: noise level
+outpath: path to save plots</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_blr(logspace = True, nsamples = 600, nfeatures = 14, ninformative = 12, noise = 0.1, outpath = None):
+        &#34;&#34;&#34;
+        Test BLR model on synthetic data
+
+        INPUT:
+        logspace: if True, models regression in logspace
+        nsamples: number of samples for training
+        nfeatures: number of features
+        ninformative: number of informative features
+        noise: noise level
+        outpath: path to save plots
+
+        &#34;&#34;&#34;
+        # Create simulated data
+        from sklearn.datasets import make_regression
+        Xorig, yorig, coeffs = make_regression(n_samples=nsamples, 
+                n_features=nfeatures, n_informative=ninformative, 
+                n_targets=1, bias=2.0, tail_strength=0.2, noise=noise, shuffle=True, coef=True, random_state=42)
+        if logspace:
+                Xorig = np.exp(Xorig)
+                yorig = np.exp(yorig/100)
+        
+        Xs, ys, params = scale_data(Xorig, yorig) 
+
+        if outpath is not None: 
+                os.makedirs(outpath, exist_ok = True)
+
+        X_train, X_test, y_train, y_test = train_test_split(Xs, ys, test_size=0.5, random_state=42)
+
+        # Run BNN
+        y_pred, residual = blr_train_predict(X_train, y_train, X_test, y_test = y_test, outpath = outpath, logspace = logspace)
+
+        # Calculate normalized RMSE:
+        nrmse = np.sqrt(np.nanmean(residual**2)) / y_test.std()
+        nrmedse = np.sqrt(np.median(residual**2)) / y_test.std()
+        if print_info:
+                print(&#39;Normalized RMSE for test data: &#39;, np.round(nrmse,3))
+                print(&#39;Normalized ROOT MEDIAM SE for test data: &#39;, np.round(nrmedse,3))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="python_scripts" href="index.html">python_scripts</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="python_scripts.model_blr.blr_predict" href="#python_scripts.model_blr.blr_predict">blr_predict</a></code></li>
+<li><code><a title="python_scripts.model_blr.blr_train" href="#python_scripts.model_blr.blr_train">blr_train</a></code></li>
+<li><code><a title="python_scripts.model_blr.blr_train_predict" href="#python_scripts.model_blr.blr_train_predict">blr_train_predict</a></code></li>
+<li><code><a title="python_scripts.model_blr.invscale_data" href="#python_scripts.model_blr.invscale_data">invscale_data</a></code></li>
+<li><code><a title="python_scripts.model_blr.scale_data" href="#python_scripts.model_blr.scale_data">scale_data</a></code></li>
+<li><code><a title="python_scripts.model_blr.test_blr" href="#python_scripts.model_blr.test_blr">test_blr</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
