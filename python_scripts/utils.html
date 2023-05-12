@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>python_scripts.utils API documentation</title>
-<meta name="description" content="Some useful functions …" />
+<meta name="description" content="Some utility functions …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,22 +22,16 @@
 <h1 class="title">Module <code>python_scripts.utils</code></h1>
 </header>
 <section id="section-intro">
-<p>Some useful functions</p>
+<p>Some utility functions.</p>
 <p>This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).</p>
-<p>Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
-<p>This open-source software is released under the AGPL-3.0 License.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Some useful functions
+Some utility functions.
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright 2022 Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the AGPL-3.0 License.
 &#34;&#34;&#34;
 
 import os
@@ -61,20 +55,18 @@ def project_data(infname, outfname, colname_lng_source, colname_lat_source, tocr
 
     Result
     ------
-    Csv file saved to disk
+    CSV file saved to disk
 
     &#34;&#34;&#34;
     df_soil = pd.read_csv(infname)
-    #df_soil = pd.read_csv(os.path.join(inpath,&#39;ESP_original_depths_covariates_NAMOI.csv&#39;))
+
     #First convert WGS84 ( or epsg:4326) to meters, here we choose default web merkator projection (epgs:3857) 
     gdf = gpd.GeoDataFrame(df_soil.copy(), geometry=gpd.points_from_xy(df_soil[colname_lng_source], df_soil[colname_lat_source]))
     #gdf.crs = {&#39;init&#39; :&#39;epsg:4326&#39;} # Depreciated with geopandas &gt;= 0.7
     gdf.crs = &#34;EPSG:4326&#34;
-    #gdf = gdf.to_crs(&#39;EPSG:3857&#39;)
     gdf = gdf.to_crs(tocrs_epsg)
     gdf[&#39;Easting&#39;] = gdf.geometry.x
     gdf[&#39;Northing&#39;] = gdf.geometry.y
-    #gdf.to_file(os.path.join(inpath, &#39;clipped_ESP_llara_COVARIATES_proj.gpkg&#39;), driver=&#39;GPKG&#39;)
     # Save without geometry column as csv
     gdf.drop(&#39;geometry&#39;, axis=1).to_csv(outfname)
 
@@ -158,8 +150,8 @@ def print2(text, fname_out = os.path.join(&#39;loginfo.txt&#39;)):
         Alternative: Use logger info
 
         INPUT:
-        text: string (if &#39;init&#39; new header will be written, and old contentwill be overwritten)
-        fname_out: path + file name (Default: {outpath}/info.txt)
+            text: string (if &#39;init&#39; new header will be written, and old contentwill be overwritten)
+            fname_out: path + file name (Default: {outpath}/info.txt)
         &#34;&#34;&#34; 
         if text == &#39;init&#39;:
                 # Initialise a new file (e.g., if program is restarted)
@@ -181,12 +173,14 @@ def truncate_data(data, cutperc):
         &#34;&#34;&#34;
         Combines lits of arrays and truncates with lower and upper percentile
 
-        INPUT
-        data: list of numpy arrays
-        cutperc: percent to cut off from percentile
+        Input
+    -----
+            data: list of numpy arrays
+            cutperc: percent to cut off from percentile
 
         Return
-        truncated flattened data array
+    -------
+            truncated flattened data array
         &#34;&#34;&#34;
         datacomb = data[0]
         for i in range(len(data)-1):
@@ -202,10 +196,10 @@ def create_vtkcube(data, origin, voxelsize, fname):
     and create a range of 3D cube plots with pyvista
 
     INPUT
-    :param data: 3D cube in shape (xdim, ydim, zdim)
-    :param origin: origin cooridnates of cube
-    :param voxelsize: voxel sizes in (xsize, ysize, zsize)
-    :param fname: path + filename for files
+        data: 3D cube in shape (xdim, ydim, zdim)
+        origin: origin cooridnates of cube
+        voxelsize: voxel sizes in (xsize, ysize, zsize)
+        fname: path + filename for files
     &#34;&#34;&#34;
     grid = pv.UniformGrid()
     grid.dimensions = np.array(data.shape) + 1
@@ -342,10 +336,10 @@ returns True/False
 <div class="desc"><p>Export Cube as VTK file (can be used in e.g. ParaView)
 and create a range of 3D cube plots with pyvista</p>
 <p>INPUT
-:param data: 3D cube in shape (xdim, ydim, zdim)
-:param origin: origin cooridnates of cube
-:param voxelsize: voxel sizes in (xsize, ysize, zsize)
-:param fname: path + filename for files</p></div>
+data: 3D cube in shape (xdim, ydim, zdim)
+origin: origin cooridnates of cube
+voxelsize: voxel sizes in (xsize, ysize, zsize)
+fname: path + filename for files</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -356,10 +350,10 @@ and create a range of 3D cube plots with pyvista</p>
     and create a range of 3D cube plots with pyvista
 
     INPUT
-    :param data: 3D cube in shape (xdim, ydim, zdim)
-    :param origin: origin cooridnates of cube
-    :param voxelsize: voxel sizes in (xsize, ysize, zsize)
-    :param fname: path + filename for files
+        data: 3D cube in shape (xdim, ydim, zdim)
+        origin: origin cooridnates of cube
+        voxelsize: voxel sizes in (xsize, ysize, zsize)
+        fname: path + filename for files
     &#34;&#34;&#34;
     grid = pv.UniformGrid()
     grid.dimensions = np.array(data.shape) + 1
@@ -376,8 +370,8 @@ and create a range of 3D cube plots with pyvista</p>
 <div class="desc"><p>Prints text to standard output (typically terminal) and to file simultaneously
 Note text: Advise to use f-string for complex text
 Alternative: Use logger info</p>
-<p>INPUT:
-text: string (if 'init' new header will be written, and old contentwill be overwritten)
+<h2 id="input">Input</h2>
+<p>text: string (if 'init' new header will be written, and old contentwill be overwritten)
 fname_out: path + file name (Default: {outpath}/info.txt)</p></div>
 <details class="source">
 <summary>
@@ -390,8 +384,8 @@ fname_out: path + file name (Default: {outpath}/info.txt)</p></div>
         Alternative: Use logger info
 
         INPUT:
-        text: string (if &#39;init&#39; new header will be written, and old contentwill be overwritten)
-        fname_out: path + file name (Default: {outpath}/info.txt)
+            text: string (if &#39;init&#39; new header will be written, and old contentwill be overwritten)
+            fname_out: path + file name (Default: {outpath}/info.txt)
         &#34;&#34;&#34; 
         if text == &#39;init&#39;:
                 # Initialise a new file (e.g., if program is restarted)
@@ -421,7 +415,7 @@ The projected file with convertd coordinates are saved as csv.</p>
 infname: output path + filename
 </code></pre>
 <h2 id="result">Result</h2>
-<p>Csv file saved to disk</p></div>
+<p>CSV file saved to disk</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -438,20 +432,18 @@ infname: output path + filename
 
     Result
     ------
-    Csv file saved to disk
+    CSV file saved to disk
 
     &#34;&#34;&#34;
     df_soil = pd.read_csv(infname)
-    #df_soil = pd.read_csv(os.path.join(inpath,&#39;ESP_original_depths_covariates_NAMOI.csv&#39;))
+
     #First convert WGS84 ( or epsg:4326) to meters, here we choose default web merkator projection (epgs:3857) 
     gdf = gpd.GeoDataFrame(df_soil.copy(), geometry=gpd.points_from_xy(df_soil[colname_lng_source], df_soil[colname_lat_source]))
     #gdf.crs = {&#39;init&#39; :&#39;epsg:4326&#39;} # Depreciated with geopandas &gt;= 0.7
     gdf.crs = &#34;EPSG:4326&#34;
-    #gdf = gdf.to_crs(&#39;EPSG:3857&#39;)
     gdf = gdf.to_crs(tocrs_epsg)
     gdf[&#39;Easting&#39;] = gdf.geometry.x
     gdf[&#39;Northing&#39;] = gdf.geometry.y
-    #gdf.to_file(os.path.join(inpath, &#39;clipped_ESP_llara_COVARIATES_proj.gpkg&#39;), driver=&#39;GPKG&#39;)
     # Save without geometry column as csv
     gdf.drop(&#39;geometry&#39;, axis=1).to_csv(outfname)</code></pre>
 </details>
@@ -461,11 +453,17 @@ infname: output path + filename
 </code></dt>
 <dd>
 <div class="desc"><p>Combines lits of arrays and truncates with lower and upper percentile</p>
-<p>INPUT
-data: list of numpy arrays
-cutperc: percent to cut off from percentile</p>
-<p>Return
-truncated flattened data array</p></div>
+<pre><code>Input
+</code></pre>
+<hr>
+<pre><code>    data: list of numpy arrays
+    cutperc: percent to cut off from percentile
+
+Return
+</code></pre>
+<hr>
+<pre><code>    truncated flattened data array
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -474,12 +472,14 @@ truncated flattened data array</p></div>
         &#34;&#34;&#34;
         Combines lits of arrays and truncates with lower and upper percentile
 
-        INPUT
-        data: list of numpy arrays
-        cutperc: percent to cut off from percentile
+        Input
+    -----
+            data: list of numpy arrays
+            cutperc: percent to cut off from percentile
 
         Return
-        truncated flattened data array
+    -------
+            truncated flattened data array
         &#34;&#34;&#34;
         datacomb = data[0]
         for i in range(len(data)-1):

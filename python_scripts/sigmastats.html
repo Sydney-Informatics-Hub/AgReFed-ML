@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>python_scripts.sigmastats API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Functions for calculating multiple statistics with uncertainties." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,14 @@
 <h1 class="title">Module <code>python_scripts.sigmastats</code></h1>
 </header>
 <section id="section-intro">
+<p>Functions for calculating multiple statistics with uncertainties.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># Function to calculate weighted mean and uncertainity for uncorrelated AND correlated values
+<pre><code class="python">&#34;&#34;&#34;
+Functions for calculating multiple statistics with uncertainties.
+&#34;&#34;&#34;
 
 import numpy as np
 from scipy.stats import spearmanr
@@ -58,8 +61,6 @@ def averagestats(x, var):
         Mean: the weighted mean
         sigma: the weighted stddev
         &#34;&#34;&#34;
-
-        
         if not hasattr(x, &#34;__len__&#34;) | (x.size == 1):
                 return np.asarray([x]), np.asarray([np.sqrt(var)])
         if not hasattr(var, &#34;__len__&#34;) | (var.size == 1):
@@ -70,7 +71,7 @@ def averagestats(x, var):
                 var = np.diag(var)
         elif var.shape == (len(x),len(x)):
                 calc_covar = True
-                #Assume correlated meausrements given by covariance sigma
+                #Assume correlated measurements given by covariance sigma
                 #print(&#34;Calculating average with covariance matrix var&#34;)
         else:
                 print(&#34;Unsupported input for var&#34;)
@@ -86,7 +87,6 @@ def averagestats(x, var):
         w = np.nansum(inv, axis=1) / np.nansum(inv)
         # Scale sum of w to 1
         w = w / np.sum(w)
-        #assert np.sum(w) = 1
         #Calculate weighted mean
         wmean = np.nansum(w * x)
         #Calculate error of mean
@@ -117,9 +117,8 @@ def calc_featurecorrelations(X, feature_names, thresh = 0.9, plot = False):
         Return
         ------
         correlated feature array
-        index array of corralted features for input features
+        index array of correlated features for input features
         correlation coeffcients
-
         &#34;&#34;&#34;
         names = np.asarray(feature_names)
         corr = spearmanr(X).correlation
@@ -169,8 +168,7 @@ def calc_change(X1, X2, var_X1, var_X2, cov_X1X2 = None):
                 sigma = np.sqrt(var_X1 + var_X2)
         else:
                 sigma = np.sqrt(var_X2 + var_X1 - 2*cov_X1X2)
-        return delta, sigma
-                </code></pre>
+        return delta, sigma</code></pre>
 </details>
 </section>
 <section>
@@ -230,8 +228,6 @@ sigma: the weighted stddev</p></div>
         Mean: the weighted mean
         sigma: the weighted stddev
         &#34;&#34;&#34;
-
-        
         if not hasattr(x, &#34;__len__&#34;) | (x.size == 1):
                 return np.asarray([x]), np.asarray([np.sqrt(var)])
         if not hasattr(var, &#34;__len__&#34;) | (var.size == 1):
@@ -242,7 +238,7 @@ sigma: the weighted stddev</p></div>
                 var = np.diag(var)
         elif var.shape == (len(x),len(x)):
                 calc_covar = True
-                #Assume correlated meausrements given by covariance sigma
+                #Assume correlated measurements given by covariance sigma
                 #print(&#34;Calculating average with covariance matrix var&#34;)
         else:
                 print(&#34;Unsupported input for var&#34;)
@@ -258,7 +254,6 @@ sigma: the weighted stddev</p></div>
         w = np.nansum(inv, axis=1) / np.nansum(inv)
         # Scale sum of w to 1
         w = w / np.sum(w)
-        #assert np.sum(w) = 1
         #Calculate weighted mean
         wmean = np.nansum(w * x)
         #Calculate error of mean
@@ -337,7 +332,7 @@ tresh: treshold
 plot: if Tru, plots dendogram of correlation</p>
 <h2 id="return">Return</h2>
 <p>correlated feature array
-index array of corralted features for input features
+index array of correlated features for input features
 correlation coeffcients</p></div>
 <details class="source">
 <summary>
@@ -359,9 +354,8 @@ correlation coeffcients</p></div>
         Return
         ------
         correlated feature array
-        index array of corralted features for input features
+        index array of correlated features for input features
         correlation coeffcients
-
         &#34;&#34;&#34;
         names = np.asarray(feature_names)
         corr = spearmanr(X).correlation

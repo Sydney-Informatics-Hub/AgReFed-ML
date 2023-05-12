@@ -41,8 +41,6 @@ Alternatively, the settings file can be specified as a command line argument wit
 '-s', or '&ndash;settings' followed by PATH-TO-FILE/FILENAME.yaml
 (e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).</p>
 <p>This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).</p>
-<p>Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney</p>
-<p>This open-source software is released under the LGPL-3.0 License.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -72,10 +70,6 @@ Alternatively, the settings file can be specified as a command line argument wit
 (e.g. python soilmod_predict_st.py -s settings_soilmod_moisture_predict_2020.yaml).
 
 This package is part of the machine learning project developed for the Agricultural Research Federation (AgReFed).
-
-Copyright Sebastian Haan, Sydney Informatics Hub (SIH), The University of Sydney
-
-This open-source software is released under the LGPL-3.0 License.
 &#34;&#34;&#34;
 
 import numpy as np
@@ -86,7 +80,6 @@ import sys
 from scipy.special import erf
 from scipy.interpolate import interp1d, griddata
 import matplotlib.pyplot as plt
-#import pyvista as pv # helper module for the Visualization Toolkit (VTK)
 import subprocess
 from sklearn.model_selection import train_test_split 
 # Save and load trained models and scalers:
@@ -97,7 +90,7 @@ import argparse
 from types import SimpleNamespace  
 from tqdm import tqdm
 
-# Custom local libraries:
+# AgReFed modules:
 from utils import array2geotiff, align_nearest_neighbor, print2, truncate_data
 from sigmastats import averagestats
 from preprocessing import gen_kfold, preprocess_grid_poly
@@ -162,12 +155,12 @@ def model_blocks(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     &#34;&#34;&#34;
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
         # only mean function model
@@ -237,7 +230,6 @@ def model_blocks(settings):
     if settings.colname_zcoord != &#39;z&#39;:
         dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
     settings.name_features.append(&#39;z&#39;)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -326,20 +318,10 @@ def model_blocks(settings):
             dftest = dfgrid[(dfgrid.x &gt;= block_x[j] - 0.5 * settings.xblocksize) &amp; (dfgrid.x &lt;= block_x[j] + 0.5 * settings.xblocksize) &amp;
                 (dfgrid.y &gt;= block_y[j] - 0.5 * settings.yblocksize) &amp; (dfgrid.y &lt;= block_y[j] + 0.5 * settings.yblocksize) &amp;
                 (dfgrid.z &gt;= zblock[i] - 0.5 * settings.zblocksize) &amp; (dfgrid.z &lt;= zblock[i] + 0.5 * settings.zblocksize)].copy()
-            if len(dftest) &gt; 0:
-                # dfnew = dftest.copy()
-                # for z in zrange:
-                #     if z == zrange[0]:
-                #         dftest[&#39;z&#39;] = z 
-                #     else:
-                #         dfnew[&#39;z&#39;] = z
-                #         dftest = dftest.append(dfnew, ignore_index = True)                                                                    
+            if len(dftest) &gt; 0:                                                 
                 ysel = dftest.y.values
                 xsel = dftest.x.values
                 zsel = dftest.z.values
-                #zz, yy = np.meshgrid(zrange, ysel)
-                #zz, xx = np.meshgrid(zrange, xsel)
-                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
                 points3D_pred = np.asarray([zsel, ysel, xsel]).T                
                 # Calculate mean function for prediction
 
@@ -374,7 +356,6 @@ def model_blocks(settings):
                     ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
                 else:
                     ypred_block, ystd_block = averagestats(ypred, covar)
-
 
                 # Save results in block array
                 mu_block[j] = ypred_block
@@ -443,12 +424,12 @@ def model_points(settings):
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     &#34;&#34;&#34;
 
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
@@ -460,7 +441,6 @@ def model_points(settings):
         mean_function = &#39;blr&#39;
     if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
         mean_function = &#39;rf&#39;
-
 
     # set conditional settings
     if calc_mean_only:
@@ -648,7 +628,7 @@ def model_points(settings):
                 ypred = y_pred_zmean
                 ystd = ynoise_pred
 
-            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
+            # Alternative: Combine noise of GP and mean functiojn for prediction (already in covariancce function):
             #ystd = np.sqrt(ystd**2 + ynoise_pred**2)   
         
             # Save results in 3D array
@@ -666,13 +646,7 @@ def model_points(settings):
 
 
         # Save all data for the depth or temporal layer
-
         print(&#34;saving data and generating plots...&#34;)
-        # map coordinate array to image
-        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = &#39;nearest&#39;)
-        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = &#39;nearest&#39;)
-
-        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
 
         # Calculate nearest neighbor
         coord_xy = np.asarray([coord_x, coord_y]).T
@@ -724,7 +698,6 @@ def model_points(settings):
         print(&#39;Saving results as geo tif...&#39;)
         tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
         tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
-
 
     # Clip stddev for images
     mu_3d_mean = mu_3d.mean(axis = 2).T
@@ -797,13 +770,8 @@ def model_polygons(settings):
 
     Parameters
     ----------
-    settings : settings namespace
-
-    Return
-    ------
-    None
+        settings : settings namespace
     &#34;&#34;&#34;
-
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
         # only mean function model
         calc_mean_only = True
@@ -859,7 +827,6 @@ def model_polygons(settings):
         name_features = settings.name_features_grid, grid_crs = settings.project_crs,
         grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
 
-
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != &#39;x&#39;:
         dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
@@ -867,7 +834,6 @@ def model_polygons(settings):
         dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
     if settings.colname_zcoord != &#39;z&#39;:
         dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -878,7 +844,6 @@ def model_polygons(settings):
     dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
     dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
 
-        
     # Define grid coordinates:
     points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
 
@@ -935,7 +900,6 @@ def model_polygons(settings):
     dfout_poly =  dfgrid[[&#39;ibatch&#39;]].copy()
     dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
         
-
     ixrange_batch = dfgrid[&#39;ibatch&#39;].unique()
     nbatch = len(ixrange_batch)
     print(&#34;Number of mini-batches per depth or time slice: &#34;, nbatch)
@@ -1010,7 +974,6 @@ def model_polygons(settings):
             dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Mean&#39;] = ypred_poly
             dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Std&#39;] = ystd_poly
 
-
         # Save all data for the slice
         dfpoly_z = dfpoly.merge(dfout_poly, how = &#39;left&#39;, on = &#39;ibatch&#39;)
         # Save results with polygon shape as Geopackage (can e.g. visualised in QGIS)
@@ -1034,8 +997,7 @@ def model_polygons(settings):
         plt.close(&#39;all&#39;)
 
 
-
-######################### Main Script ############################
+######################### Main Function ############################
 def main(fname_settings):       
     &#34;&#34;&#34;
     Main function for running the script.
@@ -1043,7 +1005,6 @@ def main(fname_settings):
     Input:
         fname_settings: path and filename to settings file
     &#34;&#34;&#34;
-
     # Process settings
     settings = preprocess_settings(fname_settings)
 
@@ -1101,7 +1062,6 @@ if __name__ == &#39;__main__&#39;:
     Input:
         fname_settings: path and filename to settings file
     &#34;&#34;&#34;
-
     # Process settings
     settings = preprocess_settings(fname_settings)
 
@@ -1130,13 +1090,12 @@ if __name__ == &#39;__main__&#39;:
 The predicted uncertainty takes into account spatial covariance within each block
 All output is saved in output directory as specified in settings.</p>
 <h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
-<dd>&nbsp;</dd>
-</dl>
+<pre><code>settings : settings namespace
+</code></pre>
 <h2 id="return">Return</h2>
-<p>mu_3d: 3D stack of prediction rasters
-std_3d:3D stack of prediction uncertainty rasters</p></div>
+<pre><code>mu_3d: 3D stack of prediction rasters
+std_3d:3D stack of prediction uncertainty rasters
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1149,12 +1108,12 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     &#34;&#34;&#34;
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
         # only mean function model
@@ -1224,7 +1183,6 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
     if settings.colname_zcoord != &#39;z&#39;:
         dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
     settings.name_features.append(&#39;z&#39;)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -1313,20 +1271,10 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
             dftest = dfgrid[(dfgrid.x &gt;= block_x[j] - 0.5 * settings.xblocksize) &amp; (dfgrid.x &lt;= block_x[j] + 0.5 * settings.xblocksize) &amp;
                 (dfgrid.y &gt;= block_y[j] - 0.5 * settings.yblocksize) &amp; (dfgrid.y &lt;= block_y[j] + 0.5 * settings.yblocksize) &amp;
                 (dfgrid.z &gt;= zblock[i] - 0.5 * settings.zblocksize) &amp; (dfgrid.z &lt;= zblock[i] + 0.5 * settings.zblocksize)].copy()
-            if len(dftest) &gt; 0:
-                # dfnew = dftest.copy()
-                # for z in zrange:
-                #     if z == zrange[0]:
-                #         dftest[&#39;z&#39;] = z 
-                #     else:
-                #         dfnew[&#39;z&#39;] = z
-                #         dftest = dftest.append(dfnew, ignore_index = True)                                                                    
+            if len(dftest) &gt; 0:                                                 
                 ysel = dftest.y.values
                 xsel = dftest.x.values
                 zsel = dftest.z.values
-                #zz, yy = np.meshgrid(zrange, ysel)
-                #zz, xx = np.meshgrid(zrange, xsel)
-                #points3D_pred = np.asarray([zz.flatten(), yy.flatten(), xx.flatten()]).T
                 points3D_pred = np.asarray([zsel, ysel, xsel]).T                
                 # Calculate mean function for prediction
 
@@ -1361,7 +1309,6 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
                     ypred_block, ystd_block = averagestats(ypred + y_pred_zmean, covar)
                 else:
                     ypred_block, ystd_block = averagestats(ypred, covar)
-
 
                 # Save results in block array
                 mu_block[j] = ypred_block
@@ -1429,13 +1376,12 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
 <div class="desc"><p>Predict soil properties and uncertainties for raster points.
 All output is saved in output directory as specified in settings.</p>
 <h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
-<dd>&nbsp;</dd>
-</dl>
+<pre><code>settings : settings namespace
+</code></pre>
 <h2 id="return">Return</h2>
-<p>mu_3d: 3D stack of prediction rasters
-std_3d:3D stack of prediction uncertainty rasters</p></div>
+<pre><code>mu_3d: 3D stack of prediction rasters
+std_3d:3D stack of prediction uncertainty rasters
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1447,12 +1393,12 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
 
     Parameters
     ----------
-    settings : settings namespace
+        settings : settings namespace
 
     Return
     ------
-    mu_3d: 3D stack of prediction rasters
-    std_3d:3D stack of prediction uncertainty rasters
+        mu_3d: 3D stack of prediction rasters
+        std_3d:3D stack of prediction uncertainty rasters
     &#34;&#34;&#34;
 
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
@@ -1464,7 +1410,6 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
         mean_function = &#39;blr&#39;
     if (settings.model_function == &#39;rf-gp&#39;) | (settings.model_function == &#39;rf&#39;):
         mean_function = &#39;rf&#39;
-
 
     # set conditional settings
     if calc_mean_only:
@@ -1652,7 +1597,7 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
                 ypred = y_pred_zmean
                 ystd = ynoise_pred
 
-            # Combine noise of GP and mean functiojn for prediction (already in covariancce function):
+            # Alternative: Combine noise of GP and mean functiojn for prediction (already in covariancce function):
             #ystd = np.sqrt(ystd**2 + ynoise_pred**2)   
         
             # Save results in 3D array
@@ -1670,13 +1615,7 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
 
 
         # Save all data for the depth or temporal layer
-
         print(&#34;saving data and generating plots...&#34;)
-        # map coordinate array to image
-        #mu_img = griddata(np.asarray([coord_x, coord_y]).T, mu_res, (grid_x, grid_y), method = &#39;nearest&#39;)
-        #std_img = griddata(np.asarray([coord_x, coord_y]).T, std_res, (grid_x, grid_y), method = &#39;nearest&#39;)
-
-        #mask_img = np.zeros_like(grid_x.flatten()) * np.nan
 
         # Calculate nearest neighbor
         coord_xy = np.asarray([coord_x, coord_y]).T
@@ -1728,7 +1667,6 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
         print(&#39;Saving results as geo tif...&#39;)
         tif_ok = array2geotiff(mu_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif, settings.project_crs)
         tif2_ok = array2geotiff(std_img, [bound_xmin + 0.5 * settings.xvoxsize, bound_ymin + 0.5 * settings.yvoxsize], [settings.xvoxsize,settings.yvoxsize], outfname_tif_std, settings.project_crs)
-
 
     # Clip stddev for images
     mu_3d_mean = mu_3d.mean(axis = 2).T
@@ -1800,12 +1738,8 @@ std_3d:3D stack of prediction uncertainty rasters</p></div>
 <div class="desc"><p>Predict soil properties and uncertainties for location points.
 All output is saved in output directory as specified in settings.</p>
 <h2 id="parameters">Parameters</h2>
-<dl>
-<dt><strong><code>settings</code></strong> :&ensp;<code>settings namespace</code></dt>
-<dd>&nbsp;</dd>
-</dl>
-<h2 id="return">Return</h2>
-<p>None</p></div>
+<pre><code>settings : settings namespace
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1817,13 +1751,8 @@ All output is saved in output directory as specified in settings.</p>
 
     Parameters
     ----------
-    settings : settings namespace
-
-    Return
-    ------
-    None
+        settings : settings namespace
     &#34;&#34;&#34;
-
     if (settings.model_function == &#39;blr&#39;) | (settings.model_function == &#39;rf&#39;):
         # only mean function model
         calc_mean_only = True
@@ -1879,7 +1808,6 @@ All output is saved in output directory as specified in settings.</p>
         name_features = settings.name_features_grid, grid_crs = settings.project_crs,
         grid_colname_Easting = settings.colname_xcoord, grid_colname_Northing = settings.colname_ycoord)
 
-
     # Rename x and y coordinates of input data
     if settings.colname_xcoord != &#39;x&#39;:
         dfgrid.rename(columns={settings.colname_xcoord: &#39;x&#39;}, inplace = True)
@@ -1887,7 +1815,6 @@ All output is saved in output directory as specified in settings.</p>
         dfgrid.rename(columns={settings.colname_ycoord: &#39;y&#39;}, inplace = True)
     if settings.colname_zcoord != &#39;z&#39;:
         dfgrid.rename(columns={settings.colname_zcoord: &#39;z&#39;}, inplace = True)
-
 
     ## Get coordinates for training data and set coord origin to (0,0)  
     bound_xmin = dfgrid.x.min() - 0.5* settings.xvoxsize
@@ -1898,7 +1825,6 @@ All output is saved in output directory as specified in settings.</p>
     dfgrid[&#39;x&#39;] = dfgrid.x - bound_xmin
     dfgrid[&#39;y&#39;] = dfgrid.y - bound_ymin
 
-        
     # Define grid coordinates:
     points3D_train = np.asarray([dftrain.z.values, dftrain.y.values - bound_ymin, dftrain.x.values - bound_xmin ]).T
 
@@ -1955,7 +1881,6 @@ All output is saved in output directory as specified in settings.</p>
     dfout_poly =  dfgrid[[&#39;ibatch&#39;]].copy()
     dfout_poly.drop_duplicates(inplace=True, ignore_index=True)
         
-
     ixrange_batch = dfgrid[&#39;ibatch&#39;].unique()
     nbatch = len(ixrange_batch)
     print(&#34;Number of mini-batches per depth or time slice: &#34;, nbatch)
@@ -2029,7 +1954,6 @@ All output is saved in output directory as specified in settings.</p>
                 ypred_poly, ystd_poly = averagestats(ypred, covar)
             dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Mean&#39;] = ypred_poly
             dfout_poly.loc[dfout_poly[&#39;ibatch&#39;] == j, &#39;Std&#39;] = ystd_poly
-
 
         # Save all data for the slice
         dfpoly_z = dfpoly.merge(dfout_poly, how = &#39;left&#39;, on = &#39;ibatch&#39;)
