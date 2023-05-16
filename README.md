@@ -4,6 +4,7 @@ Data-driven Machine Learning for modelling and predicting agriculture systems an
 <!-- Badges  start -->
 
 [![License](https://img.shields.io/badge/License-LGPL3-blue)](#license)
+[![DOI](https://zenodo.org/badge/424401741.svg)](https://zenodo.org/badge/latestdoi/424401741)
 
 <!-- Badges end -->
 
