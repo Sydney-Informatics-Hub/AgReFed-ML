@@ -10,6 +10,7 @@ Agricultural Research Federation (AgReFed).
 """
 __uri__ = "https://github.com/Sydney-Informatics-Hub/AgReFed-ML"
 __doc__ = __description__ + " <" + __uri__ + ">"
+__version__ = "0.2.0"
 
 __author__ = "Sebastian Haan"
 __license__ = "LGPL-3.0 License"
