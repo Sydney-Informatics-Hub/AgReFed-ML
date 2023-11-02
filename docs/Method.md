@@ -81,6 +81,7 @@ is completely determined by its mean function
 $m (\mathbf{ x })  = \mathrm{ E } [f (\mathbf{ x })]$ and covariance
 
 $k \left( \mathbf { x } , \mathbf { x } ^ { \prime } \right)  = \mathrm { E } \left[ ( f ( \mathbf { x } ) - m ( \mathbf { x } ) ) \left( f \left( \mathbf { x } ^ { \prime } \right) - m \left( \mathbf { x } ^ { \prime } \right) \right) \right]$,
+
 essentially placing a multivariate Gaussian distribution over the space of functions that map the input to the output, or informally, to measure the similarity between points as function of, e.g., their distance (the
 kernel function) and to predict a Gaussian distribution over $f(x^\ast)$ (i.e., a mean value and variance) at any new sampling location (unseen point) $x^\ast$ from training data.
 
@@ -91,7 +92,7 @@ The choice for an appropriate covariance function is important, as the GP's outp
 
 $$k  \left( x  , x { \prime }  \right) = \sigma_{0}^{2} \exp \left( - \frac{ 1 } { 2 l^ { 2 } } \left( x  - x^{ \prime }  \right) ^ { 2 } \right)$$
 
-which depends on the radial distance between points $x$ and $x^{ \prime }$ and at least two parameters, one defining the length-scale $l$ (multiple dimensions can have multiple length-scales) and the other the signal variance $\sigma_{0}^2$. These parameters of the covariance function are referred to as the hyperparameters $\Theta$ of the GP, which can be either given by a fixed covariance scale and noise, or learned from data by optimising the marginal likelihood. The latter allows us to optimise the GP hyperparameters such as the length-scale parameters l and the variance parameter \sigma_0^2. Computationally this is done by using the scipy optimime package. In general, it is advisable to compute the joint inversion at least for a range of $l$ parameters and to compare the reconstructed models against each other.
+which depends on the radial distance between points $x$ and $x^{ \prime }$ and at least two parameters, one defining the length-scale $l$ (multiple dimensions can have multiple length-scales) and the other the signal variance $\sigma_{0}^2$. These parameters of the covariance function are referred to as the hyperparameters $\Theta$ of the GP, which can be either given by a fixed covariance scale and noise, or learned from data by optimising the marginal likelihood. The latter allows us to optimise the GP hyperparameters such as the length-scale parameters l and the variance parameter $\sigma_0^2$. Computationally this is done by using scipy optimize. In general, it is advisable to compute the joint inversion at least for a range of $l$ parameters and to compare the reconstructed models against each other.
 
 To handle the computational problem of inverting a large covariance
 matrix, [@Melkumyan:2009] proposed an intrinsically sparse
@@ -227,6 +228,7 @@ R^2 = 1 - \frac{\sum (RE^2)}{\sum (Y_{ground} - \frac{1}{n} \sum{Y_{ground}})^2}
 $$
 
 The lower the $nRMSE$ value, or alternatively, the higher $R^2$, the better is the prediction. To test whether the predicted uncertainties are consistent with the residual error of the prediction, we calculate the ratio
+
 $$
 \theta = \frac{1}{n} \sum{\frac {RE^2} {\sigma_{Ypred}^2}}.
 $$
