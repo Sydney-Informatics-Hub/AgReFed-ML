@@ -111,15 +111,22 @@ $$K_{MD}(\mathbf { x }, \mathbf { x } ^ { \prime }, \mathbf {l},\sigma_0) = \sig
 where $D$ is the number of dimensions (here D=3) and $\mathbf {l}$ is the vector
 of the characteristic lengths.
 2) using Mahalanobis distance:
+
 $$\begin{cases}
     k(r,\sigma_0, \Omega)= \sigma_0 \Big[ \dfrac{1}{3}(2+\cos{(2\pi r)})(1-r) + \dfrac{1}{2\pi}\sin{(2\pi r)} \Big], & \text{if $r < 1$.}\\
     0, & \text{if $r\geq 1 $},
  \end{cases}$$ 
+
 where 
+
 $$r = \sqrt{(\mathbf { x } - \mathbf { x } ^ { \prime } )^T \Omega (\mathbf { x } - \mathbf { x } ^ { \prime } )} $$
+
 and with $\mathbf{\Omega}$ expressed via diagonal matrix of characteristic lengths:
+
 $$ \mathbf{\Omega} = [\dfrac{1}{l_1}, \dfrac{1}{l_2}, ..., \dfrac{1}{l_D}] \mathbf {I_{D,D}}$$ 
+
 it follows:
+
 $$r = \sqrt{\sum_{k=1}^{D}\left(\dfrac{x_k - x_k^{\prime}}{l_k}\right)^2}.$$
 
 
@@ -127,18 +134,23 @@ $$r = \sqrt{\sum_{k=1}^{D}\left(\dfrac{x_k - x_k^{\prime}}{l_k}\right)^2}.$$
 ### Including Measurement and Positional Uncertainties
 
 To take into account that positions of the measurements $i$ and $j$ are not point coordinates but have an uncertainty (here along the vertical direction), $dX_i$ and $dX_j$, we need to modify the covariance function by assuming for the vertical coordinate $X_z = N(\mu(X_z)|dX_z)$, and it follows that 
+
 $$
 K(r,l,\sigma_0)= \dfrac{\sigma_0}{|1 + l^{-1}(dX_i + dX_j)|^{1/2}} \Big[ \dfrac{1}{3}(2+\cos{(2\pi\dfrac{r}{l+dX_i + dX_j})})(1-\dfrac{r}{l+dX_i + dX_j}) + $$
 
-$$\dfrac{1}{2\pi}\sin{(2\pi\dfrac{r}{l+dX_i + dX_j})} \Big], 
 $$
+\dfrac{1}{2\pi}\sin{(2\pi\dfrac{r}{l+dX_i + dX_j})} \Big], 
+$$
+
 if $r < l$, 
 and $K(r,l,\sigma_0) = 0$ if $r >= l$.
 
 In addition we have to include measurement uncertainties as a noise term (or regularisation parameter) added to the covariance function:
+
 $$
 \mathbf { K } =  \mathbf { k }  + \mathbf{\sigma_s} ^ { 2 } \mathbf { I }
 $$
+
 where the uncertainties $\mathbf{\sigma}$ of the sensor observations $\mathbf { y }$ are included and can be either a constant $\sigma$ (same uncertainty for all sensors) or a vector $\mathbf(\sigma_s)$ that is given by the individual uncertainty of each sensor observation. In case the sensor uncertainty is unknown, it can be estimated in conjunction with the other GP hyperparameters by maximizing the marginal log-likelihood (see next section).
 
 
@@ -146,6 +158,7 @@ where the uncertainties $\mathbf{\sigma}$ of the sensor observations $\mathbf { 
 ### Hyperparameter Optimisation
 
 One advantage of the Bayesian framework is the ability to calculate the marginal log-likelihood,  
+
 $$
 \mathcal { L } ( \Theta ) = - \frac { 1 } { 2 } \mathbf { y } ^ { T } \mathbf { K } _ { x, x} ^ { - 1 } \mathbf { y } - \frac { 1 } { 2 } \log \left| \mathbf { K } _ { x, x} \right| - \frac { \log 2 \pi } { 2 } \sum _ { i = 1 } ^ { M } N _ { i }$$
 
@@ -155,17 +168,23 @@ to optimize the parameters $\Theta$ of the GPs, which include the hyper-paramete
 ### Predictive Distributions and Uncertainties
 
 The predictive distribution $y^{\prime}$ at new locations $x^{\prime}$  is given by
+
 $$
  y^{\prime} | \mathbf { G } , \mathbf { y }  \sim  \mathcal { N } ( \phi | \mathbf { \mu } _ { y^{\prime} | y } , \mathbf { \Sigma } _ { \phi | y } )
 $$ 
+
 with the predictive mean at each location
+
 $$
 \mathbf{ \mu }   =  \mathbf { K } _ { x, x^{\prime}  } ^ { T } \mathbf { K } _ { x, x} ^ { - 1 } \mathbf { y }
 $$
+
 and the predicted covariance
+
 $$
 \mathbf { \Sigma }  = \mathbf { K } _ { x^{\prime}, x^{\prime} } + \sigma_s^2 I - \mathbf { K } _ { x, x^{\prime} } ^ { T } \mathbf { K } _ { x, x } ^ { - 1 } \mathbf { K } _ { x, x^{\prime}}.  
 $$
+
 The predicted variance is given by the diagonal elements of the covariance matrix.
 
 
@@ -173,6 +192,7 @@ The predicted variance is given by the diagonal elements of the covariance matri
 ## Mean Functions
 
 If the mean function is not zero but given by a predictive deterministic function $m_{\phi}  = f(\mathbf{ x_c })$, the predicted GP posterior distribution is given by 
+
 $$
  y^{\prime} | \mathbf { G } , \mathbf { y }  \sim  \mathcal { N } (m_{\phi^{\prime}} + \mathbf { K } _ { x, x^{\prime} } ^ { T } \mathbf { K } _ {x,x} ^ { - 1 } \mathbf { y -  m_{\phi}} , \mathbf { K } _ { x^{\prime}, x^{\prime} } + \sigma_s^2 I - \mathbf { K } _ {x, x^{\prime} } ^ { T } \mathbf { K } _ { x, x } ^ { - 1 } \mathbf { K } _ { x, x^{\prime}})
 $$ 
