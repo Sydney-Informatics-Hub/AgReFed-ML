@@ -27,7 +27,7 @@ Machine learning (ML) models have emerged as a powerful approach for building ag
 
 ## Method
 
-This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using such probabilistic Mixture Model, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the probabilistic model details and feature selection can be found in [Method.pdf](docs/Method.pdf).
+This model uses Gaussian Process regression with a complex base function and is particularly well-suited to agricultural applications because it can capture the underlying patterns and trends in soil data, as well as the inherent uncertainties associated with soil properties. By using such probabilistic Mixture Model, we can generate more accurate and reliable predictions of soil properties, which can be used to inform decision making and optimize crop management. More information about the probabilistic model details and feature selection can be found in the method description [Probabilistic Machine Learning for Modeling Environmental Systems and their Uncertainties](docs/Method.md).
 
 Each workflow consists of the following main steps:
 
@@ -162,6 +162,18 @@ If you make use of this software for your research project, please include the f
 “This research was supported by the Sydney Informatics Hub, a Core Research Facility of the University of Sydney, and the Agricultural Research Federation (AgReFed)."
 
 AgReFed is supported by the Australian Research Data Commons (ARDC) and the Australian Government through the National Collaborative Research Infrastructure Strategy (NCRIS).
+
+To reference this software, please use the latest zenodo DOI at the top or the following bibtex entry:
+```bibtex
+@software{seb_haan_2023_7939459,
+  author       = {Sebastian Haan},
+  title        = {Sydney-Informatics-Hub/AgReFed-ML: v0.2.0},
+  month        = may,
+  year         = 2023,
+  publisher    = {Zenodo},
+  version      = {v0.2.0},
+}
+```
 
 ## License
 
