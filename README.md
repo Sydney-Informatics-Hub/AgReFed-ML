@@ -68,7 +68,7 @@ The modelling approach includes the following features:
 
 For a complete overview of all functions, please refer to the [API reference documentation](https://sydney-informatics-hub.github.io/AgReFed-ML/python_scripts/index.html).
 
-An introductory tutorial of the software can be found [here]([Tutorial](https://sydney-informatics-hub.github.io/AgReFed-ML/tutorial/index.html).
+An introductory tutorial of the software can be found [here](https://sydney-informatics-hub.github.io/AgReFed-ML/tutorial/index.html).
 
 
 ## Installation
