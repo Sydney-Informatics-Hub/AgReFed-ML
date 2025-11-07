@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>05 Gaussian Process Models</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="margin: 0;">
+                <a href="01_notebook_based_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="03_data_preprocessing_pipeline_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="04_mean_function_models___.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                </a>
+            </li>
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="08_synthetic_data_generation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="09_model_evaluation_and_cross_validation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">05 Gaussian Process Models</h1>
+</header>
+<h1 id="chapter-5-gaussian-process-models">Chapter 5: Gaussian Process Models</h1>
+<p>Now that you’ve learned how <a href="04_mean_function_models___.html">Mean Function Models</a> create baseline soil property estimates across your study area, it’s time to explore the mathematical heart of AgReFed-ML: <strong>Gaussian Process Models</strong>.</p>
+<p>Think of this relationship like transforming a rough pencil sketch into a detailed oil painting. The <a href="04_mean_function_models___.html">Mean Function Models</a> are like skilled sketch artists who quickly capture the main shapes and proportions of your soil landscape. But Gaussian Process Models are like master painters who take that sketch and add all the fine details, subtle transitions, and spatial relationships that make the final artwork truly realistic and beautiful.</p>
+<h2 id="what-problem-do-gaussian-process-models-solve">What Problem Do Gaussian Process Models Solve?</h2>
+<p>Imagine you’re trying to create a detailed soil organic carbon map for a 1,000-hectare farm, but you only have soil measurements from 50 scattered locations. Your <a href="04_mean_function_models___.html">Mean Function Models</a> have given you good baseline estimates everywhere, but you notice some problems:</p>
+<ul>
+<li><strong>Missing spatial patterns</strong>: The baseline map doesn’t capture the smooth transitions you’d expect between nearby locations</li>
+<li><strong>Ignores local correlations</strong>: A high carbon measurement at one location should influence predictions at nearby locations, but the baseline model treats each prediction independently</li>
+<li><strong>Overconfident in data-sparse areas</strong>: The baseline model gives the same confidence level in areas with many soil samples versus areas with no samples nearby</li>
+<li><strong>No spatial structure</strong>: Real soil properties have spatial structure - they don’t change randomly from meter to meter</li>
+</ul>
+<p>Gaussian Process Models solve these problems by learning and modeling the <strong>spatial relationships</strong> in your soil data. They’re like having an expert soil scientist who understands that “soil properties at nearby locations should be similar” and can make intelligent interpolations that honor this spatial structure.</p>
+<h2 id="what-are-gaussian-process-models">What Are Gaussian Process Models?</h2>
+<p>Think of Gaussian Process Models as sophisticated spatial interpolation engines with three key superpowers:</p>
+<h3 id="spatial-memory---they-remember-where-things-are">1. <strong>Spatial Memory</strong> - They Remember Where Things Are</h3>
+<p>Unlike simpler models that treat each location independently, GPs remember the spatial relationships. They know that if soil carbon is high at location A, it’s likely to be high at nearby location B, but this influence decreases with distance.</p>
+<h3 id="honest-uncertainty---they-know-what-they-dont-know">2. <strong>Honest Uncertainty</strong> - They Know What They Don’t Know</h3>
+<p>GPs don’t just give you predictions; they tell you exactly how confident they are about each prediction. In areas with many soil samples, they’re very confident. In areas far from any measurements, they honestly admit high uncertainty.</p>
+<h3 id="efficient-computing---they-handle-large-datasets-smartly">3. <strong>Efficient Computing</strong> - They Handle Large Datasets Smartly</h3>
+<p>Through custom sparse kernels, GPs can work with thousands of data points efficiently, focusing computational resources where they matter most.</p>
+<h2 id="key-components-of-gaussian-process-models">Key Components of Gaussian Process Models</h2>
+<p>Every Gaussian Process Model in AgReFed-ML has four essential components:</p>
+<h3 id="kernel-functions-the-spatial-rules">1. <strong>Kernel Functions (The Spatial Rules)</strong></h3>
+<p>These mathematical functions define how spatial correlation works:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># The kernel says: &quot;How similar should soil properties be </span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co"># at two locations based on their distance?&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>spatial_correlation <span class="op">=</span> kernel_function(distance_between_points)</span></code></pre></div>
+<p>The kernel is like having rules that say “locations 10 meters apart should have very similar soil carbon, locations 100 meters apart should have somewhat similar soil carbon, and locations 1 kilometer apart might have quite different soil carbon.”</p>
+<h3 id="hyperparameters-the-fine-tuning-knobs">2. <strong>Hyperparameters (The Fine-Tuning Knobs)</strong></h3>
+<p>These control how the spatial correlation works:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Key hyperparameters that get optimized</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>hyperparams <span class="op">=</span> {</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="st">&#39;amplitude&#39;</span>: <span class="fl">1.5</span>,      <span class="co"># How much variation to expect</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="st">&#39;lengthscale_xy&#39;</span>: <span class="dv">100</span>, <span class="co"># Horizontal correlation distance (meters)  </span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="st">&#39;lengthscale_z&#39;</span>: <span class="fl">0.2</span>,  <span class="co"># Vertical correlation distance (meters)</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="st">&#39;noise&#39;</span>: <span class="fl">0.1</span>           <span class="co"># Measurement uncertainty</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>}</span></code></pre></div>
+<p>Think of these as the settings on a high-end camera - they determine how the GP interprets spatial relationships in your specific dataset.</p>
+<h3 id="training-process-learning-spatial-patterns">3. <strong>Training Process (Learning Spatial Patterns)</strong></h3>
+<p>The GP studies your soil sample locations to learn the spatial correlation patterns:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># The GP examines all your soil samples and learns:</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># &quot;In this dataset, soil carbon stays similar for about 150 meters, </span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#  then starts to vary more significantly&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>trained_gp <span class="op">=</span> train_gp(soil_locations, soil_measurements, environmental_data)</span></code></pre></div>
+<h3 id="prediction-process-smart-spatial-interpolation">4. <strong>Prediction Process (Smart Spatial Interpolation)</strong></h3>
+<p>Once trained, the GP can predict soil properties anywhere, incorporating both the mean function predictions and spatial relationships:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># For each new location, the GP considers:</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="co"># 1. What does the mean function predict here?</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># 2. What do nearby soil samples suggest?</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># 3. How confident should we be given the sample locations?</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>predictions, uncertainties <span class="op">=</span> gp.predict(new_locations)</span></code></pre></div>
+<h2 id="how-to-use-gaussian-process-models">How to Use Gaussian Process Models</h2>
+<p>Let’s walk through creating a sophisticated soil organic carbon map that incorporates spatial relationships. We’ll build on the mean function results from the previous chapter.</p>
+<h3 id="step-1-prepare-your-spatial-data">Step 1: Prepare Your Spatial Data</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Your soil sample coordinates and measurements</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>soil_coordinates <span class="op">=</span> np.array([</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    [<span class="fl">0.1</span>, <span class="fl">1234.5</span>, <span class="fl">5678.9</span>],  <span class="co"># [depth_m, x_m, y_m]</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    [<span class="fl">0.1</span>, <span class="fl">1245.2</span>, <span class="fl">5690.1</span>],</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    [<span class="fl">0.2</span>, <span class="fl">1250.0</span>, <span class="fl">5700.0</span>],</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="co"># ... more soil samples</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>])</span></code></pre></div>
+<p>The GP needs coordinates in 3D space: depth, x-position, and y-position. This allows it to model how soil properties vary both horizontally across the landscape and vertically with depth.</p>
+<h3 id="step-2-set-up-the-gaussian-process">Step 2: Set Up the Gaussian Process</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">from</span> GPmodel <span class="im">import</span> train_predict_3D</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co"># Define the hyperparameters (these will be optimized automatically)</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>gp_params <span class="op">=</span> [</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="fl">1.0</span>,   <span class="co"># amplitude - how much spatial variation to expect</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="fl">0.1</span>,   <span class="co"># noise level - measurement uncertainty</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="fl">0.5</span>,   <span class="co"># z lengthscale - vertical correlation distance  </span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="fl">200.0</span>  <span class="co"># xy lengthscale - horizontal correlation distance</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>]</span></code></pre></div>
+<p>These initial values are just starting points. The GP will automatically optimize them based on your actual soil data patterns.</p>
+<h3 id="step-3-train-the-gaussian-process">Step 3: Train the Gaussian Process</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Train the GP using your soil samples and mean function residuals</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>residuals <span class="op">=</span> soil_measurements <span class="op">-</span> mean_function_predictions</span></code></pre></div>
+<p>The GP focuses on modeling the <strong>residuals</strong> - the differences between what the mean function predicted and what you actually measured. This two-stage approach combines the global patterns (mean function) with local spatial patterns (GP).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Train and predict with the GP</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>gp_predictions, gp_uncertainties, logl, gp_model <span class="op">=</span> train_predict_3D(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    points3D_train<span class="op">=</span>soil_coordinates,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    points3D_pred<span class="op">=</span>prediction_grid_coordinates,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    Y_train<span class="op">=</span>residuals,</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    Ynoise_train<span class="op">=</span>measurement_uncertainties,</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    params_gp<span class="op">=</span>gp_params</span>
+<span id="cb8-8"><a href="#cb8-8"></a>)</span></code></pre></div>
+<p>This single function call trains the GP model on your residuals and generates predictions across your entire study area.</p>
+<h3 id="step-4-combine-mean-function-and-gp-predictions">Step 4: Combine Mean Function and GP Predictions</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Final predictions = Mean function + GP spatial corrections</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>final_predictions <span class="op">=</span> mean_function_predictions <span class="op">+</span> gp_predictions</span>
+<span id="cb9-3"><a href="#cb9-3"></a>final_uncertainties <span class="op">=</span> np.sqrt(mean_uncertainties<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> gp_uncertainties<span class="op">**</span><span class="dv">2</span>)</span></code></pre></div>
+<p>This gives you the best of both worlds: the broad-scale environmental patterns from the mean function, plus the fine-scale spatial patterns from the Gaussian Process.</p>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you run a Gaussian Process model, here’s the step-by-step process that occurs behind the scenes:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant GP as Gaussian Process
+    participant Kernel as Spatial Kernel
+    participant Optimizer as Hyperparameter Optimizer
+    participant Predictor as Spatial Predictor
+
+    User-&gt;&gt;GP: Train GP model
+    GP-&gt;&gt;Kernel: Calculate spatial correlations
+    Kernel-&gt;&gt;GP: Return correlation matrix
+    GP-&gt;&gt;Optimizer: Optimize hyperparameters
+    Optimizer-&gt;&gt;GP: Return optimal parameters
+    User-&gt;&gt;GP: Request predictions
+    GP-&gt;&gt;Predictor: Generate spatial predictions
+    Predictor-&gt;&gt;User: Return maps with uncertainties</div>
+<p>Let’s break this down:</p>
+<h3 id="spatial-correlation-calculation">1. <strong>Spatial Correlation Calculation</strong></h3>
+<p>The GP first calculates how correlated every pair of soil sample locations should be:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># For every pair of soil sample locations:</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">def</span> calculate_spatial_correlation(location1, location2):</span>
+<span id="cb11-3"><a href="#cb11-3"></a>    distance <span class="op">=</span> calculate_3D_distance(location1, location2)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>    correlation <span class="op">=</span> sparse_kernel_function(distance, lengthscales)</span>
+<span id="cb11-5"><a href="#cb11-5"></a>    <span class="cf">return</span> correlation</span></code></pre></div>
+<p>This creates a correlation matrix that says “sample A and sample B should have correlation of 0.8 because they’re close, but sample A and sample C should have correlation of 0.1 because they’re far apart.”</p>
+<h3 id="hyperparameter-optimization-process">2. <strong>Hyperparameter Optimization Process</strong></h3>
+<p>The GP automatically finds the best hyperparameters by trying different values and seeing which ones best explain your data:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">def</span> find_best_hyperparameters(soil_data):</span>
+<span id="cb12-2"><a href="#cb12-2"></a>    best_score <span class="op">=</span> <span class="op">-</span>infinity</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="cf">for</span> amplitude <span class="kw">in</span> [<span class="fl">0.5</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>]:</span>
+<span id="cb12-4"><a href="#cb12-4"></a>        <span class="cf">for</span> lengthscale <span class="kw">in</span> [<span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">500</span>]:</span>
+<span id="cb12-5"><a href="#cb12-5"></a>            <span class="co"># Test how well these parameters explain the data</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>            score <span class="op">=</span> calculate_marginal_likelihood(amplitude, lengthscale)</span>
+<span id="cb12-7"><a href="#cb12-7"></a>            <span class="cf">if</span> score <span class="op">&gt;</span> best_score:</span>
+<span id="cb12-8"><a href="#cb12-8"></a>                best_params <span class="op">=</span> (amplitude, lengthscale)</span>
+<span id="cb12-9"><a href="#cb12-9"></a>                best_score <span class="op">=</span> score</span>
+<span id="cb12-10"><a href="#cb12-10"></a>    <span class="cf">return</span> best_params</span></code></pre></div>
+<p>This process finds hyperparameters that best capture the spatial patterns in your specific soil dataset.</p>
+<h3 id="spatial-prediction-generation">3. <strong>Spatial Prediction Generation</strong></h3>
+<p>For each new location, the GP makes predictions by considering all nearby soil samples:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">def</span> make_spatial_prediction(new_location, trained_gp):</span>
+<span id="cb13-2"><a href="#cb13-2"></a>    <span class="co"># Calculate how correlated this new location is with each soil sample</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>    correlations <span class="op">=</span> []</span>
+<span id="cb13-4"><a href="#cb13-4"></a>    <span class="cf">for</span> sample_location <span class="kw">in</span> soil_sample_locations:</span>
+<span id="cb13-5"><a href="#cb13-5"></a>        correlation <span class="op">=</span> kernel(new_location, sample_location)</span>
+<span id="cb13-6"><a href="#cb13-6"></a>        correlations.append(correlation)</span>
+<span id="cb13-7"><a href="#cb13-7"></a>    </span>
+<span id="cb13-8"><a href="#cb13-8"></a>    <span class="co"># Weight nearby samples more heavily than distant ones</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>    prediction <span class="op">=</span> weighted_average(soil_measurements, correlations)</span>
+<span id="cb13-10"><a href="#cb13-10"></a>    uncertainty <span class="op">=</span> calculate_prediction_uncertainty(correlations)</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    </span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="cf">return</span> prediction, uncertainty</span></code></pre></div>
+<p>This ensures that predictions at each location are most influenced by nearby soil samples, with influence decreasing smoothly with distance.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>The Gaussian Process models are implemented in the <code>GPmodel.py</code> file with several sophisticated components working together. Here’s how the core functionality works:</p>
+<h3 id="sparse-kernel-implementation">Sparse Kernel Implementation</h3>
+<p>AgReFed-ML uses custom sparse kernels that are computationally efficient for large datasets:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">def</span> gpkernel_sparse_multidim(Delta, gamma):</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">    Calculate spatial correlations using sparse RBF kernel</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">    Delta: distances between points in each dimension  </span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co">    gamma: lengthscale parameters for each dimension</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="co"># This kernel goes to zero beyond the lengthscale distance</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>    <span class="co"># This makes the correlation matrix sparse (lots of zeros)</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a>    <span class="co"># which speeds up computation dramatically</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a>    </span>
+<span id="cb14-11"><a href="#cb14-11"></a>    correlation <span class="op">=</span> sparse_rbf_function(Delta, gamma)</span>
+<span id="cb14-12"><a href="#cb14-12"></a>    <span class="cf">return</span> correlation</span></code></pre></div>
+<p>The sparse kernel automatically sets correlations to zero for points beyond a certain distance, which dramatically speeds up computations without sacrificing accuracy.</p>
+<h3 id="d-spatial-modeling">3D Spatial Modeling</h3>
+<p>The GP models spatial relationships in all three dimensions (x, y, and depth):</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">def</span> train_predict_3D(points3D_train, points3D_pred, Y_train, params_gp):</span>
+<span id="cb15-2"><a href="#cb15-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co">    Train GP in 3D space (x, y, depth)</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>    <span class="co"># Calculate 3D distance matrices</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>    distance_matrix <span class="op">=</span> calcDistanceMatrix_multidim(points3D_train)</span>
+<span id="cb15-7"><a href="#cb15-7"></a>    </span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="co"># Apply sparse kernel in 3D</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a>    correlation_matrix <span class="op">=</span> gpkernel_sparse_multidim(distance_matrix, lengthscales)</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    </span>
+<span id="cb15-11"><a href="#cb15-11"></a>    <span class="co"># Solve for optimal predictions</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>    predictions <span class="op">=</span> solve_gp_equations(correlation_matrix, Y_train)</span>
+<span id="cb15-13"><a href="#cb15-13"></a>    </span>
+<span id="cb15-14"><a href="#cb15-14"></a>    <span class="cf">return</span> predictions, uncertainties</span></code></pre></div>
+<p>This allows the GP to understand that soil samples at the same depth should be more correlated than samples at different depths, even if they’re at the same horizontal location.</p>
+<h3 id="uncertainty-quantification">Uncertainty Quantification</h3>
+<p>One of the GP’s key strengths is honest uncertainty quantification:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">def</span> calculate_prediction_uncertainty(correlation_matrix, new_location):</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="co">    Calculate how uncertain we should be about predictions</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="co"># High uncertainty in areas far from soil samples</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>    <span class="co"># Low uncertainty in areas with many nearby samples</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>    </span>
+<span id="cb16-8"><a href="#cb16-8"></a>    distance_to_samples <span class="op">=</span> calculate_distances(new_location, sample_locations)</span>
+<span id="cb16-9"><a href="#cb16-9"></a>    </span>
+<span id="cb16-10"><a href="#cb16-10"></a>    <span class="co"># Uncertainty decreases with proximity to samples</span></span>
+<span id="cb16-11"><a href="#cb16-11"></a>    uncertainty <span class="op">=</span> base_uncertainty <span class="op">*</span> spatial_uncertainty_function(distance_to_samples)</span>
+<span id="cb16-12"><a href="#cb16-12"></a>    </span>
+<span id="cb16-13"><a href="#cb16-13"></a>    <span class="cf">return</span> uncertainty</span></code></pre></div>
+<p>This gives you realistic uncertainty estimates that reflect the actual spatial distribution of your soil samples.</p>
+<h3 id="hyperparameter-optimization">Hyperparameter Optimization</h3>
+<p>The GP automatically optimizes its hyperparameters using the marginal likelihood:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">def</span> optimize_gp_3D(points3d_train, Y_train, Ynoise_train):</span>
+<span id="cb17-2"><a href="#cb17-2"></a>    <span class="co">&quot;&quot;&quot;</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="co">    Find optimal hyperparameters by maximizing marginal likelihood</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>    <span class="co"># Define objective function</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>    <span class="kw">def</span> objective(params):</span>
+<span id="cb17-7"><a href="#cb17-7"></a>        amplitude, noise, z_length, xy_length <span class="op">=</span> params</span>
+<span id="cb17-8"><a href="#cb17-8"></a>        </span>
+<span id="cb17-9"><a href="#cb17-9"></a>        <span class="co"># Calculate how well these parameters explain the data</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a>        marginal_likelihood <span class="op">=</span> calculate_likelihood(params, soil_data)</span>
+<span id="cb17-11"><a href="#cb17-11"></a>        <span class="cf">return</span> <span class="op">-</span>marginal_likelihood  <span class="co"># Minimize negative likelihood</span></span>
+<span id="cb17-12"><a href="#cb17-12"></a>    </span>
+<span id="cb17-13"><a href="#cb17-13"></a>    <span class="co"># Use optimization algorithm to find best parameters</span></span>
+<span id="cb17-14"><a href="#cb17-14"></a>    optimal_params <span class="op">=</span> minimize(objective, initial_guess, bounds<span class="op">=</span>parameter_bounds)</span>
+<span id="cb17-15"><a href="#cb17-15"></a>    </span>
+<span id="cb17-16"><a href="#cb17-16"></a>    <span class="cf">return</span> optimal_params</span></code></pre></div>
+<p>This automatic optimization means you don’t have to guess appropriate hyperparameter values - the GP finds them based on your actual data.</p>
+<h2 id="benefits-for-agricultural-applications">Benefits for Agricultural Applications</h2>
+<p>Gaussian Process Models provide crucial capabilities that make AgReFed-ML’s soil predictions highly accurate and reliable:</p>
+<ul>
+<li><strong>Realistic Spatial Structure</strong>: Honors the fact that nearby soil properties should be similar</li>
+<li><strong>Honest Uncertainty</strong>: Provides realistic confidence intervals that reflect data availability</li>
+<li><strong>Flexible Correlation</strong>: Adapts to the specific spatial patterns in your dataset</li>
+<li><strong>Multi-dimensional</strong>: Models relationships in space and depth simultaneously<br />
+</li>
+<li><strong>Computationally Efficient</strong>: Sparse kernels make it practical for large datasets</li>
+<li><strong>Automatic Optimization</strong>: Finds optimal parameters without manual tuning</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Gaussian Process Models transform AgReFed-ML from a simple prediction system into a sophisticated spatial modeling framework. Like master artists adding fine details and spatial relationships to a basic sketch, GPs take the baseline estimates from <a href="04_mean_function_models___.html">Mean Function Models</a> and enhance them with realistic spatial structure and honest uncertainty quantification.</p>
+<p>By learning the spatial correlation patterns specific to your soil dataset, GPs ensure that your final soil property maps have smooth, realistic transitions between locations while providing confidence intervals that accurately reflect where you have good data coverage versus where predictions are more uncertain.</p>
+<p>These spatially-enhanced predictions become the foundation for the comprehensive uncertainty analysis covered in the next chapter. Ready to explore how AgReFed-ML quantifies and communicates the reliability of these sophisticated spatial predictions? The next chapter covers the <a href="06_uncertainty_quantification_system.md">Uncertainty Quantification System</a>, where you’ll learn how the system helps you understand and communicate the reliability of your soil predictions to stakeholders and decision-makers.</p>
+<hr />
+</body>
+</html>

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04 Mean Function Models</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="margin: 0;">
+                <a href="01_notebook_based_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="03_data_preprocessing_pipeline_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                </a>
+            </li>
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+            <li style="margin: 0;">
+                <a href="05_gaussian_process_models_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="08_synthetic_data_generation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="09_model_evaluation_and_cross_validation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">04 Mean Function Models</h1>
+</header>
+<h1 id="chapter-4-mean-function-models">Chapter 4: Mean Function Models</h1>
+<p>Now that you’ve learned how the <a href="03_data_preprocessing_pipeline.md">Data Preprocessing Pipeline</a> transforms your messy soil measurements into clean, analysis-ready datasets, it’s time to explore the first layer of AgReFed-ML’s prediction system: <strong>Mean Function Models</strong>.</p>
+<p>Think of this relationship like creating a masterpiece painting. The <a href="03_data_preprocessing_pipeline.md">Data Preprocessing Pipeline</a> is like preparing your canvas and organizing your paints. Mean Function Models are like having a skilled sketch artist create the basic outline and composition of your painting. This rough sketch captures the main shapes, proportions, and overall structure. Later, a master artist (the <a href="05_gaussian_process_models.md">Gaussian Process Models</a>) will add fine details, subtle shading, and beautiful textures to create the final masterpiece.</p>
+<h2 id="what-problem-do-mean-function-models-solve">What Problem Do Mean Function Models Solve?</h2>
+<p>Imagine you’re trying to predict soil organic carbon levels across a 1,000-hectare farm. You have soil measurements from 50 sample points scattered across the property, plus environmental data like elevation, rainfall, vegetation indices, and slope for every square meter of the farm.</p>
+<p>Without Mean Function Models, you’d face these challenges:</p>
+<ul>
+<li><strong>Where to start?</strong> How do you begin making predictions when you only have 50 soil samples but need predictions for millions of locations?</li>
+<li><strong>Which patterns matter?</strong> With dozens of environmental variables, which ones actually help predict soil carbon?</li>
+<li><strong>How accurate can you be?</strong> What’s a reasonable baseline level of accuracy to expect?</li>
+</ul>
+<p>Mean Function Models solve these problems by learning the <strong>primary relationships</strong> between soil properties and environmental factors. They’re called “mean function” models because they predict the average (mean) soil property value you’d expect at any location, given the environmental conditions there.</p>
+<h2 id="what-are-mean-function-models">What Are Mean Function Models?</h2>
+<p>Think of Mean Function Models as experienced agricultural consultants who can give you a good first estimate of soil conditions based on what they can see about the landscape:</p>
+<ul>
+<li><strong>The Consultant’s Expertise</strong> = The trained machine learning model</li>
+<li><strong>The Landscape Clues</strong> = Environmental covariates (elevation, rainfall, vegetation indices)</li>
+<li><strong>The Initial Assessment</strong> = Predicted soil property values</li>
+<li><strong>The Confidence Level</strong> = Uncertainty estimates about the predictions</li>
+</ul>
+<p>AgReFed-ML provides two types of agricultural consultants, each with different strengths:</p>
+<h3 id="bayesian-linear-regression-blr---the-systematic-analyst">1. <strong>Bayesian Linear Regression (BLR) - The Systematic Analyst</strong></h3>
+<p>This consultant likes to find simple, interpretable relationships. BLR assumes that soil properties change in predictable, linear ways with environmental factors. For example: “For every 100 meters of elevation gain, soil organic carbon typically increases by 0.2%.”</p>
+<h3 id="random-forest-rf---the-pattern-recognition-expert">2. <strong>Random Forest (RF) - The Pattern Recognition Expert</strong></h3>
+<p>This consultant is excellent at finding complex, non-linear patterns. RF can discover relationships like: “High soil carbon occurs when elevation is above 300m AND rainfall is between 800-1200mm AND the area has moderate slope.”</p>
+<h2 id="key-components-of-mean-function-models">Key Components of Mean Function Models</h2>
+<p>Every Mean Function Model in AgReFed-ML has three essential components:</p>
+<h3 id="environmental-covariates-the-clues">1. <strong>Environmental Covariates (The Clues)</strong></h3>
+<p>These are the landscape characteristics that help predict soil properties:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Common environmental covariates</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>covariates <span class="op">=</span> [</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="st">&#39;elevation&#39;</span>,        <span class="co"># Height above sea level</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="st">&#39;slope&#39;</span>,           <span class="co"># Steepness of terrain  </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="st">&#39;aspect&#39;</span>,          <span class="co"># Direction slope faces</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="st">&#39;ndvi&#39;</span>,            <span class="co"># Vegetation greenness</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="st">&#39;rainfall&#39;</span>,        <span class="co"># Annual precipitation</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="st">&#39;temperature&#39;</span>      <span class="co"># Average temperature</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>]</span></code></pre></div>
+<p>These covariates are available everywhere across your study area, unlike soil measurements which are only available at sample points.</p>
+<h3 id="training-process-learning-from-examples">2. <strong>Training Process (Learning from Examples)</strong></h3>
+<p>The model learns relationships by studying your soil sample locations:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Training data: known soil samples + their environmental conditions</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>X_train <span class="op">=</span> environmental_data_at_sample_points  <span class="co"># Shape: (50 samples, 6 covariates)</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>y_train <span class="op">=</span> soil_carbon_measurements             <span class="co"># Shape: (50 samples,)</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co"># Train the model to learn the relationships</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>model <span class="op">=</span> train_model(X_train, y_train)</span></code></pre></div>
+<p>The model studies these 50 examples to learn how environmental conditions relate to soil carbon levels.</p>
+<h3 id="prediction-process-making-estimates-everywhere">3. <strong>Prediction Process (Making Estimates Everywhere)</strong></h3>
+<p>Once trained, the model can predict soil properties anywhere:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Prediction data: environmental conditions everywhere on the farm</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>X_predict <span class="op">=</span> environmental_data_full_farm  <span class="co"># Shape: (1,000,000 locations, 6 covariates)</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># Generate predictions across the entire farm</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>predictions <span class="op">=</span> model.predict(X_predict)   <span class="co"># Shape: (1,000,000 predictions,)</span></span></code></pre></div>
+<p>Now you have soil carbon estimates for every location on your farm!</p>
+<h2 id="how-to-use-mean-function-models">How to Use Mean Function Models</h2>
+<p>Let’s walk through creating a soil organic carbon map using both types of mean function models.</p>
+<h3 id="step-1-choose-your-model-type">Step 1: Choose Your Model Type</h3>
+<p>For soil organic carbon mapping, you need to decide between the two consultant types:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Option 1: Bayesian Linear Regression (good for simple relationships)</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>model_type <span class="op">=</span> <span class="st">&#39;blr&#39;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Option 2: Random Forest (good for complex patterns)</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>model_type <span class="op">=</span> <span class="st">&#39;rf&#39;</span></span></code></pre></div>
+<p><strong>When to use BLR</strong>: When you want interpretable results and suspect simple relationships (e.g., “carbon increases with elevation”)</p>
+<p><strong>When to use RF</strong>: When you suspect complex interactions between variables (e.g., “high carbon occurs under specific combinations of elevation, rainfall, and slope”)</p>
+<h3 id="step-2-train-the-bayesian-linear-regression-model">Step 2: Train the Bayesian Linear Regression Model</h3>
+<p>Let’s start with the systematic analyst approach:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">from</span> model_blr <span class="im">import</span> blr_train</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># Train BLR model on your soil samples</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>blr_model <span class="op">=</span> blr_train(X_train, y_train)</span></code></pre></div>
+<p>This trains the BLR model to find the best linear relationships between environmental factors and soil carbon. The model will identify which environmental variables are most important and how strongly they relate to soil carbon.</p>
+<h3 id="step-3-make-predictions-with-blr">Step 3: Make Predictions with BLR</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">from</span> model_blr <span class="im">import</span> blr_predict</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co"># Generate predictions and uncertainty estimates</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>predictions, uncertainties, _ <span class="op">=</span> blr_predict(X_predict, blr_model)</span></code></pre></div>
+<p>The BLR model returns two things: - <strong>Predictions</strong>: Estimated soil carbon values for each location - <strong>Uncertainties</strong>: How confident the model is about each prediction</p>
+<h3 id="step-4-train-the-random-forest-model">Step 4: Train the Random Forest Model</h3>
+<p>Now let’s try the pattern recognition expert:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="im">from</span> model_rf <span class="im">import</span> rf_train</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="co"># Train RF model on the same soil samples</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>rf_model <span class="op">=</span> rf_train(X_train, y_train)</span></code></pre></div>
+<p>The Random Forest trains 1,000 decision trees, each learning slightly different patterns from your data. This ensemble approach makes RF very robust to noise and capable of capturing complex relationships.</p>
+<h3 id="step-5-make-predictions-with-random-forest">Step 5: Make Predictions with Random Forest</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="im">from</span> model_rf <span class="im">import</span> rf_predict</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co"># Generate predictions with uncertainty from tree ensemble</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>predictions, uncertainties, _ <span class="op">=</span> rf_predict(X_predict, rf_model)</span></code></pre></div>
+<p>Random Forest estimates uncertainty by looking at how much the 1,000 different trees disagree with each other. High disagreement means high uncertainty.</p>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you train and use a Mean Function Model, here’s the step-by-step process that occurs:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant Model as Mean Function Model
+    participant Trainer as Model Trainer
+    participant Predictor as Prediction Engine
+    participant Output as Results
+
+    User-&gt;&gt;Model: Train model with soil samples
+    Model-&gt;&gt;Trainer: Load training data
+    Trainer-&gt;&gt;Model: Learn relationships
+    Model-&gt;&gt;User: Return trained model
+    User-&gt;&gt;Model: Request predictions
+    Model-&gt;&gt;Predictor: Generate predictions
+    Predictor-&gt;&gt;Output: Calculate uncertainties
+    Output-&gt;&gt;User: Return maps and confidence</div>
+<p>Let’s break this down:</p>
+<h3 id="model-training-phase">1. <strong>Model Training Phase</strong></h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># The model studies your soil samples</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">def</span> learn_relationships(soil_samples, environmental_data):</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="co"># Find patterns like: &quot;High elevation → High carbon&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="co"># Or: &quot;Steep slopes + High rainfall → Low carbon&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>    relationships <span class="op">=</span> find_patterns(soil_samples, environmental_data)</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="cf">return</span> trained_model</span></code></pre></div>
+<p>During training, the model examines each soil sample location and asks: “What environmental conditions led to this soil carbon level?”</p>
+<h3 id="pattern-learning-process">2. <strong>Pattern Learning Process</strong></h3>
+<p>For <strong>Bayesian Linear Regression</strong>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># BLR finds the best linear equation</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co"># soil_carbon = a₁×elevation + a₂×rainfall + a₃×slope + constant</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">def</span> find_linear_relationships(X, y):</span>
+<span id="cb11-4"><a href="#cb11-4"></a>    coefficients <span class="op">=</span> calculate_best_fit(X, y)  <span class="co"># Find a₁, a₂, a₃, etc.</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>    uncertainties <span class="op">=</span> estimate_coefficient_uncertainty(coefficients)</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    <span class="cf">return</span> coefficients, uncertainties</span></code></pre></div>
+<p>For <strong>Random Forest</strong>:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># RF builds many decision trees</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">def</span> build_tree_ensemble(X, y):</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    trees <span class="op">=</span> []</span>
+<span id="cb12-4"><a href="#cb12-4"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):  <span class="co"># Build 1000 trees</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>        tree <span class="op">=</span> build_decision_tree(X, y)  <span class="co"># Each tree learns different patterns</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>        trees.append(tree)</span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="cf">return</span> trees</span></code></pre></div>
+<h3 id="prediction-generation">3. <strong>Prediction Generation</strong></h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">def</span> generate_predictions(trained_model, new_locations):</span>
+<span id="cb13-2"><a href="#cb13-2"></a>    predictions <span class="op">=</span> []</span>
+<span id="cb13-3"><a href="#cb13-3"></a>    uncertainties <span class="op">=</span> []</span>
+<span id="cb13-4"><a href="#cb13-4"></a>    </span>
+<span id="cb13-5"><a href="#cb13-5"></a>    <span class="cf">for</span> location <span class="kw">in</span> new_locations:</span>
+<span id="cb13-6"><a href="#cb13-6"></a>        <span class="co"># Get environmental conditions at this location</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>        elevation <span class="op">=</span> location.elevation</span>
+<span id="cb13-8"><a href="#cb13-8"></a>        rainfall <span class="op">=</span> location.rainfall</span>
+<span id="cb13-9"><a href="#cb13-9"></a>        slope <span class="op">=</span> location.slope</span>
+<span id="cb13-10"><a href="#cb13-10"></a>        </span>
+<span id="cb13-11"><a href="#cb13-11"></a>        <span class="co"># Apply learned relationships</span></span>
+<span id="cb13-12"><a href="#cb13-12"></a>        prediction <span class="op">=</span> model.predict([elevation, rainfall, slope])</span>
+<span id="cb13-13"><a href="#cb13-13"></a>        uncertainty <span class="op">=</span> model.estimate_uncertainty([elevation, rainfall, slope])</span>
+<span id="cb13-14"><a href="#cb13-14"></a>        </span>
+<span id="cb13-15"><a href="#cb13-15"></a>        predictions.append(prediction)</span>
+<span id="cb13-16"><a href="#cb13-16"></a>        uncertainties.append(uncertainty)</span>
+<span id="cb13-17"><a href="#cb13-17"></a>    </span>
+<span id="cb13-18"><a href="#cb13-18"></a>    <span class="cf">return</span> predictions, uncertainties</span></code></pre></div>
+<p>This process generates soil property estimates for every location where you have environmental data.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>The Mean Function Models are implemented in two specialized modules that handle the different modeling approaches. Here’s how the core components work:</p>
+<h3 id="bayesian-linear-regression-implementation">Bayesian Linear Regression Implementation</h3>
+<p>The BLR model is implemented in <code>model_blr.py</code> and provides interpretable linear relationships:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">def</span> blr_train(X_train, y_train, logspace<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co">&quot;&quot;&quot;Train Bayesian Linear Regression model&quot;&quot;&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>    <span class="co"># Use scikit-learn&#39;s BayesianRidge for robust linear regression</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>    reg <span class="op">=</span> BayesianRidge(tol<span class="op">=</span><span class="fl">1e-6</span>, fit_intercept<span class="op">=</span><span class="va">True</span>, compute_score<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a>    reg.fit(X_train, y_train)</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    </span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="co"># Remove statistically insignificant features</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>    coef_uncertainties <span class="op">=</span> np.diag(reg.sigma_)</span>
+<span id="cb14-9"><a href="#cb14-9"></a>    significant_features <span class="op">=</span> <span class="bu">abs</span>(reg.coef_) <span class="op">&gt;</span> <span class="dv">3</span> <span class="op">*</span> coef_uncertainties</span>
+<span id="cb14-10"><a href="#cb14-10"></a>    </span>
+<span id="cb14-11"><a href="#cb14-11"></a>    <span class="cf">return</span> reg</span></code></pre></div>
+<p>This implementation automatically identifies which environmental variables have statistically significant relationships with your soil property.</p>
+<h3 id="random-forest-implementation">Random Forest Implementation</h3>
+<p>The RF model is implemented in <code>model_rf.py</code> and captures complex non-linear patterns:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">def</span> rf_train(X_train, y_train):</span>
+<span id="cb15-2"><a href="#cb15-2"></a>    <span class="co">&quot;&quot;&quot;Train Random Forest regression model&quot;&quot;&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="co"># Use 1000 trees with optimized parameters</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>    rf_reg <span class="op">=</span> RandomForestRegressor(</span>
+<span id="cb15-5"><a href="#cb15-5"></a>        n_estimators<span class="op">=</span><span class="dv">1000</span>,     <span class="co"># Number of decision trees</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>        min_samples_leaf<span class="op">=</span><span class="dv">2</span>,    <span class="co"># Prevent overfitting</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>        max_features<span class="op">=</span><span class="fl">0.3</span>,      <span class="co"># Use 30% of features per tree</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a>        random_state<span class="op">=</span><span class="dv">42</span>        <span class="co"># Reproducible results</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a>    )</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    rf_reg.fit(X_train, y_train)</span>
+<span id="cb15-11"><a href="#cb15-11"></a>    <span class="cf">return</span> rf_reg</span></code></pre></div>
+<p>The Random Forest creates an ensemble of 1000 decision trees, each trained on slightly different subsets of your data and features.</p>
+<h3 id="uncertainty-quantification">Uncertainty Quantification</h3>
+<p>Both models provide uncertainty estimates, but through different mechanisms:</p>
+<p><strong>BLR Uncertainty</strong> (from mathematical theory):</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">def</span> blr_predict(X_test, blr_reg):</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="co">&quot;&quot;&quot;Get predictions with theoretical uncertainties&quot;&quot;&quot;</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>    y_pred, y_std <span class="op">=</span> blr_reg.predict(X_test, return_std<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="co"># y_std comes from Bayesian theory about parameter uncertainty</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="cf">return</span> y_pred, y_std</span></code></pre></div>
+<p><strong>RF Uncertainty</strong> (from ensemble disagreement):</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">def</span> pred_ints(model, X, percentile<span class="op">=</span><span class="dv">95</span>):</span>
+<span id="cb17-2"><a href="#cb17-2"></a>    <span class="co">&quot;&quot;&quot;Calculate uncertainty from tree ensemble&quot;&quot;&quot;</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="co"># Get predictions from all 1000 trees</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>    all_predictions <span class="op">=</span> []</span>
+<span id="cb17-5"><a href="#cb17-5"></a>    <span class="cf">for</span> tree <span class="kw">in</span> model.estimators_:</span>
+<span id="cb17-6"><a href="#cb17-6"></a>        predictions <span class="op">=</span> tree.predict(X)</span>
+<span id="cb17-7"><a href="#cb17-7"></a>        all_predictions.append(predictions)</span>
+<span id="cb17-8"><a href="#cb17-8"></a>    </span>
+<span id="cb17-9"><a href="#cb17-9"></a>    <span class="co"># Uncertainty = how much trees disagree</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a>    stddev <span class="op">=</span> np.std(all_predictions, axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    <span class="cf">return</span> stddev</span></code></pre></div>
+<p>This gives you two different perspectives on prediction uncertainty: mathematical theory (BLR) versus empirical variability (RF).</p>
+<h3 id="model-selection-guidance">Model Selection Guidance</h3>
+<p>The choice between BLR and RF depends on your specific needs:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">def</span> choose_model(data_characteristics):</span>
+<span id="cb18-2"><a href="#cb18-2"></a>    <span class="cf">if</span> data_characteristics[<span class="st">&#39;sample_size&#39;</span>] <span class="op">&lt;</span> <span class="dv">100</span>:</span>
+<span id="cb18-3"><a href="#cb18-3"></a>        <span class="cf">return</span> <span class="st">&#39;blr&#39;</span>  <span class="co"># Better for small datasets</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="cf">elif</span> data_characteristics[<span class="st">&#39;need_interpretability&#39;</span>]:</span>
+<span id="cb18-5"><a href="#cb18-5"></a>        <span class="cf">return</span> <span class="st">&#39;blr&#39;</span>  <span class="co"># Linear relationships are easy to explain</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="cf">elif</span> data_characteristics[<span class="st">&#39;complex_terrain&#39;</span>]:</span>
+<span id="cb18-7"><a href="#cb18-7"></a>        <span class="cf">return</span> <span class="st">&#39;rf&#39;</span>   <span class="co"># Better for complex patterns</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>    <span class="cf">else</span>:</span>
+<span id="cb18-9"><a href="#cb18-9"></a>        <span class="cf">return</span> <span class="st">&#39;rf&#39;</span>   <span class="co"># Generally more accurate for large datasets</span></span></code></pre></div>
+<p>Both models can be used as mean functions for <a href="05_gaussian_process_models.md">Gaussian Process Models</a>, which will refine these initial estimates with spatial modeling.</p>
+<h2 id="benefits-for-agricultural-applications">Benefits for Agricultural Applications</h2>
+<p>Mean Function Models provide essential capabilities for agricultural machine learning:</p>
+<ul>
+<li><strong>Scalable Predictions</strong>: Generate estimates anywhere you have environmental data, not just at soil sample locations</li>
+<li><strong>Uncertainty Awareness</strong>: Know where your predictions are more or less reliable<br />
+</li>
+<li><strong>Interpretable Relationships</strong>: (especially BLR) understand which environmental factors drive soil properties</li>
+<li><strong>Foundation for Refinement</strong>: Provide solid baseline estimates that <a href="05_gaussian_process_models.md">Gaussian Process Models</a> can improve upon</li>
+<li><strong>Flexible Application</strong>: Work with any soil property and any set of environmental covariates</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Mean Function Models are the essential first step in AgReFed-ML’s two-stage prediction system. Like skilled sketch artists, they quickly capture the main relationships between soil properties and environmental factors, creating a solid foundation for more sophisticated spatial modeling.</p>
+<p>Whether you choose the systematic approach of Bayesian Linear Regression or the pattern-recognition power of Random Forest, these models transform your limited soil samples into comprehensive baseline maps across your entire study area. They identify which environmental factors matter most and provide honest estimates of prediction uncertainty.</p>
+<p>These baseline estimates become the foundation for the next stage of modeling sophistication. Ready to see how AgReFed-ML refines these initial sketches into detailed masterpieces? The next chapter covers <a href="05_gaussian_process_models.md">Gaussian Process Models</a>, where we’ll explore how the system adds spatial relationships and fine-scale details to create the most accurate possible soil property maps.</p>
+<hr />
+</body>
+</html>

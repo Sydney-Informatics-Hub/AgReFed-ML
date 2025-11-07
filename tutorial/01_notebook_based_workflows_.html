@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>01 Notebook Based Workflows</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="03_data_preprocessing_pipeline_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="04_mean_function_models___.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="05_gaussian_process_models_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="08_synthetic_data_generation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="09_model_evaluation_and_cross_validation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">01 Notebook Based Workflows</h1>
+</header>
+<h1 id="chapter-1-notebook-based-workflows">Chapter 1: Notebook-Based Workflows</h1>
+<p>Imagine you’re learning to cook a complex dish like beef wellington. You wouldn’t want to just be handed a list of ingredients and told “figure it out.” Instead, you’d want a step-by-step recipe that shows you exactly how to prepare each component, when to combine them, and what the final result should look like.</p>
+<p>This is exactly what <strong>Notebook-Based Workflows</strong> provide for agricultural machine learning. Instead of wrestling with complex algorithms and data processing on your own, you get interactive, guided tutorials that walk you through complete analysis scenarios from start to finish.</p>
+<h2 id="what-problem-do-notebook-based-workflows-solve">What Problem Do Notebook-Based Workflows Solve?</h2>
+<p>Let’s say you’re an agricultural researcher who wants to create a soil carbon map for a farm. Without guided workflows, you’d face these challenges:</p>
+<ul>
+<li><strong>Where do I start?</strong> Should I clean the data first, select features, or jump straight to modeling?</li>
+<li><strong>Which models work best?</strong> There are dozens of machine learning approaches - how do you choose?</li>
+<li><strong>How do I handle uncertainty?</strong> Agricultural predictions need confidence intervals, but how do you calculate them?</li>
+<li><strong>What does good output look like?</strong> How do you know if your soil maps are reasonable?</li>
+</ul>
+<p>Notebook-Based Workflows solve this by providing you with proven “recipes” that have been tested and refined by experts.</p>
+<h2 id="what-are-notebook-based-workflows">What Are Notebook-Based Workflows?</h2>
+<p>Think of these workflows as interactive cookbooks where:</p>
+<ul>
+<li><strong>Ingredients</strong> = Your data (soil measurements, satellite imagery, weather data)</li>
+<li><strong>Cooking techniques</strong> = Machine learning models and data processing steps<br />
+</li>
+<li><strong>Recipe steps</strong> = Code cells that you run one by one</li>
+<li><strong>Final dishes</strong> = Soil property maps, change detection results, uncertainty analysis</li>
+</ul>
+<p>Each workflow is contained in a Jupyter notebook - an interactive document that combines explanations, code, and visualizations all in one place.</p>
+<h2 id="key-components-of-a-workflow">Key Components of a Workflow</h2>
+<p>Every notebook-based workflow in AgReFed-ML has three main ingredients:</p>
+<h3 id="interactive-code-cells">1. <strong>Interactive Code Cells</strong></h3>
+<p>These are like individual recipe steps. Each cell contains a small piece of code that does one specific task:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Load your soil data (like getting ingredients from the pantry)</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a>soil_data <span class="op">=</span> pd.read_csv(<span class="st">&#39;soil_measurements.csv&#39;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="bu">print</span>(<span class="ss">f&quot;Loaded </span><span class="sc">{</span><span class="bu">len</span>(soil_data)<span class="sc">}</span><span class="ss"> soil samples&quot;</span>)</span></code></pre></div>
+<p>When you run this cell, it loads your data and tells you how many samples you have.</p>
+<h3 id="configuration-files-yaml-settings">2. <strong>Configuration Files (YAML Settings)</strong></h3>
+<p>These are like adjustable recipe cards that let you customize the workflow without changing the code:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># settings_soil_mapping.yaml</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">input_file</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;my_farm_data.csv&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">target_property</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;organic_carbon&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">map_resolution</span><span class="kw">:</span><span class="at"> </span><span class="dv">100</span><span class="co">  # meters</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">uncertainty_method</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;gaussian_process&quot;</span></span></code></pre></div>
+<p>This settings file tells the workflow which data to use and how detailed you want your final maps.</p>
+<h3 id="step-by-step-guidance">3. <strong>Step-by-Step Guidance</strong></h3>
+<p>Each notebook includes detailed explanations between code cells, just like a good recipe explains why you’re doing each step.</p>
+<h2 id="how-to-use-notebook-based-workflows">How to Use Notebook-Based Workflows</h2>
+<p>Let’s walk through creating a soil organic carbon map using the static soil model workflow:</p>
+<h3 id="step-1-choose-your-recipe">Step 1: Choose Your Recipe</h3>
+<p>AgReFed-ML provides three main “recipe categories”:</p>
+<ul>
+<li><strong>Static Soil Model</strong>: Create property maps for a single point in time</li>
+<li><strong>Change Model</strong>: Track how soil properties change over time<br />
+</li>
+<li><strong>Spatial-Temporal Model</strong>: Model properties that vary across both space and time</li>
+</ul>
+<p>For our carbon mapping example, we’ll use the Static Soil Model.</p>
+<h3 id="step-2-prepare-your-ingredients">Step 2: Prepare Your Ingredients</h3>
+<p>Open the feature selection notebook:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># This notebook helps you pick the best predictors for your model</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># Like choosing which spices will make your dish taste best</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="im">from</span> notebooks <span class="im">import</span> feature_importance_static</span></code></pre></div>
+<h3 id="step-3-follow-the-recipe">Step 3: Follow the Recipe</h3>
+<p>Run each cell in sequence. The notebook guides you through:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Step 1: Load and explore your data</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>soil_data <span class="op">=</span> load_data(<span class="st">&#39;my_soil_samples.csv&#39;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Step 2: Analyze which features are most important  </span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>important_features <span class="op">=</span> analyze_feature_importance(soil_data)</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co"># Step 3: Select the best features for modeling</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>selected_features <span class="op">=</span> select_top_features(important_features, n_features<span class="op">=</span><span class="dv">10</span>)</span></code></pre></div>
+<p>Each step produces output that helps you understand what’s happening with your data.</p>
+<h3 id="step-4-cook-your-model">Step 4: Cook Your Model</h3>
+<p>Move to the prediction notebook and create your soil maps:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Train your model using the selected features</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>model <span class="op">=</span> train_soil_model(soil_data, selected_features)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co"># Generate prediction maps</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>carbon_map <span class="op">=</span> predict_soil_property(model, prediction_grid)</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Create uncertainty maps too</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>uncertainty_map <span class="op">=</span> predict_uncertainty(model, prediction_grid)</span></code></pre></div>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you run a notebook-based workflow, here’s the step-by-step process that occurs:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant Notebook as Jupyter Notebook
+    participant Settings as YAML Config
+    participant ML as ML Pipeline
+    participant Output as Map Generator
+
+    User-&gt;&gt;Notebook: Run first cell
+    Notebook-&gt;&gt;Settings: Load configuration
+    Settings-&gt;&gt;Notebook: Return parameters
+    Notebook-&gt;&gt;ML: Initialize with settings
+    User-&gt;&gt;Notebook: Run data loading cell
+    Notebook-&gt;&gt;ML: Process raw data
+    ML-&gt;&gt;Notebook: Return cleaned data
+    User-&gt;&gt;Notebook: Run modeling cell
+    Notebook-&gt;&gt;ML: Train model
+    ML-&gt;&gt;Notebook: Return trained model
+    User-&gt;&gt;Notebook: Run prediction cell
+    Notebook-&gt;&gt;Output: Generate maps
+    Output-&gt;&gt;User: Display soil property maps</div>
+<p>Let’s break this down:</p>
+<ol type="1">
+<li><strong>Configuration Loading</strong>: The notebook first reads your YAML settings file to understand what you want to accomplish</li>
+<li><strong>Data Processing</strong>: Your raw data gets cleaned and prepared using the <a href="03_data_preprocessing_pipeline.md">Data Preprocessing Pipeline</a></li>
+<li><strong>Model Training</strong>: The system trains machine learning models using the <a href="04_mean_function_models__.md">Mean Function Models</a> and <a href="05_gaussian_process_models.md">Gaussian Process Models</a></li>
+<li><strong>Prediction Generation</strong>: The trained model creates maps using <a href="02_prediction_workflows.md">Prediction Workflows</a></li>
+<li><strong>Uncertainty Quantification</strong>: The <a href="06_uncertainty_quantification_system.md">Uncertainty Quantification System</a> calculates confidence intervals for each prediction</li>
+</ol>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>The notebook workflows are built on top of several core components. Here’s how they work together:</p>
+<h3 id="workflow-orchestration">Workflow Orchestration</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Each notebook follows this general pattern:</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">def</span> run_workflow(settings_file):</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="co"># 1. Load configuration</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    config <span class="op">=</span> load_yaml_settings(settings_file)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    </span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="co"># 2. Initialize data pipeline  </span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    data_pipeline <span class="op">=</span> DataPreprocessingPipeline(config)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>    </span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="co"># 3. Set up model based on use case</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a>    <span class="cf">if</span> config[<span class="st">&#39;workflow_type&#39;</span>] <span class="op">==</span> <span class="st">&#39;static&#39;</span>:</span>
+<span id="cb7-11"><a href="#cb7-11"></a>        model <span class="op">=</span> StaticSoilModel(config)</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    <span class="cf">elif</span> config[<span class="st">&#39;workflow_type&#39;</span>] <span class="op">==</span> <span class="st">&#39;change&#39;</span>:</span>
+<span id="cb7-13"><a href="#cb7-13"></a>        model <span class="op">=</span> ChangeDetectionModel(config)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>    </span>
+<span id="cb7-15"><a href="#cb7-15"></a>    <span class="co"># 4. Execute workflow steps</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>    results <span class="op">=</span> model.run_complete_workflow()</span>
+<span id="cb7-17"><a href="#cb7-17"></a>    </span>
+<span id="cb7-18"><a href="#cb7-18"></a>    <span class="cf">return</span> results</span></code></pre></div>
+<p>This orchestration ensures that each workflow follows the same reliable pattern while allowing for customization through the settings files.</p>
+<h3 id="interactive-feedback">Interactive Feedback</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Notebooks provide real-time feedback at each step</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">def</span> display_progress(step_name, data):</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="bu">print</span>(<span class="ss">f&quot;✓ Completed: </span><span class="sc">{</span>step_name<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="bu">print</span>(<span class="ss">f&quot;  Data shape: </span><span class="sc">{</span>data<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    <span class="bu">print</span>(<span class="ss">f&quot;  Memory usage: </span><span class="sc">{</span>data<span class="sc">.</span>memory_usage()<span class="sc">.</span><span class="bu">sum</span>() <span class="op">/</span> <span class="dv">1024</span><span class="op">**</span><span class="dv">2</span><span class="sc">:.1f}</span><span class="ss"> MB&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    </span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="co"># Show sample of results</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>    display(data.head())</span></code></pre></div>
+<p>This helps you understand what’s happening at each stage and catch any issues early.</p>
+<h2 id="benefits-for-beginners">Benefits for Beginners</h2>
+<p>Notebook-Based Workflows make agricultural machine learning accessible because they:</p>
+<ul>
+<li><strong>Provide Structure</strong>: No need to guess what comes next</li>
+<li><strong>Include Validation</strong>: Each step checks that your data looks reasonable<br />
+</li>
+<li><strong>Offer Flexibility</strong>: Change settings without modifying code</li>
+<li><strong>Show Results</strong>: Visualize your data and results at each step</li>
+<li><strong>Enable Reproducibility</strong>: Share your exact workflow with colleagues</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Notebook-Based Workflows transform complex agricultural machine learning tasks into manageable, step-by-step processes. Like following a well-tested recipe, you can create sophisticated soil property maps and uncertainty analyses without needing to be a machine learning expert.</p>
+<p>These workflows serve as your foundation for all AgReFed-ML analyses. Once you’re comfortable with the basic flow, you can explore the specific prediction workflows and advanced modeling techniques covered in the following chapters.</p>
+<p>Ready to dive deeper into the mechanics? The next chapter covers <a href="02_prediction_workflows.md">Prediction Workflows</a>, where we’ll explore how the system actually generates those soil property maps and uncertainty estimates.</p>
+<hr />
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>03 Data Preprocessing Pipeline</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="margin: 0;">
+                <a href="01_notebook_based_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+            <li style="margin: 0;">
+                <a href="04_mean_function_models___.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="05_gaussian_process_models_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="08_synthetic_data_generation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="09_model_evaluation_and_cross_validation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">03 Data Preprocessing Pipeline</h1>
+</header>
+<h1 id="chapter-3-data-preprocessing-pipeline">Chapter 3: Data Preprocessing Pipeline</h1>
+<p>Now that you’ve learned how <a href="02_prediction_workflows.md">Prediction Workflows</a> create soil property maps, it’s time to explore the essential foundation that makes those workflows possible: the <strong>Data Preprocessing Pipeline</strong>.</p>
+<p>Think of this relationship like preparing ingredients before cooking. The <a href="02_prediction_workflows.md">Prediction Workflows</a> are your cooking techniques - sautéing, roasting, and seasoning - that create the final dish. But before you can cook anything, you need perfectly prepped ingredients: vegetables washed and chopped to uniform sizes, spices measured, and everything organized by cooking order. That’s exactly what the Data Preprocessing Pipeline does for your soil data.</p>
+<h2 id="what-problem-does-the-data-preprocessing-pipeline-solve">What Problem Does the Data Preprocessing Pipeline Solve?</h2>
+<p>Imagine you’re a chef who just received a delivery of fresh produce from three different farms. Here’s what you might find:</p>
+<ul>
+<li><strong>Inconsistent measurements</strong>: One farm measures potatoes in pounds, another in kilograms, and the third just says “large, medium, small”</li>
+<li><strong>Missing information</strong>: Some vegetables have no harvest date labels</li>
+<li><strong>Different coordinate systems</strong>: Farm locations are recorded using different GPS formats</li>
+<li><strong>Messy data</strong>: Soil still attached, some produce damaged, mixed varieties</li>
+</ul>
+<p>This is exactly what happens when you collect soil measurements from multiple sources:</p>
+<ul>
+<li><strong>Mixed units</strong>: Some labs report organic carbon as percentages, others as grams per kilogram</li>
+<li><strong>Missing measurements</strong>: Weather data missing for certain dates, GPS coordinates incomplete</li>
+<li><strong>Different coordinate systems</strong>: Some measurements use latitude/longitude, others use local grid coordinates</li>
+<li><strong>Data quality issues</strong>: Impossible values (like negative soil pH), inconsistent depth recordings</li>
+</ul>
+<p>The Data Preprocessing Pipeline solves all these problems, transforming your messy, real-world soil data into clean, consistent datasets ready for machine learning.</p>
+<h2 id="what-is-the-data-preprocessing-pipeline">What Is the Data Preprocessing Pipeline?</h2>
+<p>Think of the Data Preprocessing Pipeline as a professional kitchen prep station with specialized equipment for each task:</p>
+<ul>
+<li><strong>Washing station</strong> = Data cleaning and validation</li>
+<li><strong>Cutting station</strong> = Unit conversions and standardization<br />
+</li>
+<li><strong>Measuring station</strong> = Coordinate system transformations</li>
+<li><strong>Organization station</strong> = Spatial and temporal alignment</li>
+<li><strong>Quality control</strong> = Missing data handling and outlier detection</li>
+<li><strong>Recipe preparation</strong> = Cross-validation setup for model training</li>
+</ul>
+<p>Just like a prep station, the pipeline follows a systematic workflow that ensures every ingredient (data point) is perfectly prepared before it reaches the cooking stage (modeling).</p>
+<h2 id="key-components-of-the-data-preprocessing-pipeline">Key Components of the Data Preprocessing Pipeline</h2>
+<p>The pipeline consists of five main prep stations that your data moves through sequentially:</p>
+<h3 id="data-cleaning-and-validation-station">1. <strong>Data Cleaning and Validation Station</strong></h3>
+<p>This is like the washing station where you remove dirt and identify damaged produce.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Load raw soil measurements</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>soil_data <span class="op">=</span> pd.read_csv(<span class="st">&#39;raw_soil_measurements.csv&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co"># Remove impossible values (like negative organic carbon)</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>soil_data <span class="op">=</span> soil_data[soil_data[<span class="st">&#39;organic_carbon&#39;</span>] <span class="op">&gt;=</span> <span class="dv">0</span>]</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co"># Check for complete coordinate information</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a>soil_data <span class="op">=</span> soil_data.dropna(subset<span class="op">=</span>[<span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>])</span></code></pre></div>
+<p>This step identifies and removes data points that would cause problems later, like soil pH values above 14 or GPS coordinates in the middle of the ocean.</p>
+<h3 id="coordinate-transformation-station">2. <strong>Coordinate Transformation Station</strong></h3>
+<p>This is like converting recipe measurements from cups to grams - ensuring everything uses the same measurement system.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Convert latitude/longitude to projected coordinates (meters)</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="cf">if</span> <span class="st">&#39;Latitude&#39;</span> <span class="kw">in</span> soil_data.columns:</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    soil_data <span class="op">=</span> transform_coordinates(</span>
+<span id="cb2-4"><a href="#cb2-4"></a>        soil_data, </span>
+<span id="cb2-5"><a href="#cb2-5"></a>        from_crs<span class="op">=</span><span class="st">&#39;EPSG:4326&#39;</span>,  <span class="co"># Lat/Long</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>        to_crs<span class="op">=</span><span class="st">&#39;EPSG:28355&#39;</span>    <span class="co"># Local grid in meters</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>    )</span></code></pre></div>
+<p>This ensures all your spatial measurements are in consistent units (typically meters) and use the same map projection, which is essential for accurate spatial modeling.</p>
+<h3 id="depth-calculation-station">3. <strong>Depth Calculation Station</strong></h3>
+<p>This is like converting “thick-cut” and “thin-slice” into precise measurements in millimeters.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Calculate depth midpoints from depth ranges</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>soil_data[<span class="st">&#39;depth_midpoint&#39;</span>] <span class="op">=</span> (</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    soil_data[<span class="st">&#39;depth_min&#39;</span>] <span class="op">+</span> soil_data[<span class="st">&#39;depth_max&#39;</span>]</span>
+<span id="cb3-4"><a href="#cb3-4"></a>) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co"># Convert from millimeters to meters</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>soil_data[<span class="st">&#39;depth_meters&#39;</span>] <span class="op">=</span> soil_data[<span class="st">&#39;depth_midpoint&#39;</span>] <span class="op">/</span> <span class="dv">1000</span></span></code></pre></div>
+<p>Since soil samples are collected over depth ranges (like 0-10cm), this step calculates precise depth midpoints that models can work with mathematically.</p>
+<h3 id="categorical-encoding-station">4. <strong>Categorical Encoding Station</strong></h3>
+<p>This is like converting “red onion, yellow onion, white onion” into separate ingredient categories.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Convert soil types into binary features</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>soil_types <span class="op">=</span> soil_data[<span class="st">&#39;soil_type&#39;</span>].unique()  <span class="co"># [&#39;clay&#39;, &#39;sand&#39;, &#39;loam&#39;]</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Create separate columns for each soil type</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="cf">for</span> soil_type <span class="kw">in</span> soil_types:</span>
+<span id="cb4-6"><a href="#cb4-6"></a>    soil_data[<span class="ss">f&#39;soil_type_</span><span class="sc">{</span>soil_type<span class="sc">}</span><span class="ss">&#39;</span>] <span class="op">=</span> (</span>
+<span id="cb4-7"><a href="#cb4-7"></a>        soil_data[<span class="st">&#39;soil_type&#39;</span>] <span class="op">==</span> soil_type</span>
+<span id="cb4-8"><a href="#cb4-8"></a>    ).astype(<span class="bu">int</span>)</span></code></pre></div>
+<p>Machine learning models need numbers, not text, so this step converts categorical information (like soil type or land use) into numerical features.</p>
+<h3 id="cross-validation-setup-station">5. <strong>Cross-Validation Setup Station</strong></h3>
+<p>This is like organizing your ingredients into separate prep containers for each course of a multi-course meal.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Create validation groups for model testing</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>soil_data <span class="op">=</span> create_cv_folds(</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    soil_data, </span>
+<span id="cb5-4"><a href="#cb5-4"></a>    n_folds<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    grouping_precision<span class="op">=</span><span class="dv">1000</span>  <span class="co"># Group points within 1km</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>)</span></code></pre></div>
+<p>This step creates data splits for model training and testing, ensuring that nearby soil samples don’t end up in both training and testing sets (which would give overly optimistic results).</p>
+<h2 id="how-to-use-the-data-preprocessing-pipeline">How to Use the Data Preprocessing Pipeline</h2>
+<p>Let’s walk through preprocessing soil organic carbon data from a real farm. You’ll start with messy field measurements and end with analysis-ready data.</p>
+<h3 id="step-1-prepare-your-configuration">Step 1: Prepare Your Configuration</h3>
+<p>Create a settings file that tells the pipeline how to handle your specific data:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># settings_preprocessing.yaml</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="fu">inpath</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;raw_data/&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="fu">infname</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;farm_soil_samples.csv&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">outpath</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;processed_data/&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="fu">outfname</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;clean_soil_data.csv&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="fu">name_target</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;organic_carbon&quot;</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="fu">name_features</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;elevation&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;slope&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;ndvi&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;rainfall&quot;</span><span class="kw">]</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co"># Coordinate column names in your raw data</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="fu">colname_xcoord</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Easting&quot;</span><span class="at">  </span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="fu">colname_ycoord</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;Northing&quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co"># Depth column names  </span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="fu">colname_depthmin</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;depth_top_cm&quot;</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="fu">colname_depthmax</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;depth_bottom_cm&quot;</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co"># Depth limits for analysis</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="fu">zmin</span><span class="kw">:</span><span class="at"> </span><span class="dv">0</span><span class="co">    # Surface samples only</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="fu">zmax</span><span class="kw">:</span><span class="at"> </span><span class="fl">0.3</span><span class="co">  # Down to 30cm depth</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co"># Coordinate system</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="fu">project_crs</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;EPSG:28355&quot;</span><span class="co">  # Local grid coordinate system</span></span></code></pre></div>
+<p>This configuration tells the pipeline exactly how to interpret your data columns and what processing steps to apply.</p>
+<h3 id="step-2-run-the-preprocessing-pipeline">Step 2: Run the Preprocessing Pipeline</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="im">from</span> preprocessing <span class="im">import</span> main</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="co"># Run the complete preprocessing pipeline</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>main(<span class="st">&#39;settings_preprocessing.yaml&#39;</span>)</span></code></pre></div>
+<p>That’s it! The pipeline automatically processes your data through all five stations.</p>
+<h3 id="step-3-examine-the-results">Step 3: Examine the Results</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Load the processed data</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>clean_data <span class="op">=</span> pd.read_csv(<span class="st">&#39;processed_data/clean_soil_data.csv&#39;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="bu">print</span>(<span class="ss">f&quot;Original samples: </span><span class="sc">{</span><span class="bu">len</span>(raw_data)<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="bu">print</span>(<span class="ss">f&quot;Clean samples: </span><span class="sc">{</span><span class="bu">len</span>(clean_data)<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="bu">print</span>(<span class="ss">f&quot;Removed </span><span class="sc">{</span><span class="bu">len</span>(raw_data) <span class="op">-</span> <span class="bu">len</span>(clean_data)<span class="sc">}</span><span class="ss"> problematic samples&quot;</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co"># Check the new columns</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="bu">print</span>(<span class="st">&quot;New columns added:&quot;</span>, clean_data.columns.tolist())</span></code></pre></div>
+<p>You’ll see that the pipeline has added new columns like depth midpoints, converted coordinates, and cross-validation fold labels.</p>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you run the preprocessing pipeline, here’s the step-by-step process that occurs behind the scenes:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant Pipeline as Preprocessing Pipeline
+    participant Cleaner as Data Cleaner
+    participant Transformer as Coordinate Transformer
+    participant Calculator as Depth Calculator
+    participant Encoder as Categorical Encoder
+
+    User-&gt;&gt;Pipeline: Run preprocessing
+    Pipeline-&gt;&gt;Cleaner: Load and validate raw data
+    Cleaner-&gt;&gt;Pipeline: Return cleaned data
+    Pipeline-&gt;&gt;Transformer: Transform coordinates
+    Transformer-&gt;&gt;Pipeline: Return projected coordinates
+    Pipeline-&gt;&gt;Calculator: Calculate depth midpoints
+    Calculator-&gt;&gt;Pipeline: Return depth measurements
+    Pipeline-&gt;&gt;Encoder: Encode categorical variables
+    Encoder-&gt;&gt;User: Output processed dataset</div>
+<p>Let’s break down what happens at each step:</p>
+<h3 id="data-loading-and-initial-cleaning">1. <strong>Data Loading and Initial Cleaning</strong></h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Load raw data and identify coordinate columns</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>df <span class="op">=</span> pd.read_csv(input_file)</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># Find latitude/longitude columns with flexible naming</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="cf">if</span> <span class="st">&#39;Latitude&#39;</span> <span class="kw">in</span> df.columns <span class="kw">or</span> <span class="st">&#39;Lat&#39;</span> <span class="kw">in</span> df.columns:</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="co"># Standardize coordinate column names</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>    df <span class="op">=</span> standardize_coordinate_names(df)</span></code></pre></div>
+<p>The pipeline is smart about finding coordinate columns even if they have different names like “Lat/Long”, “Latitude/Longitude”, or “X/Y”.</p>
+<h3 id="coordinate-system-validation-and-transformation">2. <strong>Coordinate System Validation and Transformation</strong></h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Check if coordinates are already in meters or degrees</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>coord_range_x <span class="op">=</span> <span class="bu">abs</span>(df.x.<span class="bu">max</span>() <span class="op">-</span> df.x.<span class="bu">min</span>())</span>
+<span id="cb11-3"><a href="#cb11-3"></a>coord_range_y <span class="op">=</span> <span class="bu">abs</span>(df.y.<span class="bu">max</span>() <span class="op">-</span> df.y.<span class="bu">min</span>())</span>
+<span id="cb11-4"><a href="#cb11-4"></a></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="cf">if</span> coord_range_x <span class="op">&lt;</span> <span class="dv">5</span> <span class="kw">and</span> coord_range_y <span class="op">&lt;</span> <span class="dv">5</span>:</span>
+<span id="cb11-6"><a href="#cb11-6"></a>    <span class="bu">print</span>(<span class="st">&quot;WARNING: Coordinates may be in degrees, not meters!&quot;</span>)</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    <span class="bu">print</span>(<span class="st">&quot;Please verify coordinate system in settings&quot;</span>)</span></code></pre></div>
+<p>This validation step catches common mistakes where people forget to convert latitude/longitude coordinates to projected coordinates.</p>
+<h3 id="depth-processing-and-unit-conversion">3. <strong>Depth Processing and Unit Conversion</strong></h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Calculate depth midpoints and convert units</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="cf">if</span> depth_min_col <span class="kw">and</span> depth_max_col:</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="co"># Convert from centimeters to meters</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>    df[<span class="st">&#39;depth_midpoint&#39;</span>] <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (</span>
+<span id="cb12-5"><a href="#cb12-5"></a>        df[depth_min_col] <span class="op">+</span> df[depth_max_col]</span>
+<span id="cb12-6"><a href="#cb12-6"></a>    ) <span class="op">/</span> <span class="fl">100.0</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    </span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="co"># Calculate depth interval size</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    df[<span class="st">&#39;depth_interval&#39;</span>] <span class="op">=</span> (</span>
+<span id="cb12-10"><a href="#cb12-10"></a>        df[depth_max_col] <span class="op">-</span> df[depth_min_col]</span>
+<span id="cb12-11"><a href="#cb12-11"></a>    ) <span class="op">/</span> <span class="fl">100.0</span></span></code></pre></div>
+<p>This ensures all depth measurements are in consistent units (meters) and provides both midpoint depths for modeling and interval sizes for uncertainty calculations.</p>
+<h3 id="categorical-variable-processing">4. <strong>Categorical Variable Processing</strong></h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Automatically detect categorical columns (text-based)</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>categorical_columns <span class="op">=</span> df.select_dtypes(include<span class="op">=</span>[<span class="st">&#39;object&#39;</span>]).columns</span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co"># Convert each categorical variable to binary features</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="cf">for</span> cat_col <span class="kw">in</span> categorical_columns:</span>
+<span id="cb13-6"><a href="#cb13-6"></a>    categories <span class="op">=</span> df[cat_col].unique()</span>
+<span id="cb13-7"><a href="#cb13-7"></a>    </span>
+<span id="cb13-8"><a href="#cb13-8"></a>    <span class="cf">for</span> category <span class="kw">in</span> categories:</span>
+<span id="cb13-9"><a href="#cb13-9"></a>        new_col_name <span class="op">=</span> <span class="ss">f&quot;</span><span class="sc">{</span>cat_col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>category<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>        df[new_col_name] <span class="op">=</span> (df[cat_col] <span class="op">==</span> category).astype(<span class="bu">int</span>)</span></code></pre></div>
+<p>This automatic detection and conversion means you don’t have to manually specify which columns contain categorical data.</p>
+<h3 id="cross-validation-fold-generation">5. <strong>Cross-Validation Fold Generation</strong></h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">def</span> create_spatial_cv_folds(df, n_folds, precision_meters):</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co"># Create unique location IDs by rounding coordinates</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>    df[<span class="st">&#39;location_id&#39;</span>] <span class="op">=</span> (</span>
+<span id="cb14-4"><a href="#cb14-4"></a>        df[<span class="st">&#39;x&#39;</span>].<span class="bu">round</span>(<span class="op">-</span><span class="dv">2</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">&#39;_&#39;</span> <span class="op">+</span>  <span class="co"># Round to nearest 100m</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>        df[<span class="st">&#39;y&#39;</span>].<span class="bu">round</span>(<span class="op">-</span><span class="dv">2</span>).astype(<span class="bu">str</span>)</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    )</span>
+<span id="cb14-7"><a href="#cb14-7"></a>    </span>
+<span id="cb14-8"><a href="#cb14-8"></a>    <span class="co"># Assign folds based on unique locations</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a>    unique_locations <span class="op">=</span> df[<span class="st">&#39;location_id&#39;</span>].unique()</span>
+<span id="cb14-10"><a href="#cb14-10"></a>    np.random.shuffle(unique_locations)</span>
+<span id="cb14-11"><a href="#cb14-11"></a>    </span>
+<span id="cb14-12"><a href="#cb14-12"></a>    fold_size <span class="op">=</span> <span class="bu">len</span>(unique_locations) <span class="op">//</span> n_folds</span>
+<span id="cb14-13"><a href="#cb14-13"></a>    df[<span class="st">&#39;cv_fold&#39;</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb14-14"><a href="#cb14-14"></a>    </span>
+<span id="cb14-15"><a href="#cb14-15"></a>    <span class="cf">for</span> fold <span class="kw">in</span> <span class="bu">range</span>(n_folds):</span>
+<span id="cb14-16"><a href="#cb14-16"></a>        start_idx <span class="op">=</span> fold <span class="op">*</span> fold_size</span>
+<span id="cb14-17"><a href="#cb14-17"></a>        end_idx <span class="op">=</span> start_idx <span class="op">+</span> fold_size</span>
+<span id="cb14-18"><a href="#cb14-18"></a>        fold_locations <span class="op">=</span> unique_locations[start_idx:end_idx]</span>
+<span id="cb14-19"><a href="#cb14-19"></a>        df.loc[df[<span class="st">&#39;location_id&#39;</span>].isin(fold_locations), <span class="st">&#39;cv_fold&#39;</span>] <span class="op">=</span> fold <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb14-20"><a href="#cb14-20"></a>        </span>
+<span id="cb14-21"><a href="#cb14-21"></a>    <span class="cf">return</span> df</span></code></pre></div>
+<p>This spatial cross-validation ensures that samples from the same location don’t end up in both training and testing sets, which would lead to overly optimistic model performance estimates.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>The preprocessing pipeline is implemented across several specialized modules that work together seamlessly. Here’s how the core components work:</p>
+<h3 id="main-preprocessing-function">Main Preprocessing Function</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">def</span> preprocess(inpath, infname, outpath, outfname, name_target, name_features,</span>
+<span id="cb15-2"><a href="#cb15-2"></a>               zmin<span class="op">=</span><span class="va">None</span>, zmax<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="co">&quot;&quot;&quot;Main preprocessing orchestrator&quot;&quot;&quot;</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>    </span>
+<span id="cb15-5"><a href="#cb15-5"></a>    <span class="co"># Load raw data</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>    df <span class="op">=</span> pd.read_csv(os.path.join(inpath, infname))</span>
+<span id="cb15-7"><a href="#cb15-7"></a>    </span>
+<span id="cb15-8"><a href="#cb15-8"></a>    <span class="co"># Apply coordinate transformations</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a>    df <span class="op">=</span> handle_coordinates(df, <span class="op">**</span>kwargs)</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    </span>
+<span id="cb15-11"><a href="#cb15-11"></a>    <span class="co"># Process depth information</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>    df <span class="op">=</span> calculate_depths(df, <span class="op">**</span>kwargs)</span>
+<span id="cb15-13"><a href="#cb15-13"></a>    </span>
+<span id="cb15-14"><a href="#cb15-14"></a>    <span class="co"># Handle categorical variables</span></span>
+<span id="cb15-15"><a href="#cb15-15"></a>    df <span class="op">=</span> encode_categoricals(df, <span class="op">**</span>kwargs)</span>
+<span id="cb15-16"><a href="#cb15-16"></a>    </span>
+<span id="cb15-17"><a href="#cb15-17"></a>    <span class="co"># Filter by depth range</span></span>
+<span id="cb15-18"><a href="#cb15-18"></a>    <span class="cf">if</span> zmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">or</span> zmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb15-19"><a href="#cb15-19"></a>        df <span class="op">=</span> filter_by_depth(df, zmin, zmax)</span>
+<span id="cb15-20"><a href="#cb15-20"></a>    </span>
+<span id="cb15-21"><a href="#cb15-21"></a>    <span class="co"># Remove invalid values</span></span>
+<span id="cb15-22"><a href="#cb15-22"></a>    df <span class="op">=</span> clean_invalid_values(df)</span>
+<span id="cb15-23"><a href="#cb15-23"></a>    </span>
+<span id="cb15-24"><a href="#cb15-24"></a>    <span class="co"># Save processed data</span></span>
+<span id="cb15-25"><a href="#cb15-25"></a>    df.to_csv(os.path.join(outpath, outfname), index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div>
+<p>This main function orchestrates all the preprocessing steps while allowing for flexible configuration through keyword arguments.</p>
+<h3 id="coordinate-transformation-handler">Coordinate Transformation Handler</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">def</span> handle_coordinates(df, colname_xcoord<span class="op">=</span><span class="st">&#39;x&#39;</span>, colname_ycoord<span class="op">=</span><span class="st">&#39;y&#39;</span>, </span>
+<span id="cb16-2"><a href="#cb16-2"></a>                      project_crs<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="co">&quot;&quot;&quot;Handle coordinate system transformations&quot;&quot;&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    </span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="co"># Standardize coordinate column names</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>    <span class="cf">if</span> colname_xcoord <span class="op">!=</span> <span class="st">&#39;x&#39;</span> <span class="kw">and</span> colname_xcoord <span class="kw">in</span> df.columns:</span>
+<span id="cb16-7"><a href="#cb16-7"></a>        df.rename(columns<span class="op">=</span>{colname_xcoord: <span class="st">&#39;x&#39;</span>}, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-8"><a href="#cb16-8"></a>    <span class="cf">if</span> colname_ycoord <span class="op">!=</span> <span class="st">&#39;y&#39;</span> <span class="kw">and</span> colname_ycoord <span class="kw">in</span> df.columns:</span>
+<span id="cb16-9"><a href="#cb16-9"></a>        df.rename(columns<span class="op">=</span>{colname_ycoord: <span class="st">&#39;y&#39;</span>}, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-10"><a href="#cb16-10"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11"></a>    <span class="co"># Convert to projected coordinates if needed</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a>    <span class="cf">if</span> project_crs <span class="kw">and</span> has_lat_lon_columns(df):</span>
+<span id="cb16-13"><a href="#cb16-13"></a>        df <span class="op">=</span> project_to_crs(df, project_crs)</span>
+<span id="cb16-14"><a href="#cb16-14"></a>    </span>
+<span id="cb16-15"><a href="#cb16-15"></a>    <span class="cf">return</span> df</span></code></pre></div>
+<p>This function handles the complex task of coordinate system transformations while being flexible enough to work with different input formats.</p>
+<h3 id="cross-validation-fold-generator">Cross-Validation Fold Generator</h3>
+<p>The pipeline includes a sophisticated cross-validation setup that considers the spatial nature of soil data:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">def</span> gen_kfold(df, nfold, spatial_precision<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb17-2"><a href="#cb17-2"></a>    <span class="co">&quot;&quot;&quot;Generate spatially-aware cross-validation folds&quot;&quot;&quot;</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>    </span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="cf">if</span> spatial_precision:</span>
+<span id="cb17-5"><a href="#cb17-5"></a>        <span class="co"># Group nearby samples together</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a>        df[<span class="st">&#39;spatial_id&#39;</span>] <span class="op">=</span> create_spatial_groups(df, spatial_precision)</span>
+<span id="cb17-7"><a href="#cb17-7"></a>        unique_groups <span class="op">=</span> df[<span class="st">&#39;spatial_id&#39;</span>].unique()</span>
+<span id="cb17-8"><a href="#cb17-8"></a>    <span class="cf">else</span>:</span>
+<span id="cb17-9"><a href="#cb17-9"></a>        <span class="co"># Use individual samples</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a>        unique_groups <span class="op">=</span> df.index.values</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    </span>
+<span id="cb17-12"><a href="#cb17-12"></a>    <span class="co"># Randomly assign groups to folds</span></span>
+<span id="cb17-13"><a href="#cb17-13"></a>    np.random.shuffle(unique_groups)</span>
+<span id="cb17-14"><a href="#cb17-14"></a>    fold_size <span class="op">=</span> <span class="bu">len</span>(unique_groups) <span class="op">//</span> nfold</span>
+<span id="cb17-15"><a href="#cb17-15"></a>    </span>
+<span id="cb17-16"><a href="#cb17-16"></a>    <span class="cf">for</span> fold <span class="kw">in</span> <span class="bu">range</span>(nfold):</span>
+<span id="cb17-17"><a href="#cb17-17"></a>        fold_groups <span class="op">=</span> unique_groups[fold <span class="op">*</span> fold_size:(fold <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> fold_size]</span>
+<span id="cb17-18"><a href="#cb17-18"></a>        <span class="cf">if</span> spatial_precision:</span>
+<span id="cb17-19"><a href="#cb17-19"></a>            df.loc[df[<span class="st">&#39;spatial_id&#39;</span>].isin(fold_groups), <span class="st">&#39;cv_fold&#39;</span>] <span class="op">=</span> fold <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb17-20"><a href="#cb17-20"></a>        <span class="cf">else</span>:</span>
+<span id="cb17-21"><a href="#cb17-21"></a>            df.loc[fold_groups, <span class="st">&#39;cv_fold&#39;</span>] <span class="op">=</span> fold <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb17-22"><a href="#cb17-22"></a>    </span>
+<span id="cb17-23"><a href="#cb17-23"></a>    <span class="cf">return</span> df</span></code></pre></div>
+<p>This ensures that your model evaluation accounts for the spatial correlation in soil data, giving you realistic performance estimates.</p>
+<h2 id="benefits-of-the-preprocessing-pipeline">Benefits of the Preprocessing Pipeline</h2>
+<p>The Data Preprocessing Pipeline transforms agricultural machine learning from a frustrating data wrangling exercise into a streamlined workflow:</p>
+<ul>
+<li><strong>Handles Messy Real-World Data</strong>: Automatically deals with common data quality issues that would otherwise require hours of manual cleaning</li>
+<li><strong>Ensures Spatial Consistency</strong>: Manages coordinate system transformations and spatial alignment automatically</li>
+<li><strong>Prevents Common Mistakes</strong>: Built-in validation catches errors like mixed units or invalid coordinates before they cause problems</li>
+<li><strong>Enables Robust Evaluation</strong>: Sets up proper cross-validation that accounts for spatial correlation in soil data</li>
+<li><strong>Maintains Reproducibility</strong>: Configuration files ensure preprocessing steps are documented and repeatable</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>The Data Preprocessing Pipeline is the essential foundation that makes all other AgReFed-ML capabilities possible. Like a well-organized kitchen prep station, it transforms messy, inconsistent raw soil measurements into clean, standardized datasets ready for sophisticated machine learning analysis.</p>
+<p>By handling coordinate transformations, depth calculations, categorical encoding, and cross-validation setup automatically, the pipeline eliminates the tedious data preparation work that often consumes 80% of a machine learning project’s time. This lets you focus on the interesting parts: understanding your soil data and generating actionable insights.</p>
+<p>Now that your data is perfectly prepped and ready to use, you can move on to the actual modeling techniques. The next chapter covers <a href="04_mean_function_models___.html">Mean Function Models</a>, where you’ll learn about the machine learning algorithms that learn the primary relationships between soil properties and environmental factors.</p>
+<hr />
+</body>
+</html>
