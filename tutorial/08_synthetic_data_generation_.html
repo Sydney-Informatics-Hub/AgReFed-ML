@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>08 Synthetic Data Generation</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="margin: 0;">
+                <a href="01_notebook_based_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="03_data_preprocessing_pipeline_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="04_mean_function_models___.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="05_gaussian_process_models_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+            <li style="margin: 0;">
+                <a href="09_model_evaluation_and_cross_validation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">08 Synthetic Data Generation</h1>
+</header>
+<h1 id="chapter-8-synthetic-data-generation">Chapter 8: Synthetic Data Generation</h1>
+<p>Now that you’ve learned how the <a href="07_spatial_temporal_modeling_framework.md">Spatial-Temporal Modeling Framework</a> creates sophisticated 4D predictions that vary across space and time, you’re ready to explore a crucial component for testing and validating these complex models: <strong>Synthetic Data Generation</strong>.</p>
+<p>Think of this relationship like the difference between test-driving a car on public roads versus training in a professional driving simulator. The <a href="07_spatial_temporal_modeling_framework.md">Spatial-Temporal Modeling Framework</a> is like having a sophisticated sports car with advanced features - GPS navigation, adaptive cruise control, and terrain-sensing suspension. But before you take that car onto challenging mountain roads with real consequences, you want to test all its systems in a controlled environment where you know exactly what should happen. That’s what Synthetic Data Generation provides: a professional testing laboratory for your soil models.</p>
+<h2 id="what-problem-does-synthetic-data-generation-solve">What Problem Does Synthetic Data Generation Solve?</h2>
+<p>Imagine you’ve just developed a sophisticated soil organic carbon model using all the techniques from previous chapters - <a href="04_mean_function_models___.html">Mean Function Models</a>, <a href="05_gaussian_process_models.md">Gaussian Process Models</a>, and <a href="07_spatial_temporal_modeling_framework.md">Spatial-Temporal Modeling Framework</a>. Now you need to answer critical questions:</p>
+<ul>
+<li><strong>Is my model working correctly?</strong> How do you know if your 2.3% carbon prediction is accurate when you don’t know the true value?</li>
+<li><strong>Where does my model fail?</strong> Which environmental conditions or spatial patterns cause poor predictions?</li>
+<li><strong>How much data do I need?</strong> Would 100 soil samples give much better results than 50 samples?</li>
+<li><strong>Which features matter most?</strong> Are elevation and rainfall really the most important predictors?</li>
+</ul>
+<p>Without synthetic data, you face these challenges: - <strong>Unknown ground truth</strong>: You never know the “correct” answer to compare against - <strong>Limited test scenarios</strong>: Real data only covers the conditions that happened to occur - <strong>Expensive experimentation</strong>: Testing different sampling strategies requires expensive field work - <strong>Unclear model behavior</strong>: No way to isolate and test specific model components</p>
+<p>Synthetic Data Generation solves these problems by creating <strong>artificial soil datasets with known properties</strong>. It’s like having a flight simulator where you can create any weather condition, terrain type, or emergency scenario to test how your “pilot” (model) performs when you know exactly what the right response should be.</p>
+<h2 id="what-is-synthetic-data-generation">What Is Synthetic Data Generation?</h2>
+<p>Think of Synthetic Data Generation as a sophisticated laboratory that can create realistic but artificial soil datasets. This laboratory has three main capabilities:</p>
+<h3 id="the-recipe-designer---known-relationships">1. <strong>The Recipe Designer</strong> - Known Relationships</h3>
+<p>The system lets you specify exactly how soil properties relate to environmental factors: - “Soil carbon increases by 0.2% for every 100m of elevation gain”<br />
+- “High rainfall and moderate slope create optimal carbon conditions” - “Spatial correlation extends 200 meters before properties become independent”</p>
+<h3 id="the-landscape-generator---realistic-spatial-patterns">2. <strong>The Landscape Generator</strong> - Realistic Spatial Patterns</h3>
+<p>The system creates artificial landscapes with controllable characteristics: - Random scattered sampling points (like real field sampling) - Regular grid patterns (like drone or satellite data) - Any geographic extent and coordinate system you need</p>
+<h3 id="the-complexity-controller---adjustable-difficulty">3. <strong>The Complexity Controller</strong> - Adjustable Difficulty</h3>
+<p>The system lets you control how challenging the synthetic data is: - Simple linear relationships vs. complex interactions - Low measurement noise vs. realistic field measurement uncertainty - Strong spatial patterns vs. highly variable conditions</p>
+<h2 id="key-components-of-synthetic-data-generation">Key Components of Synthetic Data Generation</h2>
+<p>Every synthetic dataset created by AgReFed-ML has four essential components:</p>
+<h3 id="environmental-features-the-landscape">1. <strong>Environmental Features (The Landscape)</strong></h3>
+<p>These are the artificial environmental conditions that serve as predictors:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Create synthetic environmental features</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>features <span class="op">=</span> [</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="st">&#39;elevation&#39;</span>,     <span class="co"># Artificial elevation values</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="st">&#39;slope&#39;</span>,        <span class="co"># Simulated slope values  </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="st">&#39;rainfall&#39;</span>,     <span class="co"># Generated precipitation data</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="st">&#39;temperature&#39;</span>   <span class="co"># Synthetic temperature values</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>]</span></code></pre></div>
+<p>These features are mathematically generated but designed to behave like real environmental data.</p>
+<h3 id="known-relationships-the-rules">2. <strong>Known Relationships (The Rules)</strong></h3>
+<p>You specify exactly how environmental features relate to soil properties:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Define the true relationships (what your model should learn)</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>true_coefficients <span class="op">=</span> {</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="st">&#39;elevation&#39;</span>: <span class="fl">0.002</span>,    <span class="co"># +0.2% carbon per 100m elevation</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="st">&#39;rainfall&#39;</span>: <span class="fl">0.001</span>,     <span class="co"># +0.1% carbon per 100mm rainfall</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="st">&#39;slope&#39;</span>: <span class="fl">-0.05</span>,        <span class="co"># -0.05% carbon per degree slope</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="st">&#39;temperature&#39;</span>: <span class="fl">-0.01</span>   <span class="co"># -0.01% carbon per degree temperature</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>}</span></code></pre></div>
+<p>These coefficients define the “ground truth” that your trained models should discover.</p>
+<h3 id="spatial-patterns-the-neighborhood-effects">3. <strong>Spatial Patterns (The Neighborhood Effects)</strong></h3>
+<p>You can add realistic spatial correlations:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Add spatial correlation (nearby locations are similar)</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>spatial_settings <span class="op">=</span> {</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="st">&#39;correlation_length&#39;</span>: <span class="dv">200</span>,  <span class="co"># Correlation extends 200 meters</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="st">&#39;correlation_strength&#39;</span>: <span class="fl">0.3</span> <span class="co"># 30% of variation is spatial</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>}</span></code></pre></div>
+<p>This makes the synthetic data behave like real soil data, where nearby locations tend to have similar properties.</p>
+<h3 id="measurement-noise-the-reality-factor">4. <strong>Measurement Noise (The Reality Factor)</strong></h3>
+<p>Add realistic uncertainty to mimic real-world measurement limitations:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Add realistic measurement uncertainty</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>noise_level <span class="op">=</span> <span class="fl">0.1</span>  <span class="co"># 10% random measurement error</span></span></code></pre></div>
+<p>This ensures your synthetic data includes the same kind of variability you’d see in real soil measurements.</p>
+<h2 id="how-to-use-synthetic-data-generation">How to Use Synthetic Data Generation</h2>
+<p>Let’s walk through creating a synthetic soil organic carbon dataset to test your modeling pipeline. We’ll create data with known relationships, then see if your models can discover those relationships.</p>
+<h3 id="step-1-configure-your-synthetic-dataset">Step 1: Configure Your Synthetic Dataset</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Settings for synthetic soil carbon data</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>settings <span class="op">=</span> {</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="st">&#39;n_features&#39;</span>: <span class="dv">6</span>,                    <span class="co"># Number of environmental variables</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="st">&#39;n_informative_features&#39;</span>: <span class="dv">4</span>,        <span class="co"># How many actually matter</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="st">&#39;n_samples&#39;</span>: <span class="dv">200</span>,                   <span class="co"># Number of soil sample locations</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="st">&#39;model_order&#39;</span>: <span class="st">&#39;quadratic&#39;</span>,         <span class="co"># Include feature interactions</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="st">&#39;spatial_correlation&#39;</span>: <span class="va">True</span>         <span class="co"># Add realistic spatial patterns</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>}</span></code></pre></div>
+<p>This creates a dataset with 6 environmental features where 4 actually influence soil carbon, using 200 sample locations with quadratic relationships and spatial correlation.</p>
+<h3 id="step-2-set-spatial-and-environmental-parameters">Step 2: Set Spatial and Environmental Parameters</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Define the synthetic landscape</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>landscape_settings <span class="op">=</span> {</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="st">&#39;spatial_size&#39;</span>: <span class="dv">1000</span>,              <span class="co"># 1km x 1km study area</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="st">&#39;center&#39;</span>: [<span class="dv">500000</span>, <span class="dv">4000000</span>],       <span class="co"># UTM coordinates of center</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="st">&#39;coordinate_system&#39;</span>: <span class="st">&#39;EPSG:32633&#39;</span>, <span class="co"># UTM Zone 33N</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="st">&#39;sampling_pattern&#39;</span>: <span class="st">&#39;random&#39;</span>       <span class="co"># Random sample locations</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>}</span></code></pre></div>
+<p>This creates a 1-kilometer square study area with randomly distributed soil sample locations.</p>
+<h3 id="step-3-control-the-complexity-and-noise">Step 3: Control the Complexity and Noise</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Set difficulty and realism levels</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>complexity_settings <span class="op">=</span> {</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="st">&#39;noise_level&#39;</span>: <span class="fl">0.15</span>,               <span class="co"># 15% measurement uncertainty</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="st">&#39;correlation_length&#39;</span>: <span class="dv">150</span>,         <span class="co"># Spatial correlation extends 150m  </span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="st">&#39;correlation_amplitude&#39;</span>: <span class="fl">0.2</span>       <span class="co"># 20% of variation is spatial</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>}</span></code></pre></div>
+<p>This adds realistic measurement uncertainty and spatial patterns that extend about 150 meters.</p>
+<h3 id="step-4-generate-the-synthetic-dataset">Step 4: Generate the Synthetic Dataset</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="im">from</span> synthgen <span class="im">import</span> gen_synthetic</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co"># Create synthetic soil carbon data with known properties</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>synthetic_data, true_coefficients, feature_names <span class="op">=</span> gen_synthetic(</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    n_features<span class="op">=</span><span class="dv">6</span>,</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    n_samples<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    model_order<span class="op">=</span><span class="st">&#39;quadratic&#39;</span>,</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    noise<span class="op">=</span><span class="fl">0.15</span>,</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    corr_length<span class="op">=</span><span class="dv">150</span>,</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    corr_amp<span class="op">=</span><span class="fl">0.2</span>,</span>
+<span id="cb8-11"><a href="#cb8-11"></a>    spatialsize<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>)</span></code></pre></div>
+<p>This single function call creates a complete synthetic dataset with environmental features, soil carbon values, and spatial coordinates.</p>
+<h3 id="step-5-test-your-models-against-known-truth">Step 5: Test Your Models Against Known Truth</h3>
+<p>Now you can test whether your modeling pipeline can recover the known relationships:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Train your model on synthetic data</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="im">from</span> soilmod_predict <span class="im">import</span> main</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co"># Use the same prediction workflow as with real data  </span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>main(<span class="st">&#39;settings_synthetic_test.yaml&#39;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co"># Compare model predictions to known true values</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>model_accuracy <span class="op">=</span> compare_predictions_to_truth(</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    predictions<span class="op">=</span>model_results,</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    true_values<span class="op">=</span>synthetic_data[<span class="st">&#39;true_carbon&#39;</span>]</span>
+<span id="cb9-11"><a href="#cb9-11"></a>)</span></code></pre></div>
+<p>Since you know the true relationships, you can measure exactly how well your model performs.</p>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you generate synthetic data, here’s the step-by-step process that occurs behind the scenes:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant Generator as Synthetic Generator
+    participant Features as Feature Creator
+    participant Spatial as Spatial Correlator
+    participant Output as Data Formatter
+
+    User-&gt;&gt;Generator: Request synthetic dataset
+    Generator-&gt;&gt;Features: Generate environmental features
+    Features-&gt;&gt;Generator: Return feature matrix
+    Generator-&gt;&gt;Generator: Apply known relationships
+    Generator-&gt;&gt;Spatial: Add spatial correlations
+    Spatial-&gt;&gt;Generator: Return spatially correlated data
+    Generator-&gt;&gt;Output: Format as soil dataset
+    Output-&gt;&gt;User: Synthetic data with known truth</div>
+<p>Let’s break this down:</p>
+<h3 id="environmental-feature-generation">1. <strong>Environmental Feature Generation</strong></h3>
+<p>The system first creates realistic environmental features:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Generate environmental features that behave like real data</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">def</span> create_environmental_features(n_samples, n_features):</span>
+<span id="cb11-3"><a href="#cb11-3"></a>    <span class="co"># Create features with realistic ranges and correlations</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>    features <span class="op">=</span> generate_realistic_features(</span>
+<span id="cb11-5"><a href="#cb11-5"></a>        n_samples<span class="op">=</span>n_samples,</span>
+<span id="cb11-6"><a href="#cb11-6"></a>        feature_types<span class="op">=</span>[<span class="st">&#39;elevation&#39;</span>, <span class="st">&#39;slope&#39;</span>, <span class="st">&#39;rainfall&#39;</span>, <span class="st">&#39;temperature&#39;</span>]</span>
+<span id="cb11-7"><a href="#cb11-7"></a>    )</span>
+<span id="cb11-8"><a href="#cb11-8"></a>    </span>
+<span id="cb11-9"><a href="#cb11-9"></a>    <span class="co"># Normalize features to standard ranges</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>    normalized_features <span class="op">=</span> scale_to_realistic_ranges(features)</span>
+<span id="cb11-11"><a href="#cb11-11"></a>    </span>
+<span id="cb11-12"><a href="#cb11-12"></a>    <span class="cf">return</span> normalized_features</span></code></pre></div>
+<p>This creates environmental data that has the same statistical properties as real environmental data.</p>
+<h3 id="relationship-application">2. <strong>Relationship Application</strong></h3>
+<p>The system applies your specified relationships to create soil property values:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Apply known relationships to generate soil properties</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">def</span> apply_known_relationships(features, coefficients, model_order):</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="cf">if</span> model_order <span class="op">==</span> <span class="st">&#39;linear&#39;</span>:</span>
+<span id="cb12-4"><a href="#cb12-4"></a>        <span class="co"># Simple linear relationships</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>        soil_values <span class="op">=</span> features <span class="op">@</span> coefficients</span>
+<span id="cb12-6"><a href="#cb12-6"></a>        </span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="cf">elif</span> model_order <span class="op">==</span> <span class="st">&#39;quadratic&#39;</span>:</span>
+<span id="cb12-8"><a href="#cb12-8"></a>        <span class="co"># Include feature interactions  </span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>        interactions <span class="op">=</span> create_feature_interactions(features)</span>
+<span id="cb12-10"><a href="#cb12-10"></a>        extended_features <span class="op">=</span> combine(features, interactions)</span>
+<span id="cb12-11"><a href="#cb12-11"></a>        soil_values <span class="op">=</span> extended_features <span class="op">@</span> extended_coefficients</span>
+<span id="cb12-12"><a href="#cb12-12"></a>        </span>
+<span id="cb12-13"><a href="#cb12-13"></a>    <span class="cf">return</span> soil_values</span></code></pre></div>
+<p>This step creates soil property values using exactly the relationships you specified.</p>
+<h3 id="spatial-correlation-addition">3. <strong>Spatial Correlation Addition</strong></h3>
+<p>The system adds realistic spatial patterns:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Add spatial correlation between nearby locations</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">def</span> add_spatial_correlation(soil_values, coordinates, correlation_params):</span>
+<span id="cb13-3"><a href="#cb13-3"></a>    <span class="co"># Calculate distances between all sample locations</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>    distance_matrix <span class="op">=</span> calculate_distances(coordinates)</span>
+<span id="cb13-5"><a href="#cb13-5"></a>    </span>
+<span id="cb13-6"><a href="#cb13-6"></a>    <span class="co"># Create spatial correlation kernel</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>    correlation_kernel <span class="op">=</span> exponential_kernel(</span>
+<span id="cb13-8"><a href="#cb13-8"></a>        distances<span class="op">=</span>distance_matrix,</span>
+<span id="cb13-9"><a href="#cb13-9"></a>        length_scale<span class="op">=</span>correlation_params[<span class="st">&#39;length&#39;</span>],</span>
+<span id="cb13-10"><a href="#cb13-10"></a>        amplitude<span class="op">=</span>correlation_params[<span class="st">&#39;amplitude&#39;</span>]</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    )</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    </span>
+<span id="cb13-13"><a href="#cb13-13"></a>    <span class="co"># Apply spatial smoothing</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a>    spatially_correlated <span class="op">=</span> apply_kernel(soil_values, correlation_kernel)</span>
+<span id="cb13-15"><a href="#cb13-15"></a>    </span>
+<span id="cb13-16"><a href="#cb13-16"></a>    <span class="cf">return</span> spatially_correlated</span></code></pre></div>
+<p>This makes nearby locations have similar soil values, just like real soil data.</p>
+<h3 id="noise-addition-and-final-formatting">4. <strong>Noise Addition and Final Formatting</strong></h3>
+<p>Finally, the system adds measurement uncertainty and formats the output:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Add realistic measurement noise</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="kw">def</span> add_measurement_noise(clean_values, noise_level):</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    noise <span class="op">=</span> generate_random_noise(</span>
+<span id="cb14-4"><a href="#cb14-4"></a>        size<span class="op">=</span><span class="bu">len</span>(clean_values),</span>
+<span id="cb14-5"><a href="#cb14-5"></a>        standard_deviation<span class="op">=</span>noise_level</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    )</span>
+<span id="cb14-7"><a href="#cb14-7"></a>    </span>
+<span id="cb14-8"><a href="#cb14-8"></a>    noisy_values <span class="op">=</span> clean_values <span class="op">+</span> noise</span>
+<span id="cb14-9"><a href="#cb14-9"></a>    <span class="cf">return</span> noisy_values</span>
+<span id="cb14-10"><a href="#cb14-10"></a></span>
+<span id="cb14-11"><a href="#cb14-11"></a><span class="co"># Format as standard soil dataset</span></span>
+<span id="cb14-12"><a href="#cb14-12"></a><span class="kw">def</span> format_as_soil_dataset(features, soil_values, coordinates):</span>
+<span id="cb14-13"><a href="#cb14-13"></a>    <span class="co"># Combine everything into a standard data format</span></span>
+<span id="cb14-14"><a href="#cb14-14"></a>    dataset <span class="op">=</span> create_dataframe(</span>
+<span id="cb14-15"><a href="#cb14-15"></a>        environmental_features<span class="op">=</span>features,</span>
+<span id="cb14-16"><a href="#cb14-16"></a>        soil_measurements<span class="op">=</span>soil_values,</span>
+<span id="cb14-17"><a href="#cb14-17"></a>        spatial_coordinates<span class="op">=</span>coordinates</span>
+<span id="cb14-18"><a href="#cb14-18"></a>    )</span>
+<span id="cb14-19"><a href="#cb14-19"></a>    <span class="cf">return</span> dataset</span></code></pre></div>
+<p>This creates a synthetic dataset that looks exactly like real soil data but with known ground truth.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>The Synthetic Data Generation system is implemented in the <code>synthgen.py</code> file with several sophisticated components working together. Here’s how the core functionality works:</p>
+<h3 id="main-generation-function">Main Generation Function</h3>
+<p>The <code>gen_synthetic()</code> function orchestrates the entire process:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">def</span> gen_synthetic(n_features, n_informative_features<span class="op">=</span><span class="dv">10</span>, n_samples<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb15-2"><a href="#cb15-2"></a>                 model_order<span class="op">=</span><span class="st">&#39;quadratic&#39;</span>, correlated<span class="op">=</span><span class="va">False</span>, noise<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb15-3"><a href="#cb15-3"></a>                 corr_length<span class="op">=</span><span class="dv">10</span>, corr_amp<span class="op">=</span><span class="fl">0.2</span>, spatialsize<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="co">&quot;&quot;&quot;Generate synthetic soil datasets with known properties&quot;&quot;&quot;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>    </span>
+<span id="cb15-6"><a href="#cb15-6"></a>    <span class="co"># Generate base regression features</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>    X_features, y_values, true_coefficients <span class="op">=</span> make_regression(</span>
+<span id="cb15-8"><a href="#cb15-8"></a>        n_samples<span class="op">=</span>n_samples,</span>
+<span id="cb15-9"><a href="#cb15-9"></a>        n_features<span class="op">=</span>n_features,</span>
+<span id="cb15-10"><a href="#cb15-10"></a>        n_informative<span class="op">=</span>n_informative_features,</span>
+<span id="cb15-11"><a href="#cb15-11"></a>        noise<span class="op">=</span>noise,</span>
+<span id="cb15-12"><a href="#cb15-12"></a>        random_state<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a>    )</span>
+<span id="cb15-14"><a href="#cb15-14"></a>    </span>
+<span id="cb15-15"><a href="#cb15-15"></a>    <span class="cf">return</span> synthetic_dataset, true_coefficients, feature_names</span></code></pre></div>
+<p>This uses scikit-learn’s regression data generator as a foundation, then adds soil-specific enhancements.</p>
+<h3 id="spatial-correlation-implementation">Spatial Correlation Implementation</h3>
+<p>The system adds realistic spatial patterns using exponential kernels:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">def</span> create_kernel_expsquared(distance_matrix, gamma):</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="co">&quot;&quot;&quot;Create exponential squared kernel for spatial correlation&quot;&quot;&quot;</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="co"># Spatial correlation decreases exponentially with distance</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span>distance_matrix<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> gamma<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb16-5"><a href="#cb16-5"></a></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co"># Apply spatial correlation to soil values</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="cf">if</span> (corr_amp <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (corr_length <span class="op">&gt;</span> <span class="dv">0</span>):</span>
+<span id="cb16-8"><a href="#cb16-8"></a>    distances <span class="op">=</span> calculate_pairwise_distances(coordinates)</span>
+<span id="cb16-9"><a href="#cb16-9"></a>    spatial_kernel <span class="op">=</span> create_kernel_expsquared(distances, corr_length)</span>
+<span id="cb16-10"><a href="#cb16-10"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11"></a>    <span class="co"># Add spatially correlated component</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a>    spatial_component <span class="op">=</span> spatial_kernel <span class="op">@</span> base_soil_values</span>
+<span id="cb16-13"><a href="#cb16-13"></a>    final_soil_values <span class="op">=</span> base_soil_values <span class="op">+</span> corr_amp <span class="op">*</span> spatial_component</span></code></pre></div>
+<p>This creates realistic spatial patterns where nearby locations have similar soil properties.</p>
+<h3 id="flexible-model-complexity">Flexible Model Complexity</h3>
+<p>The system supports different relationship complexities:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Linear relationships: y = a₁×x₁ + a₂×x₂ + ...</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="cf">if</span> model_order <span class="op">==</span> <span class="st">&#39;linear&#39;</span>:</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    soil_values <span class="op">=</span> features <span class="op">@</span> coefficients</span>
+<span id="cb17-4"><a href="#cb17-4"></a></span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="co"># Quadratic relationships: includes x₁×x₂, x₁², etc.</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="cf">elif</span> model_order <span class="op">==</span> <span class="st">&#39;quadratic&#39;</span>:</span>
+<span id="cb17-7"><a href="#cb17-7"></a>    <span class="co"># Add all pairwise interactions</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>    interactions <span class="op">=</span> []</span>
+<span id="cb17-9"><a href="#cb17-9"></a>    <span class="cf">for</span> i, j <span class="kw">in</span> itertools.combinations(features.T, <span class="dv">2</span>):</span>
+<span id="cb17-10"><a href="#cb17-10"></a>        interactions.append(i <span class="op">*</span> j)</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    </span>
+<span id="cb17-12"><a href="#cb17-12"></a>    <span class="co"># Add squared terms  </span></span>
+<span id="cb17-13"><a href="#cb17-13"></a>    squared_terms <span class="op">=</span> features<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb17-14"><a href="#cb17-14"></a>    </span>
+<span id="cb17-15"><a href="#cb17-15"></a>    <span class="co"># Combine all terms</span></span>
+<span id="cb17-16"><a href="#cb17-16"></a>    extended_features <span class="op">=</span> np.hstack([features, interactions, squared_terms])</span>
+<span id="cb17-17"><a href="#cb17-17"></a>    soil_values <span class="op">=</span> extended_features <span class="op">@</span> extended_coefficients</span></code></pre></div>
+<p>This allows you to test models against different levels of complexity.</p>
+<h3 id="grid-and-random-sampling">Grid and Random Sampling</h3>
+<p>The system supports both regular grids and random sampling patterns:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">def</span> create_sample_locations(n_samples, spatial_size, pattern<span class="op">=</span><span class="st">&#39;random&#39;</span>):</span>
+<span id="cb18-2"><a href="#cb18-2"></a>    <span class="co">&quot;&quot;&quot;Create spatial coordinates for synthetic samples&quot;&quot;&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>    </span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="cf">if</span> pattern <span class="op">==</span> <span class="st">&#39;grid&#39;</span>:</span>
+<span id="cb18-5"><a href="#cb18-5"></a>        <span class="co"># Regular grid pattern</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a>        grid_size <span class="op">=</span> <span class="bu">int</span>(np.sqrt(n_samples))</span>
+<span id="cb18-7"><a href="#cb18-7"></a>        x, y <span class="op">=</span> np.meshgrid(</span>
+<span id="cb18-8"><a href="#cb18-8"></a>            np.linspace(<span class="op">-</span>spatial_size<span class="op">/</span><span class="dv">2</span>, spatial_size<span class="op">/</span><span class="dv">2</span>, grid_size),</span>
+<span id="cb18-9"><a href="#cb18-9"></a>            np.linspace(<span class="op">-</span>spatial_size<span class="op">/</span><span class="dv">2</span>, spatial_size<span class="op">/</span><span class="dv">2</span>, grid_size)</span>
+<span id="cb18-10"><a href="#cb18-10"></a>        )</span>
+<span id="cb18-11"><a href="#cb18-11"></a>        coordinates <span class="op">=</span> np.column_stack([x.flatten(), y.flatten()])</span>
+<span id="cb18-12"><a href="#cb18-12"></a>        </span>
+<span id="cb18-13"><a href="#cb18-13"></a>    <span class="cf">elif</span> pattern <span class="op">==</span> <span class="st">&#39;random&#39;</span>:</span>
+<span id="cb18-14"><a href="#cb18-14"></a>        <span class="co"># Random scattered points</span></span>
+<span id="cb18-15"><a href="#cb18-15"></a>        coordinates <span class="op">=</span> np.random.uniform(</span>
+<span id="cb18-16"><a href="#cb18-16"></a>            <span class="op">-</span>spatial_size<span class="op">/</span><span class="dv">2</span>, spatial_size<span class="op">/</span><span class="dv">2</span>, </span>
+<span id="cb18-17"><a href="#cb18-17"></a>            (n_samples, <span class="dv">2</span>)</span>
+<span id="cb18-18"><a href="#cb18-18"></a>        )</span>
+<span id="cb18-19"><a href="#cb18-19"></a>    </span>
+<span id="cb18-20"><a href="#cb18-20"></a>    <span class="cf">return</span> coordinates</span></code></pre></div>
+<p>This flexibility lets you test how sampling patterns affect model performance.</p>
+<h2 id="benefits-for-model-development-and-testing">Benefits for Model Development and Testing</h2>
+<p>Synthetic Data Generation provides essential capabilities for developing robust soil models:</p>
+<ul>
+<li><strong>Ground Truth Validation</strong>: Know exactly how well your models perform because you know the correct answers</li>
+<li><strong>Controlled Experiments</strong>: Test specific scenarios (sparse sampling, high noise, complex relationships) systematically<br />
+</li>
+<li><strong>Feature Importance Verification</strong>: Confirm that your models identify the truly important environmental factors</li>
+<li><strong>Sampling Strategy Optimization</strong>: Test different numbers and patterns of soil samples before expensive field work</li>
+<li><strong>Model Comparison</strong>: Compare different modeling approaches on identical, controlled datasets</li>
+<li><strong>Edge Case Testing</strong>: Create challenging scenarios that might not exist in your real data</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Synthetic Data Generation transforms model development from educated guesswork into rigorous scientific testing. Like having a professional flight simulator for training pilots, it provides a controlled environment where you can test every aspect of your soil modeling pipeline with complete knowledge of what the correct results should be.</p>
+<p>By creating artificial datasets with known relationships, realistic spatial patterns, and controllable complexity, the system enables systematic testing and validation of all the sophisticated techniques you’ve learned: <a href="04_mean_function_models___.html">Mean Function Models</a>, <a href="05_gaussian_process_models.md">Gaussian Process Models</a>, <a href="06_uncertainty_quantification_system.md">Uncertainty Quantification</a>, and <a href="07_spatial_temporal_modeling_framework.md">Spatial-Temporal Modeling</a>.</p>
+<p>These rigorously tested models become the foundation for comprehensive performance evaluation on real data. Ready to explore how AgReFed-ML systematically evaluates model accuracy and reliability? The next chapter covers <a href="09_model_evaluation_and_cross_validation.md">Model Evaluation and Cross-Validation</a>, where you’ll learn how the system provides honest assessments of model performance and helps you choose the best approaches for your specific agricultural applications.</p>
+<hr />
+</body>
+</html>

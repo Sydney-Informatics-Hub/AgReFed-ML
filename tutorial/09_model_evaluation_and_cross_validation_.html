@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>09 Model Evaluation And Cross Validation</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+
+  <style>
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    pre code.language-mermaid {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    
+    pre.mermaid {
+      background: transparent !important;
+      border: none !important;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
+  </script>
+</head>
+<body>
+
+<div id="navigation-sidebar" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f8f9fa;
+    border-right: 1px solid #a2a9b1;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Liberation Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+">
+    <div style="
+        background: #eaecf0;
+        padding: 15px 20px;
+        border-bottom: 1px solid #a2a9b1;
+        position: sticky;
+        top: 0;
+        z-index: 1001;
+    ">
+        <h3 style="
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        ">
+            📚 <span>Contents</span>
+        </h3>
+    </div>
+    
+    <nav style="padding: 15px 0;">
+        <!-- Home/Overview Link -->
+        <div style="padding: 0 0 10px 0; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <a href="index.html" style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 20px;
+                color: #0645ad;
+                text-decoration: none;
+                border-left: 4px solid transparent;
+                transition: all 0.2s ease;
+                font-weight: 500;
+            " 
+            onmouseover="
+                this.style.background='#eaf3ff'; 
+                this.style.borderLeft='4px solid #0645ad';
+                this.style.color='#0b3c5d';
+            " 
+            onmouseout="
+                this.style.background='transparent'; 
+                this.style.borderLeft='4px solid transparent';
+                this.style.color='#0645ad';
+            ">
+                <span style="font-size: 16px;">🏠</span>
+                <span>Overview</span>
+            </a>
+        </div>
+        
+        <ul style="
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        ">
+            <li style="margin: 0;">
+                <a href="01_notebook_based_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">1</span>
+                    <span style="flex: 1;">Notebook-Based Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="02_prediction_workflows_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">2</span>
+                    <span style="flex: 1;">Prediction Workflows</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="03_data_preprocessing_pipeline_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">3</span>
+                    <span style="flex: 1;">Data Preprocessing Pipeline</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="04_mean_function_models___.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">4</span>
+                    <span style="flex: 1;">Mean Function Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="05_gaussian_process_models_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">5</span>
+                    <span style="flex: 1;">Gaussian Process Models</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="06_uncertainty_quantification_system_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">6</span>
+                    <span style="flex: 1;">Uncertainty Quantification System</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="07_spatial_temporal_modeling_framework_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">7</span>
+                    <span style="flex: 1;">Spatial-Temporal Modeling Framework</span>
+                </a>
+            </li>
+            <li style="margin: 0;">
+                <a href="08_synthetic_data_generation_.html" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    color: #0645ad;
+                    text-decoration: none;
+                    border-left: 4px solid transparent;
+                    transition: all 0.2s ease;
+                " 
+                onmouseover="
+                    this.style.background='#eaf3ff'; 
+                    this.style.borderLeft='4px solid #0645ad';
+                    this.style.color='#0b3c5d';
+                " 
+                onmouseout="
+                    this.style.background='transparent'; 
+                    this.style.borderLeft='4px solid transparent';
+                    this.style.color='#0645ad';
+                ">
+                    <span style="
+                        background: #f0f0f0;
+                        color: #555;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">8</span>
+                    <span style="flex: 1;">Synthetic Data Generation</span>
+                </a>
+            </li>
+            <li style="
+                margin: 0;
+                background: #0645ad;
+                background: linear-gradient(90deg, #0645ad 0%, #0b7ec8 100%);
+                border-left: 4px solid #0645ad;
+            ">
+                <div style="
+                    padding: 10px 20px;
+                    color: white;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border-radius: 12px;
+                        padding: 2px 8px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        min-width: 20px;
+                        text-align: center;
+                    ">9</span>
+                    <span style="flex: 1;">Model Evaluation and Cross-Validation</span>
+                    <span style="color: #ffd700;">●</span>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Force content spacing with aggressive selectors */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    padding-left: 340px !important;  /* Sidebar (280px) + generous padding (60px) */
+    padding-right: 60px !important;  /* Matching right padding */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Target all possible content containers */
+body > *, 
+main, article, section, .content, 
+#content, .main-content, .page-content,
+body > div, body > header, body > nav:not(#navigation-sidebar) {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: none !important;
+}
+
+/* Ensure headings have proper spacing from sidebar */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 2em !important;
+    margin-bottom: 1em !important;
+    line-height: 1.3 !important;
+}
+
+/* Better paragraph and content spacing */
+p, div, ul, ol, blockquote, pre {
+    margin-bottom: 1.5em !important;
+    line-height: 1.6 !important;
+}
+
+/* Handle wide content like code blocks and tables */
+pre, table, .mermaid, code {
+    max-width: calc(100vw - 420px) !important; /* Account for all spacing */
+    overflow-x: auto !important;
+    margin: 1.5em 0 !important;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    body {
+        padding-left: 320px !important; /* Slightly less padding on medium screens */
+        padding-right: 40px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 380px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #navigation-sidebar {
+        width: 250px;
+    }
+    body {
+        padding-left: 290px !important; /* Sidebar (250px) + padding (40px) */
+        padding-right: 30px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 340px) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #navigation-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    #navigation-sidebar:hover,
+    #navigation-sidebar:focus-within {
+        transform: translateX(0);
+    }
+    body {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    
+    pre, table, .mermaid, code {
+        max-width: calc(100vw - 60px) !important;
+    }
+    
+    /* Mobile menu button */
+    #navigation-sidebar::before {
+        content: "☰ Contents";
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #0645ad;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 1002;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+}
+
+/* Print styles */
+@media print {
+    #navigation-sidebar {
+        display: none !important;
+    }
+    body {
+        padding-left: 2cm !important;
+        padding-right: 2cm !important;
+    }
+    
+    pre, table, .mermaid {
+        max-width: 100% !important;
+    }
+}
+</style>
+
+<header id="title-block-header">
+<h1 class="title">09 Model Evaluation And Cross Validation</h1>
+</header>
+<h1 id="chapter-9-model-evaluation-and-cross-validation">Chapter 9: Model Evaluation and Cross-Validation</h1>
+<p>Now that you’ve learned how <a href="08_synthetic_data_generation.md">Synthetic Data Generation</a> creates controlled testing environments with known ground truth, it’s time to explore the final crucial piece of the AgReFed-ML puzzle: <strong>Model Evaluation and Cross-Validation</strong>.</p>
+<p>Think of this relationship like the difference between practicing for your driver’s license in a simulator versus taking the actual road test. <a href="08_synthetic_data_generation.md">Synthetic Data Generation</a> is like having a professional driving simulator where you can practice parallel parking, highway merging, and emergency braking in a safe environment where you know exactly what should happen. But Model Evaluation and Cross-Validation is like having a certified driving instructor who gives you the actual road test - using your real soil data to provide honest, rigorous assessments of whether your models are ready for real-world agricultural applications.</p>
+<h2 id="what-problem-does-model-evaluation-and-cross-validation-solve">What Problem Does Model Evaluation and Cross-Validation Solve?</h2>
+<p>Imagine you’ve spent months developing a sophisticated soil organic carbon model using all the techniques from previous chapters. You’ve trained <a href="04_mean_function_models___.html">Mean Function Models</a>, added <a href="05_gaussian_process_models.md">Gaussian Process Models</a>, incorporated <a href="06_uncertainty_quantification_system.md">Uncertainty Quantification</a>, and even tested with <a href="08_synthetic_data_generation.md">Synthetic Data</a>. Now you need to answer the most important question of all:</p>
+<p><strong>“How good is my model really, and can I trust it to make expensive agricultural decisions?”</strong></p>
+<p>Without proper evaluation, you face these critical problems:</p>
+<ul>
+<li><strong>Overfitting blindness</strong>: Your model might memorize your training data but fail completely on new soil samples</li>
+<li><strong>False confidence</strong>: You might think your model is excellent when it’s actually terrible at real predictions</li>
+<li><strong>Model selection confusion</strong>: With multiple modeling approaches available, which one actually works best for your data?</li>
+<li><strong>Spatial bias</strong>: Your model might work well in one part of your field but poorly in another</li>
+<li><strong>Uncertainty validation</strong>: Are those confidence intervals actually meaningful, or just mathematical decoration?</li>
+</ul>
+<p>Model Evaluation and Cross-Validation solves these problems by implementing a <strong>rigorous testing protocol</strong> that gives you honest, unbiased assessments of model performance using only your real soil data.</p>
+<h2 id="what-is-model-evaluation-and-cross-validation">What Is Model Evaluation and Cross-Validation?</h2>
+<p>Think of Model Evaluation and Cross-Validation as having three expert judges working together to evaluate your soil models:</p>
+<h3 id="the-fair-test-administrator---cross-validation">1. <strong>The Fair Test Administrator</strong> - Cross-Validation</h3>
+<p>This judge ensures every test is completely fair by never letting your model see the “answer key” during training. Like a teacher who keeps the final exam questions secret until test day, cross-validation hides some of your soil samples during training, then tests how well the model predicts those hidden samples.</p>
+<h3 id="the-statistical-scorekeeper---performance-metrics">2. <strong>The Statistical Scorekeeper</strong> - Performance Metrics</h3>
+<p>This judge calculates precise, standardized scores that let you compare different models objectively. Just like Olympic judges who score gymnastic routines using standardized criteria, this system calculates metrics like accuracy (RMSE), correlation (R²), and reliability (uncertainty calibration).</p>
+<h3 id="the-diagnostic-specialist---residual-analysis">3. <strong>The Diagnostic Specialist</strong> - Residual Analysis</h3>
+<p>This judge examines exactly where and why your model makes mistakes. Like a medical doctor who doesn’t just say “you’re sick” but diagnoses the specific problem and suggests treatment, this system creates diagnostic plots that show spatial patterns in errors, uncertainty calibration, and model reliability.</p>
+<h2 id="key-components-of-model-evaluation-and-cross-validation">Key Components of Model Evaluation and Cross-Validation</h2>
+<p>The evaluation system has four essential components working together:</p>
+<h3 id="spatial-cross-validation-the-fair-testing-protocol">1. <strong>Spatial Cross-Validation (The Fair Testing Protocol)</strong></h3>
+<p>This ensures your model is tested properly by accounting for the spatial nature of soil data:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Split data into 5 folds, keeping nearby samples together</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>settings <span class="op">=</span> {</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="st">&#39;nfold&#39;</span>: <span class="dv">5</span>,                    <span class="co"># 5-fold cross-validation  </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="st">&#39;axistype&#39;</span>: <span class="st">&#39;vertical&#39;</span>,        <span class="co"># Depth-based analysis</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="st">&#39;model_functions&#39;</span>: [<span class="st">&#39;rf-gp&#39;</span>]   <span class="co"># Test Random Forest + GP</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
+<p>Unlike random splitting, spatial cross-validation ensures that soil samples from the same location don’t end up in both training and testing sets.</p>
+<h3 id="performance-metrics-the-scorecards">2. <strong>Performance Metrics (The Scorecards)</strong></h3>
+<p>Multiple standardized measures evaluate different aspects of model performance:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Key metrics calculated automatically:</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>metrics <span class="op">=</span> {</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="st">&#39;RMSE&#39;</span>: <span class="fl">0.23</span>,      <span class="co"># Root Mean Square Error (lower is better)</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="st">&#39;nRMSE&#39;</span>: <span class="fl">0.15</span>,     <span class="co"># Normalized RMSE (accounts for data scale)</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="st">&#39;R2&#39;</span>: <span class="fl">0.78</span>,        <span class="co"># R-squared correlation (higher is better)</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="st">&#39;Theta&#39;</span>: <span class="fl">1.02</span>      <span class="co"># Uncertainty calibration (should be ~1.0)</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>}</span></code></pre></div>
+<p>These metrics give you a complete picture of accuracy, correlation, and uncertainty reliability.</p>
+<h3 id="diagnostic-visualizations-the-error-analysis">3. <strong>Diagnostic Visualizations (The Error Analysis)</strong></h3>
+<p>Automatic generation of diagnostic plots that reveal model strengths and weaknesses:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Diagnostic plots created automatically:</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>diagnostic_plots <span class="op">=</span> [</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="st">&#39;pred_vs_true.png&#39;</span>,      <span class="co"># Predictions vs. measurements</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="st">&#39;residual_map.png&#39;</span>,      <span class="co"># Spatial pattern of errors</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="st">&#39;residual_hist.png&#39;</span>,     <span class="co"># Distribution of errors</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>    <span class="st">&#39;uncertainty_calib.png&#39;</span>  <span class="co"># Reliability of confidence intervals</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>]</span></code></pre></div>
+<h3 id="model-comparison-the-tournament-results">4. <strong>Model Comparison (The Tournament Results)</strong></h3>
+<p>Systematic comparison of different modeling approaches to identify the best performer:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Test multiple models simultaneously</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>model_tournament <span class="op">=</span> [</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="st">&#39;blr&#39;</span>,      <span class="co"># Bayesian Linear Regression only</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="st">&#39;rf&#39;</span>,       <span class="co"># Random Forest only  </span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="st">&#39;blr-gp&#39;</span>,   <span class="co"># BLR + Gaussian Process</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="st">&#39;rf-gp&#39;</span>,    <span class="co"># RF + Gaussian Process</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    <span class="st">&#39;gp-only&#39;</span>   <span class="co"># Gaussian Process only</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>]</span></code></pre></div>
+<h2 id="how-to-use-model-evaluation-and-cross-validation">How to Use Model Evaluation and Cross-Validation</h2>
+<p>Let’s walk through evaluating your soil organic carbon models to determine which approach works best for your specific dataset and management needs.</p>
+<h3 id="step-1-configure-your-evaluation-settings">Step 1: Configure Your Evaluation Settings</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Settings for comprehensive model evaluation</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>settings <span class="op">=</span> {</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="st">&#39;name_target&#39;</span>: <span class="st">&#39;organic_carbon&#39;</span>,           <span class="co"># What we&#39;re predicting</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="st">&#39;model_functions&#39;</span>: [<span class="st">&#39;blr-gp&#39;</span>, <span class="st">&#39;rf-gp&#39;</span>],    <span class="co"># Models to test</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="st">&#39;nfold&#39;</span>: <span class="dv">5</span>,                                <span class="co"># 5-fold cross-validation</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>    <span class="st">&#39;name_features&#39;</span>: [<span class="st">&#39;elevation&#39;</span>, <span class="st">&#39;slope&#39;</span>, <span class="st">&#39;rainfall&#39;</span>, <span class="st">&#39;ndvi&#39;</span>]</span>
+<span id="cb5-7"><a href="#cb5-7"></a>}</span></code></pre></div>
+<p>This tells the system to test both Bayesian Linear Regression + GP and Random Forest + GP models using 5-fold cross-validation.</p>
+<h3 id="step-2-run-the-complete-evaluation">Step 2: Run the Complete Evaluation</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">from</span> soilmod_xval <span class="im">import</span> main</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co"># Run comprehensive cross-validation analysis</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>main(<span class="st">&#39;settings_model_evaluation.yaml&#39;</span>)</span></code></pre></div>
+<p>This single command runs the complete evaluation protocol, testing each model on multiple train/test splits and generating comprehensive performance reports.</p>
+<h3 id="step-3-examine-the-results">Step 3: Examine the Results</h3>
+<p>The system automatically generates detailed results for each model:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Results saved automatically for each model:</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="co"># - Individual fold performance metrics</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="co"># - Combined performance across all test data  </span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># - Diagnostic plots showing prediction quality</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co"># - Residual analysis revealing error patterns</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="co"># - Model ranking based on multiple criteria</span></span></code></pre></div>
+<p>You get complete performance profiles that show not just which model is best overall, but where each model excels or struggles.</p>
+<h3 id="step-4-interpret-the-performance-rankings">Step 4: Interpret the Performance Rankings</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Example output showing model comparison:</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="bu">print</span>(<span class="st">&quot;Models ranked by accuracy (nRMSE):&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="bu">print</span>(<span class="st">&quot;1. rf-gp: nRMSE=0.142 ±0.023, R²=0.81 ±0.05, Theta=1.03 ±0.18&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="bu">print</span>(<span class="st">&quot;2. blr-gp: nRMSE=0.156 ±0.031, R²=0.78 ±0.07, Theta=0.94 ±0.22&quot;</span>)</span></code></pre></div>
+<p>This ranking shows that Random Forest + Gaussian Process slightly outperforms Bayesian Linear Regression + GP for this specific dataset.</p>
+<h2 id="what-happens-under-the-hood">What Happens Under the Hood</h2>
+<p>When you run model evaluation and cross-validation, here’s the step-by-step process that occurs behind the scenes:</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant CrossVal as Cross-Validator
+    participant ModelTrainer as Model Trainer
+    participant Evaluator as Performance Evaluator
+    participant Diagnostics as Diagnostic Generator
+
+    User-&gt;&gt;CrossVal: Run model evaluation
+    CrossVal-&gt;&gt;CrossVal: Split data into training/testing folds
+    loop For each model and each fold
+        CrossVal-&gt;&gt;ModelTrainer: Train model on training fold
+        ModelTrainer-&gt;&gt;CrossVal: Return trained model
+        CrossVal-&gt;&gt;ModelTrainer: Predict on testing fold
+        ModelTrainer-&gt;&gt;CrossVal: Return predictions and uncertainties
+    end
+    CrossVal-&gt;&gt;Evaluator: Calculate performance metrics
+    Evaluator-&gt;&gt;CrossVal: Return accuracy statistics
+    CrossVal-&gt;&gt;Diagnostics: Generate diagnostic plots
+    Diagnostics-&gt;&gt;User: Output complete evaluation report</div>
+<p>Let’s break this down:</p>
+<h3 id="spatial-fold-generation">1. <strong>Spatial Fold Generation</strong></h3>
+<p>The system first creates fair train/test splits that respect spatial relationships:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Create spatially-aware cross-validation folds</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">def</span> create_spatial_folds(soil_data, n_folds<span class="op">=</span><span class="dv">5</span>):</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="co"># Group nearby soil samples together to prevent data leakage</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>    spatial_groups <span class="op">=</span> group_nearby_samples(soil_data, precision<span class="op">=</span><span class="dv">100</span>)  <span class="co"># 100m groups</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>    </span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="co"># Randomly assign groups to different folds</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>    fold_assignments <span class="op">=</span> assign_groups_to_folds(spatial_groups, n_folds)</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    </span>
+<span id="cb10-9"><a href="#cb10-9"></a>    <span class="cf">return</span> fold_assignments</span></code></pre></div>
+<p>This ensures that nearby soil samples don’t end up in both training and testing sets, which would give overly optimistic performance estimates.</p>
+<h3 id="iterative-model-training-and-testing">2. <strong>Iterative Model Training and Testing</strong></h3>
+<p>For each combination of model and fold, the system trains and tests systematically:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># For each model and each fold:</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="cf">for</span> model_type <span class="kw">in</span> [<span class="st">&#39;blr-gp&#39;</span>, <span class="st">&#39;rf-gp&#39;</span>]:</span>
+<span id="cb11-3"><a href="#cb11-3"></a>    <span class="cf">for</span> fold_id <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb11-4"><a href="#cb11-4"></a>        <span class="co"># Split data for this fold</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>        train_data <span class="op">=</span> data[data.fold <span class="op">!=</span> fold_id]</span>
+<span id="cb11-6"><a href="#cb11-6"></a>        test_data <span class="op">=</span> data[data.fold <span class="op">==</span> fold_id]</span>
+<span id="cb11-7"><a href="#cb11-7"></a>        </span>
+<span id="cb11-8"><a href="#cb11-8"></a>        <span class="co"># Train the model on training data only</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>        trained_model <span class="op">=</span> train_model(train_data, model_type)</span>
+<span id="cb11-10"><a href="#cb11-10"></a>        </span>
+<span id="cb11-11"><a href="#cb11-11"></a>        <span class="co"># Test on completely unseen data</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>        predictions, uncertainties <span class="op">=</span> trained_model.predict(test_data)</span>
+<span id="cb11-13"><a href="#cb11-13"></a>        </span>
+<span id="cb11-14"><a href="#cb11-14"></a>        <span class="co"># Calculate performance metrics</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a>        fold_performance <span class="op">=</span> evaluate_predictions(predictions, test_data.truth)</span></code></pre></div>
+<p>This rigorous protocol ensures every performance assessment uses completely independent test data.</p>
+<h3 id="performance-metric-calculation">3. <strong>Performance Metric Calculation</strong></h3>
+<p>The system calculates comprehensive performance statistics:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Calculate multiple performance metrics</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">def</span> calculate_performance_metrics(predictions, truth, uncertainties):</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="co"># Accuracy metrics</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>    residuals <span class="op">=</span> predictions <span class="op">-</span> truth</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    rmse <span class="op">=</span> np.sqrt(np.mean(residuals<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb12-6"><a href="#cb12-6"></a>    nrmse <span class="op">=</span> rmse <span class="op">/</span> np.std(truth)  <span class="co"># Normalized by data variability</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    </span>
+<span id="cb12-8"><a href="#cb12-8"></a>    <span class="co"># Correlation metrics  </span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>    r2 <span class="op">=</span> calculate_r_squared(predictions, truth)</span>
+<span id="cb12-10"><a href="#cb12-10"></a>    </span>
+<span id="cb12-11"><a href="#cb12-11"></a>    <span class="co"># Uncertainty calibration</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>    theta <span class="op">=</span> calculate_uncertainty_calibration(residuals, uncertainties)</span>
+<span id="cb12-13"><a href="#cb12-13"></a>    </span>
+<span id="cb12-14"><a href="#cb12-14"></a>    <span class="cf">return</span> {<span class="st">&#39;RMSE&#39;</span>: rmse, <span class="st">&#39;nRMSE&#39;</span>: nrmse, <span class="st">&#39;R2&#39;</span>: r2, <span class="st">&#39;Theta&#39;</span>: theta}</span></code></pre></div>
+<p>These metrics give you a comprehensive view of model performance from multiple perspectives.</p>
+<h3 id="diagnostic-plot-generation">4. <strong>Diagnostic Plot Generation</strong></h3>
+<p>The system automatically creates visualizations that reveal model behavior:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Generate diagnostic visualizations</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">def</span> create_diagnostic_plots(predictions, truth, uncertainties, coordinates):</span>
+<span id="cb13-3"><a href="#cb13-3"></a>    <span class="co"># Prediction accuracy plot</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>    plot_predictions_vs_truth(predictions, truth, uncertainties)</span>
+<span id="cb13-5"><a href="#cb13-5"></a>    </span>
+<span id="cb13-6"><a href="#cb13-6"></a>    <span class="co"># Spatial residual patterns</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>    plot_residual_map(predictions <span class="op">-</span> truth, coordinates)</span>
+<span id="cb13-8"><a href="#cb13-8"></a>    </span>
+<span id="cb13-9"><a href="#cb13-9"></a>    <span class="co"># Error distribution analysis</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>    plot_residual_histogram(predictions <span class="op">-</span> truth)</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    </span>
+<span id="cb13-12"><a href="#cb13-12"></a>    <span class="co"># Uncertainty calibration check</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a>    plot_uncertainty_reliability(predictions, truth, uncertainties)</span></code></pre></div>
+<p>These plots help you understand not just how well your model performs, but why it performs that way.</p>
+<h2 id="implementation-details">Implementation Details</h2>
+<p>Model Evaluation and Cross-Validation is implemented in the <code>soilmod_xval.py</code> file with several sophisticated components working together. Here’s how the core functionality works:</p>
+<h3 id="main-evaluation-function">Main Evaluation Function</h3>
+<p>The <code>runmodel()</code> function orchestrates the complete evaluation process:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">def</span> runmodel(dfsel, model_function, settings):</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co">&quot;&quot;&quot;Run cross-validation for specified model and return performance results&quot;&quot;&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>    </span>
+<span id="cb14-4"><a href="#cb14-4"></a>    <span class="co"># Create output directory for this model</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>    outpath <span class="op">=</span> create_model_output_directory(model_function, settings)</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    </span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="co"># Initialize performance tracking</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>    performance_metrics <span class="op">=</span> initialize_performance_tracking()</span>
+<span id="cb14-9"><a href="#cb14-9"></a>    </span>
+<span id="cb14-10"><a href="#cb14-10"></a>    <span class="co"># Run cross-validation loop</span></span>
+<span id="cb14-11"><a href="#cb14-11"></a>    <span class="cf">for</span> fold_id <span class="kw">in</span> <span class="bu">range</span>(settings.nfold):</span>
+<span id="cb14-12"><a href="#cb14-12"></a>        <span class="co"># Split data for this fold  </span></span>
+<span id="cb14-13"><a href="#cb14-13"></a>        train_data, test_data <span class="op">=</span> split_data_by_fold(dfsel, fold_id)</span>
+<span id="cb14-14"><a href="#cb14-14"></a>        </span>
+<span id="cb14-15"><a href="#cb14-15"></a>        <span class="co"># Train and test model</span></span>
+<span id="cb14-16"><a href="#cb14-16"></a>        fold_results <span class="op">=</span> train_test_model(train_data, test_data, model_function)</span>
+<span id="cb14-17"><a href="#cb14-17"></a>        </span>
+<span id="cb14-18"><a href="#cb14-18"></a>        <span class="co"># Store performance metrics</span></span>
+<span id="cb14-19"><a href="#cb14-19"></a>        performance_metrics.append(fold_results)</span>
+<span id="cb14-20"><a href="#cb14-20"></a>    </span>
+<span id="cb14-21"><a href="#cb14-21"></a>    <span class="cf">return</span> performance_metrics, diagnostic_plots</span></code></pre></div>
+<p>This function manages the entire evaluation protocol while maintaining clean separation between training and testing data.</p>
+<h3 id="spatial-cross-validation-implementation">Spatial Cross-Validation Implementation</h3>
+<p>The system uses the preprocessing module to create spatially-aware folds:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Generate spatial cross-validation folds (from preprocessing.py)</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>dfsel <span class="op">=</span> gen_kfold(</span>
+<span id="cb15-3"><a href="#cb15-3"></a>    dfsel, </span>
+<span id="cb15-4"><a href="#cb15-4"></a>    nfold<span class="op">=</span>settings.nfold, </span>
+<span id="cb15-5"><a href="#cb15-5"></a>    label_nfold<span class="op">=</span><span class="st">&#39;nfold&#39;</span>,</span>
+<span id="cb15-6"><a href="#cb15-6"></a>    id_unique<span class="op">=</span>[<span class="st">&#39;x&#39;</span>, <span class="st">&#39;y&#39;</span>],  <span class="co"># Group by spatial location</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>    precision_unique<span class="op">=</span><span class="fl">0.01</span>   <span class="co"># 1cm precision for grouping</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a>)</span></code></pre></div>
+<p>This ensures that samples from the same location are kept together in the same fold, preventing spatial data leakage.</p>
+<h3 id="model-training-integration">Model Training Integration</h3>
+<p>The evaluation system seamlessly integrates with all the modeling approaches from previous chapters:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Train different model types</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="cf">if</span> model_function <span class="op">==</span> <span class="st">&#39;blr-gp&#39;</span>:</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="co"># Train Bayesian Linear Regression mean function</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    blr_model <span class="op">=</span> blr.blr_train(X_train, y_train)</span>
+<span id="cb16-5"><a href="#cb16-5"></a>    blr_predictions <span class="op">=</span> blr.blr_predict(X_test, blr_model)</span>
+<span id="cb16-6"><a href="#cb16-6"></a>    </span>
+<span id="cb16-7"><a href="#cb16-7"></a>    <span class="co"># Add Gaussian Process for spatial modeling  </span></span>
+<span id="cb16-8"><a href="#cb16-8"></a>    gp_predictions <span class="op">=</span> gp.train_predict_3D(coordinates, residuals, gp_params)</span>
+<span id="cb16-9"><a href="#cb16-9"></a>    final_predictions <span class="op">=</span> blr_predictions <span class="op">+</span> gp_predictions</span>
+<span id="cb16-10"><a href="#cb16-10"></a></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="cf">elif</span> model_function <span class="op">==</span> <span class="st">&#39;rf-gp&#39;</span>:</span>
+<span id="cb16-12"><a href="#cb16-12"></a>    <span class="co"># Train Random Forest mean function</span></span>
+<span id="cb16-13"><a href="#cb16-13"></a>    rf_model <span class="op">=</span> rf.rf_train(X_train, y_train)</span>
+<span id="cb16-14"><a href="#cb16-14"></a>    rf_predictions <span class="op">=</span> rf.rf_predict(X_test, rf_model)</span>
+<span id="cb16-15"><a href="#cb16-15"></a>    </span>
+<span id="cb16-16"><a href="#cb16-16"></a>    <span class="co"># Add Gaussian Process spatial refinement</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>    gp_predictions <span class="op">=</span> gp.train_predict_3D(coordinates, residuals, gp_params)</span>
+<span id="cb16-18"><a href="#cb16-18"></a>    final_predictions <span class="op">=</span> rf_predictions <span class="op">+</span> gp_predictions</span></code></pre></div>
+<p>This allows direct comparison of all the modeling techniques you’ve learned.</p>
+<h3 id="comprehensive-metric-calculation">Comprehensive Metric Calculation</h3>
+<p>The system calculates multiple performance metrics to give you a complete picture:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># Calculate comprehensive performance metrics</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>residuals <span class="op">=</span> y_pred <span class="op">-</span> y_test</span>
+<span id="cb17-3"><a href="#cb17-3"></a>rmse <span class="op">=</span> np.sqrt(np.mean(residuals<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb17-4"><a href="#cb17-4"></a>nrmse <span class="op">=</span> rmse <span class="op">/</span> y_test.std()  <span class="co"># Normalized RMSE</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>r2 <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> np.mean(residuals<span class="op">**</span><span class="dv">2</span>) <span class="op">/</span> np.mean((y_test <span class="op">-</span> y_test.mean())<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb17-6"><a href="#cb17-6"></a></span>
+<span id="cb17-7"><a href="#cb17-7"></a><span class="co"># Uncertainty calibration (should be ~1.0 for well-calibrated uncertainties)</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>theta <span class="op">=</span> np.mean(residuals<span class="op">**</span><span class="dv">2</span> <span class="op">/</span> ypred_std<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb17-9"><a href="#cb17-9"></a></span>
+<span id="cb17-10"><a href="#cb17-10"></a><span class="co"># Statistical significance of performance</span></span>
+<span id="cb17-11"><a href="#cb17-11"></a>rmse_confidence_interval <span class="op">=</span> calculate_rmse_uncertainty(residuals, n_folds)</span></code></pre></div>
+<p>These metrics provide both point estimates and confidence intervals for model performance.</p>
+<h3 id="automated-diagnostic-generation">Automated Diagnostic Generation</h3>
+<p>The system automatically creates comprehensive diagnostic visualizations:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># Generate prediction vs. truth plots with uncertainty bars</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>plt.errorbar(y_test, y_pred, ypred_std, </span>
+<span id="cb18-3"><a href="#cb18-3"></a>            linestyle<span class="op">=</span><span class="st">&#39;None&#39;</span>, marker<span class="op">=</span><span class="st">&#39;o&#39;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb18-4"><a href="#cb18-4"></a>plt.xlabel(<span class="st">&#39;True Values&#39;</span>)</span>
+<span id="cb18-5"><a href="#cb18-5"></a>plt.ylabel(<span class="st">&#39;Predicted Values&#39;</span>)</span>
+<span id="cb18-6"><a href="#cb18-6"></a>plt.savefig(<span class="st">&#39;pred_vs_true.png&#39;</span>)</span>
+<span id="cb18-7"><a href="#cb18-7"></a></span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="co"># Create spatial residual maps</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a>plt.scatter(test_coordinates[<span class="st">&#39;x&#39;</span>], test_coordinates[<span class="st">&#39;y&#39;</span>], </span>
+<span id="cb18-10"><a href="#cb18-10"></a>           c<span class="op">=</span>residuals, cmap<span class="op">=</span><span class="st">&#39;RdBu_r&#39;</span>)</span>
+<span id="cb18-11"><a href="#cb18-11"></a>plt.colorbar(label<span class="op">=</span><span class="st">&#39;Prediction Error&#39;</span>)</span>
+<span id="cb18-12"><a href="#cb18-12"></a>plt.savefig(<span class="st">&#39;residual_map.png&#39;</span>)</span>
+<span id="cb18-13"><a href="#cb18-13"></a></span>
+<span id="cb18-14"><a href="#cb18-14"></a><span class="co"># Plot residual distributions for normality checking</span></span>
+<span id="cb18-15"><a href="#cb18-15"></a>plt.hist(residuals, bins<span class="op">=</span><span class="dv">30</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb18-16"><a href="#cb18-16"></a>plt.xlabel(<span class="st">&#39;Prediction Residuals&#39;</span>)</span>
+<span id="cb18-17"><a href="#cb18-17"></a>plt.savefig(<span class="st">&#39;residual_distribution.png&#39;</span>)</span></code></pre></div>
+<p>These visualizations help you identify patterns in model performance and potential areas for improvement.</p>
+<h3 id="model-ranking-system">Model Ranking System</h3>
+<p>The system automatically ranks models based on multiple criteria:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># Rank models by different performance metrics</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>models_by_accuracy <span class="op">=</span> <span class="bu">sorted</span>(model_results, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">&#39;nRMSE&#39;</span>])</span>
+<span id="cb19-3"><a href="#cb19-3"></a>models_by_correlation <span class="op">=</span> <span class="bu">sorted</span>(model_results, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">&#39;R2&#39;</span>], reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-4"><a href="#cb19-4"></a>models_by_calibration <span class="op">=</span> <span class="bu">sorted</span>(model_results, key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">abs</span>(x[<span class="st">&#39;Theta&#39;</span>] <span class="op">-</span> <span class="fl">1.0</span>))</span>
+<span id="cb19-5"><a href="#cb19-5"></a></span>
+<span id="cb19-6"><a href="#cb19-6"></a><span class="co"># Print comprehensive ranking report</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a><span class="bu">print</span>(<span class="st">&quot;Models ranked by accuracy (nRMSE):&quot;</span>)</span>
+<span id="cb19-8"><a href="#cb19-8"></a><span class="cf">for</span> i, model <span class="kw">in</span> <span class="bu">enumerate</span>(models_by_accuracy):</span>
+<span id="cb19-9"><a href="#cb19-9"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="sc">{i</span><span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>model[<span class="st">&#39;name&#39;</span>]<span class="sc">}</span><span class="ss">: nRMSE=</span><span class="sc">{</span>model[<span class="st">&#39;nRMSE&#39;</span>]<span class="sc">:.3f}</span><span class="ss"> ±</span><span class="sc">{</span>model[<span class="st">&#39;nRMSE_std&#39;</span>]<span class="sc">:.3f}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p>This ranking system helps you choose the best model for your specific needs and dataset characteristics.</p>
+<h2 id="benefits-for-agricultural-decision-making">Benefits for Agricultural Decision Making</h2>
+<p>Model Evaluation and Cross-Validation provides essential capabilities that transform soil modeling from academic exercise into practical decision-support:</p>
+<ul>
+<li><strong>Honest Performance Assessment</strong>: Know exactly how accurate your models really are, not how accurate they appear on training data</li>
+<li><strong>Spatial Reliability Mapping</strong>: Understand where your models work well and where they struggle across your landscape<br />
+</li>
+<li><strong>Uncertainty Validation</strong>: Verify that confidence intervals actually reflect real prediction reliability</li>
+<li><strong>Model Selection Guidance</strong>: Choose the optimal modeling approach for your specific dataset and objectives</li>
+<li><strong>Risk-Aware Planning</strong>: Make informed decisions about where additional soil sampling would be most valuable</li>
+<li><strong>Stakeholder Communication</strong>: Provide credible performance metrics to farmers, advisors, and regulatory agencies</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Model Evaluation and Cross-Validation represents the culmination of your journey through AgReFed-ML’s soil modeling capabilities. Like having a rigorous certification process that ensures your models are ready for real-world agricultural applications, this system provides the honest, comprehensive assessment needed to transform sophisticated machine learning research into practical decision-support tools.</p>
+<p>By combining spatial cross-validation protocols, comprehensive performance metrics, diagnostic visualizations, and systematic model comparison, the evaluation system ensures that you can confidently choose and deploy the best possible approach for your specific agricultural modeling needs. Whether you’re mapping soil carbon for precision agriculture, tracking changes for carbon credit programs, or predicting soil moisture for irrigation management, you now have the tools to build, test, and validate models with scientific rigor.</p>
+<p>Through this comprehensive tutorial, you’ve learned how to combine data preprocessing, mean function modeling, Gaussian processes, uncertainty quantification, spatial-temporal analysis, synthetic data generation, and rigorous evaluation into a complete soil modeling workflow. These tools provide the foundation for transforming agricultural decision-making from intuition-based to evidence-based, helping farmers and land managers optimize their practices while maintaining appropriate confidence in their soil property estimates.</p>
+<hr />
+</body>
+</html>
