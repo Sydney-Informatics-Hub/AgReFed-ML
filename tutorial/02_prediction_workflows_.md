@@ -1,6 +1,6 @@
 # Chapter 2: Prediction Workflows
 
-Now that you've learned how [Notebook-Based Workflows](01_notebook_based_workflows_.html) provide structured, step-by-step guides for agricultural machine learning, it's time to explore the engine that powers these workflows: **Prediction Workflows**.
+Now that you've learned how [Notebook-Based Workflows](01_notebook_based_workflows_.md) provide structured, step-by-step guides for agricultural machine learning, it's time to explore the engine that powers these workflows: **Prediction Workflows**.
 
 Think of this relationship like a cookbook and kitchen equipment. The notebook-based workflows are your recipe cards that guide you through each step, while prediction workflows are the specialized kitchen tools - your food processor, stand mixer, and precision thermometer - that actually do the heavy lifting to create your final dish.
 
@@ -143,7 +143,7 @@ Let's break this down:
 
 2. **Preprocessing**: The [Data Preprocessing Pipeline](03_data_preprocessing_pipeline.md) cleans your data, handles outliers, and prepares features for modeling.
 
-3. **Model Training**: Depending on your choice, the system trains either [Mean Function Models](04_mean_function_models___.html) (like Random Forest) or [Gaussian Process Models](05_gaussian_process_models.md) to learn relationships between soil properties and environmental factors.
+3. **Model Training**: Depending on your choice, the system trains either [Mean Function Models](04_mean_function_models___.md) (like Random Forest) or [Gaussian Process Models](05_gaussian_process_models.md) to learn relationships between soil properties and environmental factors.
 
 4. **Spatial Prediction**: The trained model generates predictions across your study area, using the [Spatial-Temporal Modeling Framework](07_spatial_temporal_modeling_framework.md) to handle geographic relationships.
 
@@ -233,5 +233,3 @@ Prediction Workflows are the specialized engines that power AgReFed-ML's soil mo
 Whether you need a single snapshot of soil conditions, want to track changes over time, or require dynamic spatial-temporal predictions, there's a workflow designed specifically for your needs. The workflows handle all the complex data processing, model training, and spatial prediction generation automatically, while giving you complete control over the modeling approach through simple configuration files.
 
 Ready to dive deeper into how your data gets prepared for these workflows? The next chapter covers the [Data Preprocessing Pipeline](03_data_preprocessing_pipeline.md), where we'll explore how AgReFed-ML transforms your raw soil measurements into analysis-ready datasets.
-
----

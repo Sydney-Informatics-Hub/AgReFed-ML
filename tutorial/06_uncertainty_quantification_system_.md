@@ -349,5 +349,3 @@ The Uncertainty Quantification System is what transforms AgReFed-ML from a simpl
 By combining measurement uncertainties from your soil samples, model uncertainties from the machine learning algorithms, and spatial uncertainties based on sample coverage, the system provides comprehensive confidence intervals that enable risk-aware agricultural decision making.
 
 These uncertainty-aware predictions become the foundation for more sophisticated spatial-temporal modeling covered in the next chapter. Ready to explore how AgReFed-ML handles predictions that vary across both space and time while maintaining accurate uncertainty estimates? The next chapter covers the [Spatial-Temporal Modeling Framework](07_spatial_temporal_modeling_framework.md), where you'll learn how the system models soil properties that change across landscapes and through time.
-
----

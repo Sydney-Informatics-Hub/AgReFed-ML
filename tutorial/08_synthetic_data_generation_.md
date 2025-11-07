@@ -6,7 +6,7 @@ Think of this relationship like the difference between test-driving a car on pub
 
 ## What Problem Does Synthetic Data Generation Solve?
 
-Imagine you've just developed a sophisticated soil organic carbon model using all the techniques from previous chapters - [Mean Function Models](04_mean_function_models___.html), [Gaussian Process Models](05_gaussian_process_models.md), and [Spatial-Temporal Modeling Framework](07_spatial_temporal_modeling_framework.md). Now you need to answer critical questions:
+Imagine you've just developed a sophisticated soil organic carbon model using all the techniques from previous chapters - [Mean Function Models](04_mean_function_models___.md), [Gaussian Process Models](05_gaussian_process_models.md), and [Spatial-Temporal Modeling Framework](07_spatial_temporal_modeling_framework.md). Now you need to answer critical questions:
 
 - **Is my model working correctly?** How do you know if your 2.3% carbon prediction is accurate when you don't know the true value?
 - **Where does my model fail?** Which environmental conditions or spatial patterns cause poor predictions?
@@ -421,8 +421,6 @@ Synthetic Data Generation provides essential capabilities for developing robust 
 
 Synthetic Data Generation transforms model development from educated guesswork into rigorous scientific testing. Like having a professional flight simulator for training pilots, it provides a controlled environment where you can test every aspect of your soil modeling pipeline with complete knowledge of what the correct results should be.
 
-By creating artificial datasets with known relationships, realistic spatial patterns, and controllable complexity, the system enables systematic testing and validation of all the sophisticated techniques you've learned: [Mean Function Models](04_mean_function_models___.html), [Gaussian Process Models](05_gaussian_process_models.md), [Uncertainty Quantification](06_uncertainty_quantification_system.md), and [Spatial-Temporal Modeling](07_spatial_temporal_modeling_framework.md).
+By creating artificial datasets with known relationships, realistic spatial patterns, and controllable complexity, the system enables systematic testing and validation of all the sophisticated techniques you've learned: [Mean Function Models](04_mean_function_models___.md), [Gaussian Process Models](05_gaussian_process_models.md), [Uncertainty Quantification](06_uncertainty_quantification_system.md), and [Spatial-Temporal Modeling](07_spatial_temporal_modeling_framework.md).
 
 These rigorously tested models become the foundation for comprehensive performance evaluation on real data. Ready to explore how AgReFed-ML systematically evaluates model accuracy and reliability? The next chapter covers [Model Evaluation and Cross-Validation](09_model_evaluation_and_cross_validation.md), where you'll learn how the system provides honest assessments of model performance and helps you choose the best approaches for your specific agricultural applications.
-
----

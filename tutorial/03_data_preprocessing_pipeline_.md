@@ -406,6 +406,4 @@ The Data Preprocessing Pipeline is the essential foundation that makes all other
 
 By handling coordinate transformations, depth calculations, categorical encoding, and cross-validation setup automatically, the pipeline eliminates the tedious data preparation work that often consumes 80% of a machine learning project's time. This lets you focus on the interesting parts: understanding your soil data and generating actionable insights.
 
-Now that your data is perfectly prepped and ready to use, you can move on to the actual modeling techniques. The next chapter covers [Mean Function Models](04_mean_function_models___.html), where you'll learn about the machine learning algorithms that learn the primary relationships between soil properties and environmental factors.
-
----
+Now that your data is perfectly prepped and ready to use, you can move on to the actual modeling techniques. The next chapter covers [Mean Function Models](04_mean_function_models___.md), where you'll learn about the machine learning algorithms that learn the primary relationships between soil properties and environmental factors.

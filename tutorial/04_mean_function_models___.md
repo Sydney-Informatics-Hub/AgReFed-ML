@@ -342,5 +342,3 @@ Mean Function Models are the essential first step in AgReFed-ML's two-stage pred
 Whether you choose the systematic approach of Bayesian Linear Regression or the pattern-recognition power of Random Forest, these models transform your limited soil samples into comprehensive baseline maps across your entire study area. They identify which environmental factors matter most and provide honest estimates of prediction uncertainty.
 
 These baseline estimates become the foundation for the next stage of modeling sophistication. Ready to see how AgReFed-ML refines these initial sketches into detailed masterpieces? The next chapter covers [Gaussian Process Models](05_gaussian_process_models.md), where we'll explore how the system adds spatial relationships and fine-scale details to create the most accurate possible soil property maps.
-
----

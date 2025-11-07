@@ -6,7 +6,7 @@ Think of this relationship like the difference between practicing for your drive
 
 ## What Problem Does Model Evaluation and Cross-Validation Solve?
 
-Imagine you've spent months developing a sophisticated soil organic carbon model using all the techniques from previous chapters. You've trained [Mean Function Models](04_mean_function_models___.html), added [Gaussian Process Models](05_gaussian_process_models.md), incorporated [Uncertainty Quantification](06_uncertainty_quantification_system.md), and even tested with [Synthetic Data](08_synthetic_data_generation.md). Now you need to answer the most important question of all:
+Imagine you've spent months developing a sophisticated soil organic carbon model using all the techniques from previous chapters. You've trained [Mean Function Models](04_mean_function_models___.md), added [Gaussian Process Models](05_gaussian_process_models.md), incorporated [Uncertainty Quantification](06_uncertainty_quantification_system.md), and even tested with [Synthetic Data](08_synthetic_data_generation.md). Now you need to answer the most important question of all:
 
 **"How good is my model really, and can I trust it to make expensive agricultural decisions?"**
 
@@ -419,5 +419,3 @@ Model Evaluation and Cross-Validation represents the culmination of your journey
 By combining spatial cross-validation protocols, comprehensive performance metrics, diagnostic visualizations, and systematic model comparison, the evaluation system ensures that you can confidently choose and deploy the best possible approach for your specific agricultural modeling needs. Whether you're mapping soil carbon for precision agriculture, tracking changes for carbon credit programs, or predicting soil moisture for irrigation management, you now have the tools to build, test, and validate models with scientific rigor.
 
 Through this comprehensive tutorial, you've learned how to combine data preprocessing, mean function modeling, Gaussian processes, uncertainty quantification, spatial-temporal analysis, synthetic data generation, and rigorous evaluation into a complete soil modeling workflow. These tools provide the foundation for transforming agricultural decision-making from intuition-based to evidence-based, helping farmers and land managers optimize their practices while maintaining appropriate confidence in their soil property estimates.
-
----

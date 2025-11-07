@@ -1,12 +1,12 @@
 # Chapter 5: Gaussian Process Models
 
-Now that you've learned how [Mean Function Models](04_mean_function_models___.html) create baseline soil property estimates across your study area, it's time to explore the mathematical heart of AgReFed-ML: **Gaussian Process Models**.
+Now that you've learned how [Mean Function Models](04_mean_function_models___.md) create baseline soil property estimates across your study area, it's time to explore the mathematical heart of AgReFed-ML: **Gaussian Process Models**.
 
-Think of this relationship like transforming a rough pencil sketch into a detailed oil painting. The [Mean Function Models](04_mean_function_models___.html) are like skilled sketch artists who quickly capture the main shapes and proportions of your soil landscape. But Gaussian Process Models are like master painters who take that sketch and add all the fine details, subtle transitions, and spatial relationships that make the final artwork truly realistic and beautiful.
+Think of this relationship like transforming a rough pencil sketch into a detailed oil painting. The [Mean Function Models](04_mean_function_models___.md) are like skilled sketch artists who quickly capture the main shapes and proportions of your soil landscape. But Gaussian Process Models are like master painters who take that sketch and add all the fine details, subtle transitions, and spatial relationships that make the final artwork truly realistic and beautiful.
 
 ## What Problem Do Gaussian Process Models Solve?
 
-Imagine you're trying to create a detailed soil organic carbon map for a 1,000-hectare farm, but you only have soil measurements from 50 scattered locations. Your [Mean Function Models](04_mean_function_models___.html) have given you good baseline estimates everywhere, but you notice some problems:
+Imagine you're trying to create a detailed soil organic carbon map for a 1,000-hectare farm, but you only have soil measurements from 50 scattered locations. Your [Mean Function Models](04_mean_function_models___.md) have given you good baseline estimates everywhere, but you notice some problems:
 
 - **Missing spatial patterns**: The baseline map doesn't capture the smooth transitions you'd expect between nearby locations
 - **Ignores local correlations**: A high carbon measurement at one location should influence predictions at nearby locations, but the baseline model treats each prediction independently
@@ -328,10 +328,8 @@ Gaussian Process Models provide crucial capabilities that make AgReFed-ML's soil
 
 ## Conclusion
 
-Gaussian Process Models transform AgReFed-ML from a simple prediction system into a sophisticated spatial modeling framework. Like master artists adding fine details and spatial relationships to a basic sketch, GPs take the baseline estimates from [Mean Function Models](04_mean_function_models___.html) and enhance them with realistic spatial structure and honest uncertainty quantification.
+Gaussian Process Models transform AgReFed-ML from a simple prediction system into a sophisticated spatial modeling framework. Like master artists adding fine details and spatial relationships to a basic sketch, GPs take the baseline estimates from [Mean Function Models](04_mean_function_models___.md) and enhance them with realistic spatial structure and honest uncertainty quantification.
 
 By learning the spatial correlation patterns specific to your soil dataset, GPs ensure that your final soil property maps have smooth, realistic transitions between locations while providing confidence intervals that accurately reflect where you have good data coverage versus where predictions are more uncertain.
 
 These spatially-enhanced predictions become the foundation for the comprehensive uncertainty analysis covered in the next chapter. Ready to explore how AgReFed-ML quantifies and communicates the reliability of these sophisticated spatial predictions? The next chapter covers the [Uncertainty Quantification System](06_uncertainty_quantification_system.md), where you'll learn how the system helps you understand and communicate the reliability of your soil predictions to stakeholders and decision-makers.
-
----

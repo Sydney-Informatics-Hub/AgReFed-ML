@@ -39,23 +39,22 @@ flowchart TD
 ## Chapters
 
 1. [Notebook-Based Workflows
-](01_notebook_based_workflows_.html)
+](01_notebook_based_workflows_.md)
 2. [Prediction Workflows
-](02_prediction_workflows_.html)
+](02_prediction_workflows_.md)
 3. [Data Preprocessing Pipeline
-](03_data_preprocessing_pipeline_.html)
+](03_data_preprocessing_pipeline_.md)
 4. [Mean Function Models  
-](04_mean_function_models___.html)
+](04_mean_function_models___.md)
 5. [Gaussian Process Models
-](05_gaussian_process_models_.html)
+](05_gaussian_process_models_.md)
 6. [Uncertainty Quantification System
-](06_uncertainty_quantification_system_.html)
+](06_uncertainty_quantification_system_.md)
 7. [Spatial-Temporal Modeling Framework
-](07_spatial_temporal_modeling_framework_.html)
+](07_spatial_temporal_modeling_framework_.md)
 8. [Synthetic Data Generation
-](08_synthetic_data_generation_.html)
+](08_synthetic_data_generation_.md)
 9. [Model Evaluation and Cross-Validation
-](09_model_evaluation_and_cross_validation_.html)
+](09_model_evaluation_and_cross_validation_.md)
 
 
----

@@ -205,4 +205,3 @@ These workflows serve as your foundation for all AgReFed-ML analyses. Once you'r
 
 Ready to dive deeper into the mechanics? The next chapter covers [Prediction Workflows](02_prediction_workflows.md), where we'll explore how the system actually generates those soil property maps and uncertainty estimates.
 
----

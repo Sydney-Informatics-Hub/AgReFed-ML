@@ -169,7 +169,7 @@ def process_temporal_coordinates(data):
 This allows the GP model to treat time as a spatial dimension and learn temporal correlations.
 
 ### 2. **Mean Function Training Across Time**
-The framework trains [Mean Function Models](04_mean_function_models___.html) that understand temporal patterns:
+The framework trains [Mean Function Models](04_mean_function_models___.md) that understand temporal patterns:
 
 ```python
 # Add temporal features to environmental covariates
@@ -325,8 +325,7 @@ The Spatial-Temporal Modeling Framework provides essential capabilities for time
 
 The Spatial-Temporal Modeling Framework represents the pinnacle of AgReFed-ML's predictive capabilities. Like having a sophisticated 4D weather forecasting system for soil properties, it enables you to understand and predict how soil conditions vary across your landscape and through time.
 
-By combining the baseline predictions from [Mean Function Models](04_mean_function_models___.html), the spatial sophistication of [Gaussian Process Models](05_gaussian_process_models.md), and the uncertainty awareness of the [Uncertainty Quantification System](06_uncertainty_quantification_system.md), the framework creates smooth, realistic time-series predictions that honor both the spatial structure of your landscape and the temporal dynamics of agricultural systems.
+By combining the baseline predictions from [Mean Function Models](04_mean_function_models___.md), the spatial sophistication of [Gaussian Process Models](05_gaussian_process_models.md), and the uncertainty awareness of the [Uncertainty Quantification System](06_uncertainty_quantification_system.md), the framework creates smooth, realistic time-series predictions that honor both the spatial structure of your landscape and the temporal dynamics of agricultural systems.
 
 These dynamic, uncertainty-aware predictions become the foundation for generating realistic training datasets and testing scenarios. Ready to explore how AgReFed-ML can create synthetic soil data that captures all these spatial-temporal relationships? The next chapter covers [Synthetic Data Generation](08_synthetic_data_generation.md), where you'll learn how the system can generate realistic soil datasets for testing models, filling data gaps, and training machine learning algorithms.
 
----
