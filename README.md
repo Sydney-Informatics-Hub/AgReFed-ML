@@ -147,6 +147,14 @@ This workflow generates soil moisture prediction maps (for top-soil layer) and t
 </figure> 
 
 
+## Extension** 
+  
+For combining predictions from multiple independent GPR models with cross-correlation
+handling, see **[GPR-Gypsum](https://github.com/Sydney-Informatics-Hub/GPR-Gypsum)** - implements post-hoc
+probabilistic fusion for calculating derived quantities (e.g., soil gypsum requirements) from correlated
+predictions.
+
+
 ## Contributions
 We are happy for any contribution to this project, whether feedbacks and bug reports via github Issues, adding use-case examples via notebook contributions, to improving source-code and adding new data examles.
 
